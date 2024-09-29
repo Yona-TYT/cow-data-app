@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_loing"
+    tools:context=".ViewActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="363dp"
+        android:layout_height="275dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/layout2"
+        android:layout_width="wrap_content"
+        android:layout_height="82dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="67dp"
+        android:layout_marginEnd="46dp"
+        android:layout_marginBottom="47dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.24">
+
+        <!-- Here are the existing layout elements, now wrapped in
+         a CoordinatorLayout. -->
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <TextView
+        android:id="@+id/txView1"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="10dp"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.025" />
+
+    <TextView
+        android:id="@+id/txView3"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txView2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txView2"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txView1"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txMore2"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:background="@color/text_background"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txMore1"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txMore4"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:background="@color/text_background"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txMore3"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txMore3"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:background="@color/text_background"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txMore2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txMore5"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:background="@color/text_background"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txMore4"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txMore1"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:background="@color/text_background"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:padding="5dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txView4"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txView4"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewLongH"
+        android:layout_marginTop="5dp"
+        android:text="@string/textVacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txView3"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+    <Button
+        android:id="@+id/buttEdit"
+        android:layout_width="@dimen/buttViewW"
+        android:layout_height="@dimen/buttViewH"
+        android:layout_marginTop="188dp"
+        android:text="@string/buttEdit"
+        android:textColor="@color/inner_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.527"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txView4" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="left" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="left" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="16dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

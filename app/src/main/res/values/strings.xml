@@ -1,0 +1,30 @@
+<resources>
+    <!-- Credenciales APP -->
+    <string name="app_name">Cow Data</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="developer">Yonatan Mejia</string>
+    <string name="desarrollo">Desarrollado por:</string>
+    <string name="version">v1.0.0</string>
+    <string name="lbl_usuario">Usuario</string>
+    <string name="lbl_password">Contraseña</string>
+    <string name="txt_password">Ingrese Contraseña</string>
+    <string name="btn_ingresar">Ingresar</string>
+    <string name="txt_usuario">Imgrese Usuario</string>
+    <string name="lbl_crear_cuenta">No tienes Cuenta?, Registrarme.</string>
+    <string name="btagregar">Agregar</string>
+    <string name="txtingrese">Ingrese Texto</string>
+    <string name="title_activity_view_detail_host">ViewDetailHostActivity</string>
+    <string name="title_view_list">Items</string>
+    <string name="title_view_detail">View Detail</string>
+    <string name="buttEdit">Editar</string>
+    <string name="textVacio">Vacio</string>
+    <string name="hola">hola</string>
+    <string name="title_activity_img_fullscreen">ImgFullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="more">Ingrese Dato Adicional</string>
+    <!-- Credenciales APP -->
+
+</resources>

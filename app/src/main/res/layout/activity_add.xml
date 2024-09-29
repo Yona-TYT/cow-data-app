@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_loing"
+    tools:context=".AddActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="30dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="30dp" />
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/InputData1"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewAddH"
+        android:textSize="@dimen/textViewAdd"
+        android:layout_marginTop="4dp"
+        android:hint="Ingrese Nombre"
+        android:imeOptions="actionNext"
+        android:inputType="textCapWords"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toTopOf="@+id/guideline6" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/InputData2"
+        android:layout_width="@dimen/textViewLongW"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginTop="10dp"
+        android:hint="Ingrese Color"
+        android:inputType="textCapWords"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewAdd"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData1"
+        tools:ignore="MissingConstraints" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/InputData3"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginTop="10dp"
+        android:hint="Ingrese Litros"
+        android:inputType="number"
+        android:maxLength="10"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewAdd"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData2"
+        tools:ignore="MissingConstraints" />
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/inputData4"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginTop="10dp"
+        android:hint="Ingrese Edad"
+        android:inputType="number"
+        android:maxLength="10"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewAdd"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData3"
+        tools:ignore="MissingConstraints" />
+
+    <Spinner
+        android:id="@+id/spinAddEdad"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="25dp"
+        android:layout_marginTop="65dp"
+        android:textSize="@dimen/textViewLong"
+        app:layout_constraintBottom_toTopOf="@+id/buttCam"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintStart_toEndOf="@+id/inputData4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="169dp"
+        android:layout_height="20dp"
+        android:layout_marginBottom="404dp"
+        android:text="Imagen / Foto:"
+        android:textSize="@dimen/textView"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.038"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData3"
+        app:layout_constraintVertical_bias="0.962" />
+
+    <ImageButton
+        android:id="@+id/buttCam"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="390dp"
+        android:backgroundTint="@color/float_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/inputData4"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+    <ImageView
+        android:id="@+id/imgPrev"
+        android:layout_width="122dp"
+        android:layout_height="122dp"
+        android:layout_marginBottom="236dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        app:layout_constraintVertical_bias="0.509"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <Button
+        android:id="@+id/buttAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btagregar"
+        android:textSize="20sp"
+        android:textColor="@color/inner_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.474"
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/imgPrev"
+        app:layout_constraintVertical_bias="0.157" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="82dp" />
+
+    <TextView
+        android:id="@+id/texCode"
+        android:layout_width="187dp"
+        android:layout_height="136dp"
+        android:text=""
+        tools:layout_editor_absoluteX="169dp"
+        tools:layout_editor_absoluteY="351dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="92dp"
+        android:layout_marginBottom="28dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttAdd"
+        tools:layout_editor_absoluteX="16dp">
+
+        <!-- ...Toolbar, other layouts, other elements... -->
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/layout1"
+            android:layout_width="411dp"
+            android:layout_height="59dp">
+
+            <!-- Here are the existing layout elements, now wrapped in
+             a CoordinatorLayout. -->
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_loing"
+    tools:context=".MoreActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit3"
+        android:layout_width="320dp"
+        android:layout_height="@dimen/textViewAddH"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit2"
+        app:layout_constraintVertical_bias="0.028" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit6"
+        android:layout_width="320dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="232dp"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit5"
+        app:layout_constraintVertical_bias="0.213" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit5"
+        android:layout_width="320dp"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginEnd="4dp"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit4"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit4"
+        android:layout_width="320dp"
+        android:layout_height="@dimen/textViewAddH"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit3"
+        app:layout_constraintVertical_bias="0.062" />
+
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit2"
+        android:layout_width="320dp"
+        android:layout_height="@dimen/textViewAddH"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit1"
+        app:layout_constraintVertical_bias="0.042" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/txEdit1"
+        android:layout_width="320dp"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginEnd="4dp"
+        android:hint="@string/more"
+        android:maxLength="35"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
+        app:layout_constraintVertical_bias="0.114" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="39dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="30dp" />
+
+    <Button
+        android:id="@+id/buttOK"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="232dp"
+        android:layout_marginBottom="100dp"
+        android:text="OK"
+        android:textColor="@color/inner_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit6"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/buttCANC"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginBottom="100dp"
+        android:text="Cancelar"
+        android:textColor="@color/inner_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline13"
+        app:layout_constraintTop_toBottomOf="@+id/txEdit6"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/layout6"
+        android:layout_width="374dp"
+        android:layout_height="41dp"
+        tools:layout_editor_absoluteX="14dp"
+        tools:layout_editor_absoluteY="685dp">
+
+    <!-- Here are the existing layout elements, now wrapped in
+         a CoordinatorLayout. -->
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="352dp"
+            android:layout_height="75dp"
+            android:orientation="vertical">
+
+            <!-- ...Toolbar, other layouts, other elements... -->
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
