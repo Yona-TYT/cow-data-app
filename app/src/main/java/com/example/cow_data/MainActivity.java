@@ -27,6 +27,7 @@ import android.widget.Filter;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SearchView;
@@ -68,6 +69,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.io.FileOutputStream;
 import java.util.Objects;
@@ -83,11 +85,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ActivityMainBinding binding;
     private ExtendedFloatingActionButton mBtnNew;
-    private ListView mListView;
-    private EditText mEditText;
-    private TextView tvUsuarios;
-    private List<String> mList = new ArrayList<>();
     private CoordinatorLayout mLayout;
+    private Spinner mSpin2;
+
     private List<Usuario> listuser;
     private List<String[]> totalList = new ArrayList<>();
 
@@ -106,6 +106,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public ArrayList<String> dirList = new ArrayList<>();
     public ArrayList<String> textList = new ArrayList<>();
     //---------------------------------------------------------------------
+
+    // Para el selector de tipo gando--------------------------------------------
+    private int currSel2 = 4;
+    private List<String> mSpinL2= Arrays.asList("Vacas", "Novillas", "Becerros", "Toros", "Todos");
+    //-----------------------------------------------------------------------
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
@@ -152,27 +157,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gridView = findViewById(R.id.gcImg);
         searchBar = findViewById(R.id.searchBar);
         mlv = findViewById(R.id.lv);
+        mSpin2 = findViewById(R.id.spinType);
 
         mBtnNew.setOnClickListener(this);
         gridView.setOnItemClickListener(this);
         mlv.setOnItemClickListener(this);
-
 
         //Instancia de la base de datos
         appDatabase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
         listuser =  appDatabase.daoUser().getUsers();
         dirList.clear();
 
+        //Se agrega un indicador numerico para identificar nuevas versiones del save.csv
+        totalList.add(new String[]{"1"});
+
         List<List> mlist = new ArrayList<>();
 
+        List<Integer> selList = new ArrayList<>();
         for(int i = 0; i < listuser.size(); i++) {
             // Se definen los datos de la imagen y el nombre--------
             String tximg = listuser.get(i).imagen;
             String txname = listuser.get(i).nombre;
+            String txsel = listuser.get(i).sel2;
 
             //------------------------------------------------------
             // Se crea la lista para esportar a csv  ---------------
-            String[] txList= new String[12];
+            String[] txList= new String[13];
 
             txList[0]=listuser.get(i).usuario;
             txList[1]=txname;
@@ -180,21 +190,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             txList[3]=listuser.get(i).litros;
             txList[4]=listuser.get(i).edad;
             txList[5]=tximg;
-            txList[6]=listuser.get(i).selec;
-            txList[7]=listuser.get(i).more1;
-            txList[8]=listuser.get(i).more2;
-            txList[9]=listuser.get(i).more3;
-            txList[10]=listuser.get(i).more4;
-            txList[11]=listuser.get(i).more5;
+            txList[6]=listuser.get(i).sel1;
+            txList[7]=txsel;
+            txList[8]=listuser.get(i).more1;
+            txList[9]=listuser.get(i).more2;
+            txList[10]=listuser.get(i).more3;
+            txList[11]=listuser.get(i).more4;
+            txList[12]=listuser.get(i).more5;
 
             totalList.add(txList);
             //--------------------------------------------------------
 
-            // Se obtine la direccion de la image y el nombre
+            // Se obtine la direccion de la image,  el nombre y la listSelec
             textList.add(txname);
-            String dir = tximg;
-            if ( fmang.isBlockedPath(this, dir)) {
-                dirList.add(dir);
+            selList.add(Integer.parseInt(txsel));
+
+            if ( fmang.isBlockedPath(this, tximg)) {
+                dirList.add(tximg);
             }
             else{
                 dirList.add("");
@@ -207,7 +219,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mlv.setAdapter(mAdapter);
             mlv.setVisibility(View.INVISIBLE);
 
-            gridView.setAdapter(new GalleryAdapter(MainActivity.this, dirList, textList));
+            List<String[]> mtxList = new ArrayList<>();
+            for(int j =0; j < textList.size(); j++){
+                String[] stList= new String[2];
+                stList[0] = textList.get(j);
+                stList[1] = dirList.get(j);
+                mtxList.add(stList);
+            }
+            gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+
+            //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
+            ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
+            mSpin2.setAdapter(adapt2);
+            mSpin2.setSelection(4); //Set Todos como default
+            mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    currSel2 = i;
+                    List<String[]> mtxList = new ArrayList<>();
+                    for(int j =0; j < textList.size(); j++){
+                        if(currSel2 == 4 || currSel2 == selList.get(j)){
+                            String[] stList= new String[2];
+                            stList[0] = textList.get(j);
+                            stList[1] = dirList.get(j);
+                            mtxList.add(stList);
+                        }
+                    }
+                    gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+            //--------------------------------------------------------------------------------------------
 
             searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -221,8 +266,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (!newText.isEmpty()) {
                         mlv.setVisibility(View.VISIBLE);
                         mAdapter.getFilter().filter(newText);
-
-                    } else {
+                    }
+                    else {
                         mlv.setVisibility(View.INVISIBLE);
                     }
                     return false;
@@ -239,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    //Para Exportar archivo CSV
     @SuppressLint("SetWorldReadable")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         int itemId = item.getItemId();
         if (itemId == R.id.save) {
             try {
-
                 File file = fmang.csvExport(totalList);
                 if(file != null) {
                     Intent intent = new Intent(Intent.ACTION_SEND);
@@ -271,7 +316,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     String[] mimetype = {"text/csv", "text/comma-separated-values"};
                     mCsvRequest.launch(mimetype);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -279,6 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    //Para importar archivos CSV
     private final ActivityResultLauncher<String[]> mCsvRequest = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
             uri -> {
@@ -289,16 +336,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     try (InputStream inputStream = getContentResolver().openInputStream(uri);
                          BufferedReader reader = new BufferedReader( new InputStreamReader(Objects.requireNonNull(inputStream)))) {
                             String line;
+                            String version = "0";
                             while ((line = reader.readLine()) != null) {
                                 line = line.replaceAll("\"", "");
                                 String[] spl = line.split(",");
                                 //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ line);
                                 int f = spl.length;
-                                Usuario obj = new Usuario(
-                                        spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], (f>7?spl[7]:""),
-                                        (f>8?spl[8]:""), (f>9?spl[9]:""), (f>10?spl[10]:""), (f>11?spl[11]:"")
-                                );
-                                appDatabase.daoUser().insetUser(obj);
+                                if(f<2){
+                                    version = spl[0];
+                                    continue;
+                                }
+                                if(Objects.equals(version, "0")) {
+                                    Usuario obj = new Usuario(
+                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], "0", (f > 7 ? spl[7] : ""),
+                                            (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")
+                                    );
+                                    appDatabase.daoUser().insetUser(obj);
+                                }
+                                else if(Objects.equals(version, "1")) {
+                                    Usuario obj = new Usuario(
+                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], (f > 8 ? spl[8] : ""),
+                                            (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")
+                                    );
+                                    appDatabase.daoUser().insetUser(obj);
+                                }
 
                                 stringBuilder.append(line);
                             }
@@ -429,7 +490,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                 storageActivityResultLauncher.launch(intent);
             }
-        }else{
+        }
+        else{
             //Below android 11
             ActivityCompat.requestPermissions(
                     this,

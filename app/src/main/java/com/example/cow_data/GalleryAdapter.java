@@ -32,23 +32,21 @@ import java.util.List;
 public class GalleryAdapter extends BaseAdapter {
     //Test------------------------------------------------------------
     private Context mContex;
-    public ArrayList<String> dirList = new ArrayList<>();
-    public ArrayList<String> textList = new ArrayList<>();
+    public List<String[]>textList = new ArrayList<>();
 
-    public  GalleryAdapter(Context mContex, ArrayList<String> dirList, ArrayList<String> textList){
+    public  GalleryAdapter(Context mContex, List<String[]> textList){
         this.mContex = mContex;
-        this.dirList = dirList;
         this.textList = textList;
     }
 
     @Override
     public int getCount(){
-        return dirList.size();
+        return textList.size();
     }
 
     @Override
     public Object getItem(int pos){
-        return dirList.get(pos);
+        return textList.get(pos);
     }
 
     @Override
@@ -58,13 +56,11 @@ public class GalleryAdapter extends BaseAdapter {
 
     @Override
     public View getView(int pos, View convertView, ViewGroup parent){
-
         ImageView mimgView = new ImageView(mContex);
         TextView text = new TextView(mContex);
         LinearLayout layout = new LinearLayout(mContex);
-        String dir = dirList.get(pos);
         // Se ajustan los parametros del Texto ----------------------------------
-        text.setText(textList.get(pos));
+        text.setText(textList.get(pos)[0]);
         text.setTypeface(Typeface.DEFAULT_BOLD);
         text.setGravity(Gravity.CENTER);
         text.setTextSize(12);
@@ -74,7 +70,8 @@ public class GalleryAdapter extends BaseAdapter {
         //-----------------------------------------------------------------------
 
         // Se ajustan los parametros de las imagenes-------------------------------
-         if(!dir.isEmpty()) {
+        String dir = textList.get(pos)[1];
+        if(!dir.isEmpty()) {
              File file = new File(dir);
              boolean threis = file.exists();
              Uri mUri = null;

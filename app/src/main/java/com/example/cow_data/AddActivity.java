@@ -80,7 +80,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private EditText mInput3;
     private EditText mInput4;
 
-    private Spinner mSpin;
+    private Spinner mSpin1;
+    private Spinner mSpin2;
 
     private Button mBtnAdd;
     private CoordinatorLayout mLayout;
@@ -107,8 +108,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private   String nameDB = "";
 
     // Para el selector de edades--------------------------------------------
-    private int currSelec = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
+    private int currSel1 = 0;
+    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
+    //-----------------------------------------------------------------------
+
+    // Para el selector de tipo gando--------------------------------------------
+    private int currSel2 = 0;
+    private List<String> mSpinL2= Arrays.asList("Vacas", "Novillas", "Becerros", "Toros");
     //-----------------------------------------------------------------------
 
     @Override
@@ -153,12 +159,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInput2 = findViewById(R.id.InputData2);
         mInput3 = findViewById(R.id.InputData3);
         mInput4 = findViewById(R.id.inputData4);
-        mSpin = findViewById(R.id.spinAddEdad);
+        mSpin1 = findViewById(R.id.spinAddEdad);
+        mSpin2 = findViewById(R.id.spinType);
 
         mBtnAdd = findViewById(R.id.buttAdd);
         mLayout = findViewById(R.id.layout1);
-
-        mtextCode = findViewById(R.id.texCode);
 
         mBtnCam.setOnClickListener(this);
         mBtnAdd.setOnClickListener(this);
@@ -168,12 +173,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInputList.add(mInput3);
         mInputList.add(mInput4);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinList);
-        mSpin.setAdapter(adapter);
-        mSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
+        mSpin1.setAdapter(adapter);
+        mSpin1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currSelec = i;
+                currSel1 = i;
                 if(i == 3){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
                 }
@@ -198,6 +204,29 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
             }
         });
+        //--------------------------------------------------------------------------------------------
+
+        //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
+        ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
+        mSpin2.setAdapter(adapt2);
+        mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currSel2 = i;
+                if(i == 0){
+                    mInput3.setEnabled(true);
+                }
+                else {
+                    mInput3.setText("0");
+                    mInput3.setEnabled(false);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        //--------------------------------------------------------------------------------------------
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
@@ -255,7 +284,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 //Input de Edad
                 if(i == 3){
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        long vlresult = currSelec==3? 0 : Long.parseLong(text);
+                        long vlresult = currSel1==3? 0 : Long.parseLong(text);
 
                         //Inicia la fecha a comparra en cero
                         LocalDate date = LocalDate.of(1, 1, 1);
@@ -265,22 +294,22 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         String res= "";
 
                         //Para años
-                        if(currSelec == 0){
+                        if(currSel1 == 0){
                             LocalDate from = currdate.minusYears(vlresult);
                             res = from.toString();
                         }
                         //Para meses
-                        else if(currSelec == 1){
+                        else if(currSel1 == 1){
                             LocalDate from = currdate.minusMonths(vlresult);
                             res = from.toString();
                         }
                         //Para Dias
-                        else if(currSelec == 2){
+                        else if(currSel1 == 2){
                             LocalDate from = currdate.minusDays(vlresult);
                             res = from.toString();
                         }
                         //Para Validar Fechas completas
-                        else if(currSelec == 3){
+                        else if(currSel1 == 3){
                             String[] dateList = dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
                                 LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
@@ -316,7 +345,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         oldFile = Uri.parse(sImage);
                     }
                     else {
-                        Log.d("PhotoPicker", "Aqi hayyyyyyyyyyyyy5555----------------------------------: ");
+                        //Log.d("PhotoPicker", "Aqi hayyyyyyyyyyyyy5555----------------------------------: ");
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currUri);
                         sImage = fmang.SavePhoto(bitmap, ("userID"+mIndex), oldFile, this, this.getContentResolver());
                     }
@@ -331,7 +360,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 Usuario obj =
                         new Usuario(
                                 mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4),
-                                sImage, Integer.toString(currSelec), "" ,"" ,"" ,"" ,""
+                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), "" ,"" ,"" ,"" ,""
                             );
                 appDatabase.daoUser().insetUser(obj);
 

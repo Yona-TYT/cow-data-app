@@ -8,6 +8,18 @@
     android:background="@drawable/back_loing"
     tools:context=".AddActivity">
 
+    <Spinner
+        android:id="@+id/spinAddEdad"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="25dp"
+        android:layout_marginTop="65dp"
+        android:textSize="@dimen/textViewLong"
+        app:layout_constraintBottom_toTopOf="@+id/buttCam"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintStart_toEndOf="@+id/inputData4"
+        app:layout_constraintTop_toBottomOf="@+id/InputData2"
+        app:layout_constraintVertical_bias="0.0" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
@@ -34,7 +46,7 @@
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/InputData1"
-        android:layout_width="@dimen/textViewLongW"
+        android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
         android:textSize="@dimen/textViewAdd"
         android:layout_marginTop="4dp"
@@ -51,7 +63,7 @@
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/InputData2"
-        android:layout_width="@dimen/textViewLongW"
+        android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
         android:layout_marginTop="10dp"
         android:hint="Ingrese Color"
@@ -103,16 +115,15 @@
         tools:ignore="MissingConstraints" />
 
     <Spinner
-        android:id="@+id/spinAddEdad"
+        android:id="@+id/spinType"
         android:layout_width="@dimen/textViewW"
         android:layout_height="25dp"
-        android:layout_marginTop="65dp"
+        android:layout_marginBottom="88dp"
         android:textSize="@dimen/textViewLong"
-        app:layout_constraintBottom_toTopOf="@+id/buttCam"
+        app:layout_constraintBottom_toTopOf="@+id/spinAddEdad"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintStart_toEndOf="@+id/inputData4"
-        app:layout_constraintTop_toBottomOf="@+id/InputData2"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toEndOf="@+id/InputData1"
+        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
 
     <TextView
         android:id="@+id/textView6"
@@ -177,17 +188,10 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="82dp" />
 
-    <TextView
-        android:id="@+id/texCode"
-        android:layout_width="187dp"
-        android:layout_height="136dp"
-        android:text=""
-        tools:layout_editor_absoluteX="169dp"
-        tools:layout_editor_absoluteY="351dp" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="92dp"
+        android:layout_width="387dp"
+        android:layout_height="129dp"
         android:layout_marginBottom="28dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -198,8 +202,8 @@
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/layout1"
-            android:layout_width="411dp"
-            android:layout_height="59dp">
+            android:layout_width="match_parent"
+            android:layout_height="89dp">
 
             <!-- Here are the existing layout elements, now wrapped in
              a CoordinatorLayout. -->

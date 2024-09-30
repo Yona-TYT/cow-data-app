@@ -68,7 +68,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     public EditText mInput3;
     public EditText mInput4;
 
-    private Spinner mSpin;
+    private Spinner mSpin1;
+    private Spinner mSpin2;
 
     private List<TextView> mInputList = new ArrayList<>();
     private List<String> mList = new ArrayList<>();
@@ -95,8 +96,13 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private int currIdx = 0;
 
     // Para el selector de edades--------------------------------------------
-    private int currSelec = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
+    private int currSel1 = 0;
+    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
+    //-----------------------------------------------------------------------
+
+    // Para el selector de tipo gando--------------------------------------------
+    private int currSel2 = 0;
+    private List<String> mSpinL2= Arrays.asList("Vacas", "Novillas", "Becerros", "Toros");
     //-----------------------------------------------------------------------
 
     // Classs para la gestion de archivos
@@ -149,7 +155,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInput2 = findViewById(R.id.txEdit2);
         mInput3 = findViewById(R.id.txEdit3);
         mInput4 = findViewById(R.id.txEdit4);
-        mSpin = findViewById(R.id.spinEdad);
+        mSpin1 = findViewById(R.id.spinEdad);
+        mSpin2 = findViewById(R.id.spinType);
 
         mBtnMore = findViewById(R.id.buttMORE);
         mBtnAdd  = findViewById(R.id.buttOK);
@@ -172,12 +179,13 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInputList.add(mInput3);
         mInputList.add(mInput4);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinList);
-        mSpin.setAdapter(adapter);
-        mSpin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
+        mSpin1.setAdapter(adapter);
+        mSpin1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currSelec = i;
+                currSel1 = i;
                 if(i == 3){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
                 }
@@ -202,6 +210,29 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        //----------------------------------------------------------------------------------------------------
+
+        //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
+        ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
+        mSpin2.setAdapter(adapt2);
+        mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currSel2 = i;
+                if(i == 0){
+                    mInput3.setEnabled(true);
+                }
+                else {
+                    mInput3.setText("0");
+                    mInput3.setEnabled(false);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        //--------------------------------------------------------------------------------------------
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
@@ -216,10 +247,17 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             List<Usuario> listuser = appDatabase.daoUser().getUsers();
 
             int i = 0;
-            currSelec = Integer.parseInt(listuser.get(currIdx).selec);
-            if(currSelec == 3){
+            currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
+            currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
+            if(currSel1 == 3){
                 mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
             }
+
+            if(currSel2 != 0){
+                mInput3.setText("0");
+                mInput3.setEnabled(false);
+            }
+
             if (currIdx < listuser.size()) {
                 //Se obtiene el usuario real
                 mUser = listuser.get(currIdx).usuario;
@@ -230,11 +268,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 i++;
                 mInputList.get(i).setText(listuser.get(currIdx).litros);
                 i++;
-                mInputList.get(i).setText(dataConverted(listuser.get(currIdx).edad, currSelec));
+                mInputList.get(i).setText(dataConverted(listuser.get(currIdx).edad, currSel1));
                 i++;
                 saveImage = fmang.getImage(listuser.get(currIdx).imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
-                mSpin.setSelection(currSelec);
+                mSpin1.setSelection(currSel1);
+                mSpin2.setSelection(currSel2);
             }
         }
         else {
@@ -283,7 +322,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 //Input de Edad
                 if(i == 3){
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        long vlresult = currSelec == 3? 0 : Long.parseLong(text);
+                        long vlresult = currSel1 == 3? 0 : Long.parseLong(text);
 
                         //Inicia la fecha a comparra en cero
                         LocalDate date = LocalDate.of(1, 1, 1);
@@ -291,22 +330,22 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         LocalDate currdate = LocalDate.now();
                         String res= "";
                         //Para años
-                        if(currSelec == 0){
+                        if(currSel1 == 0){
                             LocalDate from = currdate.minusYears(vlresult);
                             res = from.toString();
                         }
                         //Para meses
-                       else if(currSelec == 1){
+                       else if(currSel1 == 1){
                             LocalDate from = currdate.minusMonths(vlresult);
                             res = from.toString();
                         }
                        //Para Dias
-                        else if(currSelec == 2){
+                        else if(currSel1 == 2){
                             LocalDate from = currdate.minusDays(vlresult);
                             res = from.toString();
                         }
                         //Para Validar Fechas completas
-                        else if(currSelec == 3){
+                        else if(currSel1 == 3){
                             String[] dateList = dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
                                 LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
@@ -359,7 +398,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 appDatabase.daoUser().updateUser(
                         mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4),
-                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSelec),
+                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSel1), Integer.toString(currSel2),
                         (max>0?morlist.get(0):""),(max>1?morlist.get(1):""),(max>2?morlist.get(2):""),(max>3?morlist.get(3):""),(max>4?morlist.get(4):"")
                 );
 

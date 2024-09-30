@@ -56,19 +56,10 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     // Para guardar los permisos de app comprobados en main
     private boolean mPermiss = false;
 
-    private String saveImage = "null";
-
     private String mIndex = "";
     private String mUser = "";
     private int currIdx = 0;
 
-    // Para el selector de edades--------------------------------------------
-    private int currSelec = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias");
-    //-----------------------------------------------------------------------
-
-    // Classs para la gestion de archivos
-    FilesManager fmang = new FilesManager();
 
     //Base de datos
     public AppDatabase appDatabase;
@@ -146,7 +137,6 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
             List<Usuario> listuser = appDatabase.daoUser().getUsers();
 
             int i = 0;
-            currSelec = Integer.parseInt(listuser.get(currIdx).selec);
             if (currIdx < listuser.size()) {
                 //Se obtiene el usuario real
                 mUser = listuser.get(currIdx).usuario;

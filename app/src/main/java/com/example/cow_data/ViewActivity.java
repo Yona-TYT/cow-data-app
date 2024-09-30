@@ -166,7 +166,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             listuser =  appDatabase.daoUser().getUsers();
 
             int i = 0;
-            currSelec = Integer.parseInt(listuser.get(currIdx).selec);
+            currSelec = Integer.parseInt(listuser.get(currIdx).sel1);
             if (currIdx < listuser.size()) {
                 mviewList.get(i).setText("Nombre:   "+listuser.get(currIdx).nombre.toUpperCase());
                 i++;
