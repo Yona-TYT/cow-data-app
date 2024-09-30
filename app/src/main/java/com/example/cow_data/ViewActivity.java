@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -177,15 +179,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                 mviewList.get(i).setText("Edad:   "+dataConverted(listuser.get(currIdx).edad, currSelec)+ " "+mSpinList.get(currSelec));
                 currDir = fmang.getImage(listuser.get(currIdx).imagen, mImageView);
                 i++;
-                setTextView(mviewList.get(i), "Otros:   ", listuser.get(currIdx).more1);
+                setTextView(mviewList.get(i), listuser.get(currIdx).more1);
                 i++;
-                setTextView(mviewList.get(i), "Otros:   ", listuser.get(currIdx).more2);
+                setTextView(mviewList.get(i), listuser.get(currIdx).more2);
                 i++;
-                setTextView(mviewList.get(i), "Otros:   ", listuser.get(currIdx).more3);
+                setTextView(mviewList.get(i), listuser.get(currIdx).more3);
                 i++;
-                setTextView(mviewList.get(i), "Otros:   ", listuser.get(currIdx).more4);
+                setTextView(mviewList.get(i), listuser.get(currIdx).more4);
                 i++;
-                setTextView(mviewList.get(i), "Otros:   ", listuser.get(currIdx).more5);
+                setTextView(mviewList.get(i), listuser.get(currIdx).more5);
             }
         }
         else {
@@ -194,13 +196,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mList.clear();
     }
 
-    private void setTextView(TextView view, String txDesc, String txValue){
+    @SuppressLint("SetTextI18n")
+    private void setTextView(TextView view, String txValue){
         if(txValue.isEmpty()){
             view.setVisibility(View.INVISIBLE);
         }
         else {
             morlist.add(txValue);
-            view.setText(txDesc + txValue);
+            String desc = moreValidate(txValue);
+            view.setText( desc +"  "+ txValue.replaceAll(desc, ""));
         }
     }
 
@@ -283,5 +287,14 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             return ""+(vlresult < 0? 1 : vlresult);
         }
         return "1";
+    }
+    public String moreValidate(String text){
+        Pattern patt = Pattern.compile("^(\\s?\\w{1,10}\\s?:\\s?)");
+        Matcher matcher = patt.matcher(text);
+        if(matcher.find()) {
+            String[] txList =  text.split(":");
+            return txList[0]+":";
+        }
+        return "Otros:";
     }
 }

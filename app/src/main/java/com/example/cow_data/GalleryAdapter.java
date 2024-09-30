@@ -51,7 +51,7 @@ public class GalleryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return Long.parseLong(textList.get(i)[2]);
     }
 
     @Override

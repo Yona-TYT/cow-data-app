@@ -97,7 +97,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
+    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "D-M-A");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -569,7 +569,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         return "1";
     }
     public String[] dataValidate(String text){
-        Pattern patt = Pattern.compile("((\\d{1,2})(/)(\\d{1,2})(/)(\\d{1,3})$)|((\\d{1,2})(-)(\\d{1,2})(-)(\\d{1,3})$)|(\\d{1,2})(\\.)(\\d{1,2})(\\.)(\\d{1,3})$");
+        Pattern patt = Pattern.compile("(^(\\d{1,2})(/)(\\d{1,2})(/)(\\d{1,3})$)|(^(\\d{1,2})(-)(\\d{1,2})(-)(\\d{1,3})$)|(^(\\d{1,2})(\\.)(\\d{1,2})(\\.)(\\d{1,3})$)");
         Matcher matcher = patt.matcher(text);
         if(matcher.find()) {
             if (text.contains("-")) {

@@ -221,9 +221,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             List<String[]> mtxList = new ArrayList<>();
             for(int j =0; j < textList.size(); j++){
-                String[] stList= new String[2];
+                String[] stList= new String[3];
                 stList[0] = textList.get(j);
                 stList[1] = dirList.get(j);
+                stList[2] = Integer.toString(j);
                 mtxList.add(stList);
             }
             gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
@@ -239,9 +240,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     List<String[]> mtxList = new ArrayList<>();
                     for(int j =0; j < textList.size(); j++){
                         if(currSel2 == 4 || currSel2 == selList.get(j)){
-                            String[] stList= new String[2];
+                            String[] stList= new String[3];
                             stList[0] = textList.get(j);
                             stList[1] = dirList.get(j);
+                            stList[2] = Integer.toString(j);
                             mtxList.add(stList);
                         }
                     }
@@ -396,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         int itemId = parent.getId();
         if (itemId == R.id.gcImg) {
-            nextViewActivity(position);
+            nextViewActivity((int)id);
         }
         if (itemId == R.id.lv) {
             //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy 11100------------------------: " + position);

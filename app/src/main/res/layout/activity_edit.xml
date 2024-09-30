@@ -12,14 +12,15 @@
         android:id="@+id/spinType"
         android:layout_width="@dimen/textViewW"
         android:layout_height="25dp"
+        android:layout_marginTop="35dp"
         android:layout_marginEnd="44dp"
         android:textSize="@dimen/textViewLong"
         app:layout_constraintBottom_toTopOf="@+id/spinEdad"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.971"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/txEdit1"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.136" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/textView7"
