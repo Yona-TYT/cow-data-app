@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
@@ -63,6 +64,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener{
     private ActivityMainBinding binding;
@@ -105,15 +108,12 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     // Para el selector de edades--------------------------------------------
     private int currSelec = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias");
+    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "d-m-a");
     //-----------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
         OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -174,6 +174,24 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currSelec = i;
+                if(i == 3){
+                    mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                }
+                else {
+                    String text = mInput4.getText().toString();
+                    String[] txlist = dataValidate(text);
+                    if(txlist == null){
+                        Pattern patt = Pattern.compile("(\\d{1,3})$");
+                        Matcher matcher = patt.matcher(text);
+                        if(!matcher.find()) {
+                            mInput4.setText("");
+                        }
+                    }
+                    else {
+                        mInput4.setText("0");
+                    }
+                    mInput4.setInputType(InputType.TYPE_CLASS_NUMBER);
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -237,8 +255,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 //Input de Edad
                 if(i == 3){
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        int value = Integer.parseInt(text);
-                        long vlresult = Long.parseLong(text);;
+                        long vlresult = currSelec==3? 0 : Long.parseLong(text);
 
                         //Inicia la fecha a comparra en cero
                         LocalDate date = LocalDate.of(1, 1, 1);
@@ -261,6 +278,21 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         else if(currSelec == 2){
                             LocalDate from = currdate.minusDays(vlresult);
                             res = from.toString();
+                        }
+                        //Para Validar Fechas completas
+                        else if(currSelec == 3){
+                            String[] dateList = dataValidate(text);
+                            if (dateList != null && dateList.length > 1 ) {
+                                LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
+                                from = from.minusMonths(Long.parseLong(dateList[1]));
+                                from = from.minusDays(Long.parseLong(dateList[0]));
+                                //Log.d("PhotoPicker", "1-->>>>>>>>>>>>>>>>>>>>>>>>>>>> Experimento: "+ from.toString());
+                                res = from.toString();
+                            }
+                            else {
+                                result = false;
+                                break;
+                            }
                         }
                         //En caso de que no este (Dudo q pase) se toma el valor de fecha actual
                         else{
@@ -344,5 +376,23 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
             });
 
-
+    public String[] dataValidate(String text){
+        Pattern patt = Pattern.compile("((\\d{1,2})(/)(\\d{1,2})(/)(\\d{1,3})$)|((\\d{1,2})(-)(\\d{1,2})(-)(\\d{1,3})$)|(\\d{1,2})(\\.)(\\d{1,2})(\\.)(\\d{1,3})$");
+        Matcher matcher = patt.matcher(text);
+        if(matcher.find()) {
+            if (text.contains("-")) {
+                return text.split("-");
+            }
+            else if (text.contains("/")) {
+                return text.split("/");
+            }
+            else if (text.contains(".")) {
+                return text.split("\\.");
+            }
+            else {
+                return null;
+            }
+        }
+        return null;
+    }
 }

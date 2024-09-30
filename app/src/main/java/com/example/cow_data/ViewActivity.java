@@ -1,6 +1,7 @@
 package com.example.cow_data;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,7 +90,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
     // Para el selector de edades--------------------------------------------
     private int currSelec = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias");
+    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "");
     //-----------------------------------------------------------------------
 
     @SuppressLint({"MissingInflatedId", "RestrictedApi"})
@@ -273,6 +274,11 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             //Para Dias
             else if(selec == 2){
                 vlresult = ChronoUnit.DAYS.between(date, currdate );
+            }
+            //Para Formato de fecha
+            else if(selec == 3){
+                Period result = date.until(currdate);
+                return result.getYears()+" Años y "+result.getMonths()+" Meses";
             }
             return ""+(vlresult < 0? 1 : vlresult);
         }
