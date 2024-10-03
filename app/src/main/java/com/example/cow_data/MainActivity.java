@@ -2,12 +2,17 @@ package com.example.cow_data;
 
 import static android.service.controls.ControlsProviderService.TAG;
 
+import static androidx.core.util.TypedValueCompat.dpToPx;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +21,11 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +34,7 @@ import android.widget.Filter;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -144,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         actionBar.setTitle("Inicio");
         actionBar.setDisplayShowHomeEnabled(true);
 
+
         if (checkStoragePermissions()){
             mPermiss = true;
         }
@@ -213,12 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             //------------------------------------------
         }
-
         if(mPermiss) {
-            mAdapter = new SearchAdapter(MainActivity.this, textList);
-            mlv.setAdapter(mAdapter);
-            mlv.setVisibility(View.INVISIBLE);
-
             List<String[]> mtxList = new ArrayList<>();
             for(int j =0; j < textList.size(); j++){
                 String[] stList= new String[3];
@@ -228,6 +232,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mtxList.add(stList);
             }
             gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+
+            mAdapter = new SearchAdapter(MainActivity.this, mtxList);
+            mlv.setAdapter(mAdapter);
+            mlv.setVisibility(View.INVISIBLE);
 
             //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
             ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
@@ -254,20 +262,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
             });
-            //--------------------------------------------------------------------------------------------
 
+
+            //Para el adapter del buscador -------------------------------------------------------
             searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
+                    ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
+                    //Toast.makeText(MainActivity.this, "Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
+                    List<String[]> mtxList = new ArrayList<>();
+                    for(int i =0; i < textList.size(); i++){
+                        if(currSel2 == 4 || currSel2 == selList.get(i)){
+                            if(idxList.isEmpty()) {
+                                String[] stList = new String[3];
+                                stList[0] = textList.get(i);
+                                stList[1] = dirList.get(i);
+                                stList[2] = Integer.toString(i);
+                                mtxList.add(stList);
+                            }
+                            else {
+                                for(int j =0; j < idxList.size(); j++){
+                                    if(idxList.get(j) == i){
+                                        String[] stList = new String[3];
+                                        stList[0] = textList.get(i);
+                                        stList[1] = dirList.get(i);
+                                        stList[2] = Integer.toString(i);
+                                        mtxList.add(stList);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+
                     return false;
                 }
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
+
                     //Log.d("PhotoPicker", "11100------------------------: " + newText);
                     if (!newText.isEmpty()) {
                         mlv.setVisibility(View.VISIBLE);
-                        mAdapter.getFilter().filter(newText);
+                        Filter filt  = mAdapter.getFilter();
+                        filt.filter(newText);
+
+
+                        //Toast.makeText(MainActivity.this, "Siz is "+indexList.size(), Toast.LENGTH_LONG).show();
+
+                        //Log.d("PhotoPicker", "11100------------------------: " + indexList.size());
                     }
                     else {
                         mlv.setVisibility(View.INVISIBLE);
@@ -275,7 +318,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return false;
                 }
             });
+            //----------------------------------------------------------------------------------------
         }
+        // Para eventos al mostrar o ocultar el teclado
+        View rootView = findViewById(android.R.id.content);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+                // on below line we are creating a variable for rect
+                Rect rect = new Rect();
+
+                RelativeLayout contain = findViewById(R.id.container);
+
+                // on below line getting frame for our relative layout.
+                contain.getWindowVisibleDisplayFrame(rect);
+
+                // on below line getting screen height for relative layout.
+                int screenHeight = contain.getRootView().getHeight();
+
+                // on below line getting keypad height.
+                int keypadHeight = screenHeight - rect.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    //Toast.makeText(MainActivity.this, "Keyboard is +", Toast.LENGTH_LONG).show();
+                } else {
+                    //Toast.makeText(MainActivity.this, "Keyboard is -", Toast.LENGTH_LONG).show();
+                    mlv.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+        //------------------------------------------------------------------------------------------------
     }
 
     @Override
@@ -402,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (itemId == R.id.lv) {
             //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy 11100------------------------: " + position);
-            nextViewActivity(position);
+            nextViewActivity((int)id);
         }
     }
 

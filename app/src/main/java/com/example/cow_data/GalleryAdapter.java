@@ -32,7 +32,7 @@ import java.util.List;
 public class GalleryAdapter extends BaseAdapter {
     //Test------------------------------------------------------------
     private Context mContex;
-    public List<String[]>textList = new ArrayList<>();
+    private List<String[]>textList = new ArrayList<>();
 
     public  GalleryAdapter(Context mContex, List<String[]> textList){
         this.mContex = mContex;

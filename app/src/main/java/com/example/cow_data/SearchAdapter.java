@@ -23,16 +23,18 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchAdapter extends BaseAdapter implements Filterable {
     //Test------------------------------------------------------------
     private Context mContex;
 
-    public ArrayList<String> textList = new ArrayList<>();
-    private ArrayList<String> currList = new ArrayList<>(); // Original Values
+    private List<String[]> textList = new ArrayList<>();
+    private List<String[]>  currList = new ArrayList<>(); // Original Values
+
     private ArrayList<Integer> newList = new ArrayList<>();    // Values to be displayed
 
-    public  SearchAdapter(Context mContex, ArrayList<String> textList){
+    public  SearchAdapter(Context mContex, List<String[]> textList){
         this.mContex = mContex;
         this.textList = textList;
         this.currList = textList;
@@ -40,17 +42,17 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount(){
-        return textList.size();
+        return newList.size();
     }
 
     @Override
     public Object getItem(int pos){
-        return textList.get(pos);
+        return newList;
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return newList.get(i);
     }
 
     @Override
@@ -60,21 +62,15 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         TextView text = new TextView(mContex);
         LinearLayout layout = new LinearLayout(mContex);
         // Se ajustan los parametros del Texto ----------------------------------
-        layout.setVisibility(View.INVISIBLE);
-        for(int i = 0; i < newList.size(); i++) {
-            if(pos == newList.get(i)){
-                //Log.d("PhotoPicker", "Name test ------------------------: " + pos + " -- "+ textList.get(pos));
-                text.setText(textList.get(pos));
-                text.setTypeface(Typeface.DEFAULT_BOLD);
-                text.setGravity(Gravity.CENTER);
-                text.setTextSize(18);
-                text.setPadding(10,5,10,5);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
-                layout.addView(text);
-                layout.setVisibility(View.VISIBLE);
-                return layout;
-            }
-        }
+
+        text.setText(textList.get(newList.get(pos))[0]);
+        text.setTypeface(Typeface.DEFAULT_BOLD);
+        text.setGravity(Gravity.CENTER);
+        text.setTextSize(18);
+        text.setPadding(10,5,10,5);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.addView(text);
+        layout.setVisibility(View.VISIBLE);
 
         //-----------------------------------------------------------------------
 
@@ -85,6 +81,40 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
 //        layout.removeAllViews();
         return layout;
     }
+
+//    @Override
+//    public View getView(int pos, View convertView, ViewGroup parent){
+//
+//        // Log.d("PhotoPicker", "Ya hay ? 11111------------------------: "+ newList.size());
+//        TextView text = new TextView(mContex);
+//        LinearLayout layout = new LinearLayout(mContex);
+//        // Se ajustan los parametros del Texto ----------------------------------
+//        layout.setVisibility(View.INVISIBLE);
+//        for(int i = 0; i < newList.size(); i++) {
+//            if(pos == newList.get(i)){
+//                //Log.d("PhotoPicker", "Name test ------------------------: " + pos + " -- "+ textList.get(pos));
+//                text.setText(textList.get(pos)[0]);
+//                text.setTypeface(Typeface.DEFAULT_BOLD);
+//                text.setGravity(Gravity.CENTER);
+//                text.setTextSize(18);
+//                text.setPadding(10,5,10,5);
+//                layout.setOrientation(LinearLayout.HORIZONTAL);
+//                layout.addView(text);
+//                layout.setVisibility(View.VISIBLE);
+//                return layout;
+//            }
+//        }
+//
+//        //-----------------------------------------------------------------------
+//
+////        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, 20);
+/////       params.topMargin = 0;
+//////        params.bottomMargin = 0;
+////        text.setLayoutParams(params);
+////        layout.removeAllViews();
+//        return layout;
+//    }
+//
     @Override
     public Filter getFilter() {
 
@@ -109,7 +139,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                 else {
                     constraint = constraint.toString().toLowerCase();
                     for (int i = 0; i < currList.size(); i++) {
-                        String data = currList.get(i);
+                        String data = currList.get(i)[0];
                         if (data.toLowerCase().startsWith(constraint.toString())) {
                             FilteredArrList.add(i);
                             //Log.d("PhotoPicker", "Constrain ------------------------: " + i);
