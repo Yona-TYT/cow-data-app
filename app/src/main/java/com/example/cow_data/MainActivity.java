@@ -223,6 +223,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //------------------------------------------
         }
         if(mPermiss) {
+            int mainSelec = 4;
+            Intent intent = getIntent();
+            if (intent.getExtras() != null) {
+                mainSelec = intent.getIntExtra("mainsel", 4);
+            }
             List<String[]> mtxList = new ArrayList<>();
             for(int j =0; j < textList.size(); j++){
                 String[] stList= new String[3];
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
             ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
             mSpin2.setAdapter(adapt2);
-            mSpin2.setSelection(4); //Set Todos como default
+            mSpin2.setSelection(mainSelec); //Set Todos como default
             mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -487,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBundle.putStringArrayList("dlist", dirList);
         mBundle.putStringArrayList("tlist", textList);
         mBundle.putInt("index", pos);
+        mBundle.putInt("mainsel", currSel2);
         mBundle.putBoolean("perm", mPermiss);
         mBundle.putString("dbname", nameDB);
 

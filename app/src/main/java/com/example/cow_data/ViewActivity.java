@@ -91,8 +91,14 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private String nameDB = "";
 
     // Para el selector de edades--------------------------------------------
-    private int currSelec = 0;
+    private int currSel1 = 0;
     private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "");
+    //-----------------------------------------------------------------------
+
+    // Para el selector de tipo gando--------------------------------------------
+    private int mainSel = 4;
+    private int currSel2 = 0;
+    private List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
 
     @SuppressLint({"MissingInflatedId", "RestrictedApi"})
@@ -105,6 +111,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void handleOnBackPressed() {
                 Intent mIntent = new Intent(getApplicationContext(), MainActivity.class);
+                Bundle mBundle = new Bundle();
+                mBundle.putInt("mainsel", mainSel);
+                mIntent.putExtras(mBundle);
                 startActivity(mIntent);
             }
         };
@@ -163,20 +172,27 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         if (intent.getExtras() != null) {
             mPermiss = intent.getBooleanExtra("perm", false);
             currIdx = intent.getIntExtra("index", 0);
+            mainSel = intent.getIntExtra("mainsel", 4);
             nameDB = intent.getStringExtra("dbname" );
             appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
             listuser =  appDatabase.daoUser().getUsers();
 
             int i = 0;
-            currSelec = Integer.parseInt(listuser.get(currIdx).sel1);
+            currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
+            currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
             if (currIdx < listuser.size()) {
-                mviewList.get(i).setText("Nombre:   "+listuser.get(currIdx).nombre.toUpperCase());
+                mviewList.get(i).setText(""+listuser.get(currIdx).nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
                 mviewList.get(i).setText("Color:   "+listuser.get(currIdx).color.toUpperCase());
                 i++;
-                mviewList.get(i).setText("Litros:   "+listuser.get(currIdx).litros+" Litros Diarios");
+                if(currSel2 == 0) {
+                    mviewList.get(i).setText("Litros:   " + listuser.get(currIdx).litros + " Litros Diarios");
+                }
+                else {
+                    mviewList.get(i).setVisibility(View.INVISIBLE);
+                }
                 i++;
-                mviewList.get(i).setText("Edad:   "+dataConverted(listuser.get(currIdx).edad, currSelec)+ " "+mSpinList.get(currSelec));
+                mviewList.get(i).setText("Edad:   "+dataConverted(listuser.get(currIdx).edad, currSel1)+ " "+mSpinList.get(currSel1));
                 currDir = fmang.getImage(listuser.get(currIdx).imagen, mImageView);
                 i++;
                 setTextView(mviewList.get(i), listuser.get(currIdx).more1);
@@ -214,7 +230,10 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if(itemId == android.R.id.home){
-            Intent mIntent = new Intent(this, MainActivity.class);
+            Intent mIntent = new Intent(getApplicationContext(), MainActivity.class);
+            Bundle mBundle = new Bundle();
+            mBundle.putInt("mainsel", mainSel);
+            mIntent.putExtras(mBundle);
             startActivity(mIntent);
             this.finish();
             return true;
