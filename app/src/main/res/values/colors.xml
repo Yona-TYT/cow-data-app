@@ -15,6 +15,7 @@
     <color name="text_background">#99ffffff</color>
     <color name="alert_background">#ff2d06</color>
     <color name="alert_text">#FFFFFF</color>
+    <color name="button">#05a6f1</color>
     <color name="float_button">#05a6f1</color>
     <color name="inner_button">#FFFFFF</color>
 

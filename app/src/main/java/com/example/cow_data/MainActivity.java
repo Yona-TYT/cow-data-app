@@ -298,8 +298,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }
                     }
-
-
                     gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
                 }
                 @Override

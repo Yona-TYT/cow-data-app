@@ -21,11 +21,13 @@ public class SatrtVar {
     public static ArrayList<String> textList;
     public static ArrayList<String> dirList;
     public static ArrayList<String> typeList;
+    public static ArrayList<String> morlist = new ArrayList<>();
+
 
     public static int currSel2 = 4;
 
-    private  Context mContex;
 
+    private  Context mContex;
     public  SatrtVar(Context mContex){
         this.mContex = mContex;
     }
@@ -53,5 +55,10 @@ public class SatrtVar {
 
     public void setCurrSel2(int value){
         SatrtVar.currSel2 = value;
+    }
+
+    public void setMorlist(ArrayList<String> list){
+        SatrtVar.morlist.clear();
+        SatrtVar.morlist = list;
     }
 }

@@ -75,8 +75,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     private List<TextView> mInputList = new ArrayList<>();
     private List<String> mList = new ArrayList<>();
-    private ArrayList<String> morlist = new ArrayList<>();
-    private ArrayList<String> typeList = new ArrayList<>();
 
     private Button mBtnMore;
     private ExtendedFloatingActionButton mBtnAdd;
@@ -111,11 +109,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
 
-    //Nombre de data Base
-    private   String nameDB = "";
 
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         //Se configura el Boton nav Back -----------------------------------------------
@@ -126,6 +121,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 Intent mIntent = new Intent(getApplicationContext(), ViewActivity.class);
                 mIntent.putExtras(getAndSetBundle());
                 startActivity(mIntent);
+                EditActivity.this.finish();
             }
         };
         onBackPressedDispatcher.addCallback(this, callback);
@@ -245,12 +241,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         //--------------------------------------------------------------------------------------------
 
         mPermiss = SatrtVar.mPermiss;
-        typeList = SatrtVar.typeList;
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
-            morlist = intent.getStringArrayListExtra("morelist");
             mIndex = ""+currIdx;
             List<Usuario> listuser = SatrtVar.listuser;
 
@@ -380,6 +374,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mList.add(text);
             }
             if (result) {
+                ArrayList<String> morlist = SatrtVar.morlist;
+
                 //Siz maximo para la lista de more datos
                 int max = (morlist == null? 0: morlist.size());
 

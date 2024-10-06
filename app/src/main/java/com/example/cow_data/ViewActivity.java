@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -71,13 +72,10 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton buttPrev;
 
     private List<TextView> mviewList = new ArrayList<>();
-    private List<Usuario> listuser;
-    private List<String> mList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
     private ArrayList<String> typeList = SatrtVar.typeList;
 
     private CoordinatorLayout mLayout;
-    private LinearLayout imgLayout;
     private HorizontalScrollView mScroll;
 
     private ActivityResultLauncher<Intent> launcher; // Initialise this object in Activity.onCreate()
@@ -89,23 +87,19 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private int currIdx = 0;
     private String currDir = "";
 
-    private int userSiz = 0;
-
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
 
-    //Nombre de data Base
-    private String nameDB = "";
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "");
+    private final List<String> mSpinList = Arrays.asList("Años", "Meses", "Dias", "");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
     private int mainSel = 4;
     private int currSel2 = 0;
-    private List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
+    private final List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
 
 
@@ -123,6 +117,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                 mBundle.putInt("mainsel", mainSel);
                 mIntent.putExtras(mBundle);
                 startActivity(mIntent);
+                ViewActivity.this.finish();
             }
         };
         onBackPressedDispatcher.addCallback(this, callback);
@@ -135,15 +130,16 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+
         // calling the action bar
         ActionBar actionBar = getSupportActionBar();
         // showing the back button in action bar
         actionBar.setDisplayHomeAsUpEnabled(true);
+
         actionBar.setTitle("Vista en Detalles");
         actionBar.setDisplayShowHomeEnabled(true);
 
         myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -186,8 +182,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mPermiss = SatrtVar.mPermiss;
         mainSel = SatrtVar.currSel2;
         typeList = SatrtVar.typeList;
-        listuser =  SatrtVar.listuser;
-        userSiz = listuser.size();
+
+        List<Usuario> listuser = SatrtVar.listuser;
+        int userSiz = listuser.size();
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
@@ -196,9 +193,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
             currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
             if (currIdx < userSiz) {
-                mviewList.get(i).setText(""+listuser.get(currIdx).nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
+                mviewList.get(i).setText(""+ listuser.get(currIdx).nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
-                mviewList.get(i).setText("Color:   "+listuser.get(currIdx).color.toUpperCase());
+                mviewList.get(i).setText("Color:   "+ listuser.get(currIdx).color.toUpperCase());
                 i++;
                 if(currSel2 == 0) {
                     mviewList.get(i).setText("Litros:   " + listuser.get(currIdx).litros + " Litros Diarios");
@@ -224,7 +221,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         else {
             textSnackbar("Aqui no hay :(");
         }
-        mList.clear();
     }
 
     @SuppressLint("SetTextI18n")
@@ -263,6 +259,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             mBundle.putStringArrayList("morelist", morlist);
             mIntent.putExtras(mBundle);
             startActivity(mIntent);
+            this.finish();
         }
         if(itemId == R.id.imageView){
             Intent mIntent = new Intent(this, ImgFullscreenActivity.class);
@@ -274,7 +271,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(itemId == R.id.buttNext){
             Intent mIntent = new Intent(this, ViewActivity.class);
-            Bundle mBundle = new Bundle();
             int newidx = currIdx;
             newidx++;
             int siz = typeList.size();
@@ -307,7 +303,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
         if(itemId == R.id.buttPrev){
             Intent mIntent = new Intent(this, ViewActivity.class);
-            Bundle mBundle = new Bundle();
             int newidx = currIdx;
             newidx--;
             int siz = typeList.size();

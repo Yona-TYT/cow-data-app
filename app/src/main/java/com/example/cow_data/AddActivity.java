@@ -128,6 +128,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             public void handleOnBackPressed() {
                 Intent mIntent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(mIntent);
+                AddActivity.this.finish();
             }
         };
         onBackPressedDispatcher.addCallback(this, callback);
@@ -137,7 +138,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_add);
 
         //Activate ToolBar
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 

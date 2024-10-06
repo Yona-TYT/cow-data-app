@@ -14,8 +14,9 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        tools:ignore="MissingConstraints" />
 
 
     <ImageView
@@ -211,6 +212,7 @@
         android:layout_marginTop="188dp"
         android:text="@string/buttEdit"
         android:textColor="@color/inner_button"
+        android:backgroundTint="@color/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.527"
@@ -248,6 +250,7 @@
         android:layout_width="65dp"
         android:layout_height="39dp"
         android:layout_marginTop="15dp"
+        android:backgroundTint="@color/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintStart_toEndOf="@+id/buttEdit"
@@ -260,6 +263,7 @@
         android:layout_width="65dp"
         android:layout_height="39dp"
         android:layout_marginTop="15dp"
+        android:backgroundTint="@color/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttEdit"
         app:layout_constraintHorizontal_bias="0.527"
