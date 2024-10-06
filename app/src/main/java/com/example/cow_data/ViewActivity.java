@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -65,11 +67,14 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageView mImageView;
     private Button mButtEdit;
+    private ImageButton buttNext;
+    private ImageButton buttPrev;
 
     private List<TextView> mviewList = new ArrayList<>();
     private List<Usuario> listuser;
     private List<String> mList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
+    private ArrayList<String> typeList = SatrtVar.typeList;
 
     private CoordinatorLayout mLayout;
     private LinearLayout imgLayout;
@@ -83,6 +88,8 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     // El index actual de bd
     private int currIdx = 0;
     private String currDir = "";
+
+    private int userSiz = 0;
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
@@ -100,6 +107,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private int currSel2 = 0;
     private List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
+
 
     @SuppressLint({"MissingInflatedId", "RestrictedApi"})
     @Override
@@ -134,6 +142,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         actionBar.setTitle("Vista en Detalles");
         actionBar.setDisplayShowHomeEnabled(true);
 
+        myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -153,10 +164,14 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
         mImageView = findViewById(R.id.imageView);
         mButtEdit = findViewById(R.id.buttEdit);
+        buttNext = findViewById(R.id.buttNext);
+        buttPrev = findViewById(R.id.buttPrev);
         mLayout = findViewById(R.id.layout2);
 
         mImageView.setOnClickListener(this);
         mButtEdit.setOnClickListener(this);
+        buttNext.setOnClickListener(this);
+        buttPrev.setOnClickListener(this);
 
         mviewList.add(mView1);
         mviewList.add(mView2);
@@ -168,19 +183,19 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mviewList.add(mMore4);
         mviewList.add(mMore5);
 
+        mPermiss = SatrtVar.mPermiss;
+        mainSel = SatrtVar.currSel2;
+        typeList = SatrtVar.typeList;
+        listuser =  SatrtVar.listuser;
+        userSiz = listuser.size();
+
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            mPermiss = intent.getBooleanExtra("perm", false);
             currIdx = intent.getIntExtra("index", 0);
-            mainSel = intent.getIntExtra("mainsel", 4);
-            nameDB = intent.getStringExtra("dbname" );
-            appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
-            listuser =  appDatabase.daoUser().getUsers();
-
             int i = 0;
             currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
             currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
-            if (currIdx < listuser.size()) {
+            if (currIdx < userSiz) {
                 mviewList.get(i).setText(""+listuser.get(currIdx).nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
                 mviewList.get(i).setText("Color:   "+listuser.get(currIdx).color.toUpperCase());
@@ -231,9 +246,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         int itemId = item.getItemId();
         if(itemId == android.R.id.home){
             Intent mIntent = new Intent(getApplicationContext(), MainActivity.class);
-            Bundle mBundle = new Bundle();
-            mBundle.putInt("mainsel", mainSel);
-            mIntent.putExtras(mBundle);
             startActivity(mIntent);
             this.finish();
             return true;
@@ -248,8 +260,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             Intent mIntent = new Intent(this, EditActivity.class);
             Bundle mBundle = new Bundle();
             mBundle.putInt("index", currIdx);
-            mBundle.putBoolean("perm", mPermiss);
-            mBundle.putString("dbname", nameDB);
             mBundle.putStringArrayList("morelist", morlist);
             mIntent.putExtras(mBundle);
             startActivity(mIntent);
@@ -259,11 +269,86 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             Bundle mBundle = new Bundle();
             mBundle.putString("dir", currDir);
             mBundle.putInt("index", currIdx);
-            mBundle.putBoolean("perm", mPermiss);
-            mBundle.putString("dbname", nameDB);
             mIntent.putExtras(mBundle);
             startActivity(mIntent);
         }
+        if(itemId == R.id.buttNext){
+            Intent mIntent = new Intent(this, ViewActivity.class);
+            Bundle mBundle = new Bundle();
+            int newidx = currIdx;
+            newidx++;
+            int siz = typeList.size();
+            newidx = (newidx < siz? newidx : 0 );
+            if(mainSel == 4){
+                mIntent.putExtras(getAndSetBundle(newidx));
+                startActivity(mIntent);
+                this.finish();
+            }
+            else {
+                for (int i = newidx; i < siz; i++) {
+                    if (Integer.parseInt(typeList.get(i)) == mainSel) {
+                        mIntent.putExtras(getAndSetBundle(i));
+                        startActivity(mIntent);
+                        this.finish();
+                        break;
+                    } else if (i == (siz - 1)) {
+                        for (int j = 0; j < siz && j != currIdx; j++) {
+                            if (Integer.parseInt(typeList.get(j)) == mainSel) {
+                                mIntent.putExtras(getAndSetBundle(j));
+                                startActivity(mIntent);
+                                this.finish();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(itemId == R.id.buttPrev){
+            Intent mIntent = new Intent(this, ViewActivity.class);
+            Bundle mBundle = new Bundle();
+            int newidx = currIdx;
+            newidx--;
+            int siz = typeList.size();
+            if(siz != 0) {
+                newidx = (newidx < 0 ? (siz - 1) : newidx);
+            }
+            else{
+                newidx = 0;
+            }
+            if(mainSel == 4){
+                mIntent.putExtras(getAndSetBundle(newidx));
+                startActivity(mIntent);
+                this.finish();
+            }
+            else {
+                for(int i = newidx; i >=0 ; i-- ){
+                    if(Integer.parseInt(typeList.get(i)) == mainSel){
+                        mIntent.putExtras(getAndSetBundle(i));
+                        startActivity(mIntent);
+                        this.finish();
+                        break;
+                    }
+                    else if (i == 0) {
+                        for (int j = (siz - 1); j >= 0 && j != currIdx; j--) {
+                            if(Integer.parseInt(typeList.get(j)) == mainSel){
+                                mIntent.putExtras(getAndSetBundle(j));
+                                startActivity(mIntent);
+                                this.finish();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private Bundle  getAndSetBundle(int idx){
+        Bundle mBundle = new Bundle();
+        mBundle.putInt("index", idx);
+        return mBundle;
     }
 
     private void textSnackbar(String text) {

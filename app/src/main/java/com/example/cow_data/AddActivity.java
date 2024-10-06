@@ -69,6 +69,10 @@ import java.util.regex.Pattern;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener{
     private ActivityMainBinding binding;
+
+    // DB
+    private AppDatabase appDatabase = SatrtVar.appDatabase;
+
     private static final int REQUEST_PERMISSION_CAMERA = 100;
     private static final int STORAGE_PERMISSION_CODE = 23;
     private ImageButton mBtnCam;
@@ -88,8 +92,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     private List<String> mList = new ArrayList<>();
     private List<TextView> mInputList = new ArrayList<>();
-
-    public AppDatabase appDatabase;
 
     private String sImage = "";
     private String mIndex = "";
@@ -145,6 +147,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Agregar Mas a la Lista");
         actionBar.setDisplayShowHomeEnabled(true);
+
+        myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -228,17 +232,10 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         });
         //--------------------------------------------------------------------------------------------
 
-        Intent intent = getIntent();
-        if (intent.getExtras() != null) {
-            mPermiss = intent.getBooleanExtra("perm", false);
-            nameDB = intent.getStringExtra("dbname");
-            //Instancia de la base de datos
-            appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
-
-            mIndex = "" + appDatabase.daoUser().getUsers().size();
-            if (mIndex.isEmpty()) {
-                mIndex = "0";
-            }
+        mPermiss = SatrtVar.mPermiss;
+        mIndex = "" + appDatabase.daoUser().getUsers().size();
+        if (mIndex.isEmpty()) {
+            mIndex = "0";
         }
     }
     // this event will enable the back
@@ -370,13 +367,14 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 //Se vacia el archivo viejo
                 oldFile = null;
 
+                //Recarga La lista de la DB ----------------------------
+                SatrtVar mVars = new SatrtVar(getApplicationContext());
+                mVars.getUserListDB();
+                //-------------------------------------------------------
+
                 //Esto inicia las actividad Main despues de tiempo de espera del preloder
                 startActivity(new Intent(AddActivity.this,MainActivity.class));
                 finish(); //Finaliza la actividad y ya no se accede mas
-
-                //mEditText.getText().clear();
-                //mAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, mList);
-               // mListView.setAdapter(mAdapter);
             }
             else {
                 textSnackbar("La entrada esta vacia! (SIN TEXTO).");

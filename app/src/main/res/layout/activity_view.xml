@@ -243,5 +243,30 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="16dp" />
 
+    <ImageButton
+        android:id="@+id/buttNext"
+        android:layout_width="65dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toEndOf="@+id/buttEdit"
+        app:layout_constraintTop_toBottomOf="@+id/txMore5"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@android:drawable/ic_media_next" />
+
+    <ImageButton
+        android:id="@+id/buttPrev"
+        android:layout_width="65dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttEdit"
+        app:layout_constraintHorizontal_bias="0.527"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/txMore5"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@android:drawable/ic_media_previous" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

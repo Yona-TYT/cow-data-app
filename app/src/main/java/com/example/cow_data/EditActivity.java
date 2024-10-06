@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -34,6 +35,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -60,7 +62,7 @@ import java.util.regex.Pattern;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     //Base de datos
-    public AppDatabase appDatabase;
+    public AppDatabase appDatabase = SatrtVar.appDatabase;
 
     public ImageView mImgPrev;
     public EditText mInput1;
@@ -74,6 +76,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private List<TextView> mInputList = new ArrayList<>();
     private List<String> mList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
+    private ArrayList<String> typeList = new ArrayList<>();
 
     private Button mBtnMore;
     private ExtendedFloatingActionButton mBtnAdd;
@@ -142,6 +145,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Modo Editar");
         actionBar.setDisplayShowHomeEnabled(true);
+
+        myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -218,6 +223,11 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                //SatrtVar test = new SatrtVar(EditActivity.this);
+                //test.setUserListDB();
+                //Toast.makeText(EditActivity.this, "Siz is "+SatrtVar.currSel2, Toast.LENGTH_LONG).show();
+
                 currSel2 = i;
                 if(i == 0){
                     mInput3.setEnabled(true);
@@ -234,17 +244,15 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         });
         //--------------------------------------------------------------------------------------------
 
+        mPermiss = SatrtVar.mPermiss;
+        typeList = SatrtVar.typeList;
+
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            mPermiss = intent.getBooleanExtra("perm", false);
             currIdx = intent.getIntExtra("index", 0);
             morlist = intent.getStringArrayListExtra("morelist");
-            nameDB = intent.getStringExtra("dbname" );
             mIndex = ""+currIdx;
-
-            //Instancia de la base de datos
-            appDatabase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
-            List<Usuario> listuser = appDatabase.daoUser().getUsers();
+            List<Usuario> listuser = SatrtVar.listuser;
 
             int i = 0;
             currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
@@ -410,6 +418,11 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 //Se vacia el archivo viejo
                 oldFile = null;
 
+                //Recarga La lista de la DB ----------------------------
+                SatrtVar mVars = new SatrtVar(getApplicationContext());
+                mVars.getUserListDB();
+                //-------------------------------------------------------
+
                 //Esto inicia las actividad Main despues de tiempo de espera del preloder
                 Intent mIntent = new Intent(this, ViewActivity.class);
                 mIntent.putExtras(getAndSetBundle());
@@ -534,9 +547,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     private Bundle getAndSetBundle() {
         Bundle bundle = new Bundle();
-        bundle.putBoolean("perm", mPermiss);
         bundle.putInt("index", currIdx);
-        bundle.putString("dbname", nameDB);
         return bundle;
     }
     public String dataConverted(String text, int selec){

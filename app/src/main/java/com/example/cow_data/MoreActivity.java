@@ -125,16 +125,14 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
 
         mLayout = findViewById(R.id.layout6);
 
+        mPermiss = SatrtVar.mPermiss;
+
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            mPermiss = intent.getBooleanExtra("perm", false);
             currIdx = intent.getIntExtra("index", 0);
-            nameDB = intent.getStringExtra("dbname" );
             mIndex = ""+currIdx;
 
-            //Instancia de la base de datos
-            appDatabase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
-            List<Usuario> listuser = appDatabase.daoUser().getUsers();
+            List<Usuario> listuser = SatrtVar.listuser;
 
             int i = 0;
             if (currIdx < listuser.size()) {

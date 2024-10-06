@@ -30,6 +30,7 @@ import java.util.ArrayList;
 public class ImgFullscreenActivity extends AppCompatActivity {
     ImageView imageView;
     GalleryAdapter galleryAdapter;
+    private ArrayList<String> typeList = new ArrayList<>();
 
     // Para guardar los permisos de app comprobados en main
     private boolean mPermiss = false;
@@ -164,12 +165,13 @@ public class ImgFullscreenActivity extends AppCompatActivity {
 //        actionBar.setTitle("---");
 //        actionBar.setDisplayShowHomeEnabled(true);
 
+        mPermiss = SatrtVar.mPermiss;
+        typeList = SatrtVar.typeList;
+
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-            mPermiss = intent.getBooleanExtra("perm", false);
             currIdx = intent.getIntExtra("index", 0);
             String dir = intent.getStringExtra("dir");
-            nameDB = intent.getStringExtra("dbname" );
             fmang.getImage(dir, imageView);
         }
 
@@ -178,12 +180,9 @@ public class ImgFullscreenActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 Intent mIntent = new Intent(getApplicationContext(), ViewActivity.class);
-                Bundle mBundle = new Bundle();
-                mBundle.putInt("index", currIdx);
-                mBundle.putBoolean("perm", mPermiss);
-                mBundle.putString("dbname", nameDB);
-                mIntent.putExtras(mBundle);
-                startActivity(mIntent);            }
+                mIntent.putExtras(getAndSetBundle());
+                startActivity(mIntent);
+            }
         };
         onBackPressedDispatcher.addCallback(this, callback);
     }
@@ -243,5 +242,11 @@ public class ImgFullscreenActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
        // mHideHandler.removeCallbacks(mHideRunnable);
        // mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+    private Bundle getAndSetBundle() {
+        Bundle mBundle = new Bundle();
+        mBundle.putInt("index", currIdx);
+
+        return mBundle;
     }
 }

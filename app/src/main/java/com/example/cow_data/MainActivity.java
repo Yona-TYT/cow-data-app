@@ -12,7 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.media.RouteListingPreference;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +24,8 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -50,6 +56,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.ColorRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -57,6 +64,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -98,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private List<Usuario> listuser;
     private List<String[]> totalList = new ArrayList<>();
+    private ArrayList<String> typeList = new ArrayList<>();
 
     public AppDatabase appDatabase;
 
@@ -110,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public SearchView searchBar;
     public ListView mlv;
     private SearchAdapter mAdapter;
-    public GridView gridView;
-    public ArrayList<String> dirList = new ArrayList<>();
-    public ArrayList<String> textList = new ArrayList<>();
+    private GridView gridView;
+    private ArrayList<String> dirList = new ArrayList<>();
+    private ArrayList<String> textList = new ArrayList<>();
     //---------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -125,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //Nombre de data Base
     public static String nameDB = "Registro2";
+
+    public SatrtVar satrtVar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // showing the text in action bar
         actionBar.setTitle("Inicio");
         actionBar.setDisplayShowHomeEnabled(true);
-
+        myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
 
         if (checkStoragePermissions()){
             mPermiss = true;
@@ -171,6 +182,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnNew.setOnClickListener(this);
         gridView.setOnItemClickListener(this);
         mlv.setOnItemClickListener(this);
+
+        //Satrted variables
+        satrtVar = new SatrtVar(getApplicationContext());
+        satrtVar.setUserListDB();
+        satrtVar.setmPermiss(mPermiss);
 
         //Instancia de la base de datos
         appDatabase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
@@ -210,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             totalList.add(txList);
             //--------------------------------------------------------
 
+            typeList.add(txsel);
+
             // Se obtine la direccion de la image,  el nombre y la listSelec
             textList.add(txname);
             selList.add(Integer.parseInt(txsel));
@@ -222,12 +240,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             //------------------------------------------
         }
+        satrtVar.setArrayList(dirList, dirList, typeList);
         if(mPermiss) {
-            int mainSelec = 4;
-            Intent intent = getIntent();
-            if (intent.getExtras() != null) {
-                mainSelec = intent.getIntExtra("mainsel", 4);
-            }
+            int mainSelec = SatrtVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
             for(int j =0; j < textList.size(); j++){
                 String[] stList= new String[3];
@@ -250,16 +265,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     currSel2 = i;
+                    satrtVar.setCurrSel2(i);
+                    CharSequence newText = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        newText = searchBar.getQuery();
+                        mAdapter.getFilter().filter(newText);
+                    }
+                    ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
+
+                   // Toast.makeText(MainActivity.this, "Siz is "+test.getUserList().size(), Toast.LENGTH_LONG).show();
+
                     List<String[]> mtxList = new ArrayList<>();
-                    for(int j =0; j < textList.size(); j++){
-                        if(currSel2 == 4 || currSel2 == selList.get(j)){
-                            String[] stList= new String[3];
-                            stList[0] = textList.get(j);
-                            stList[1] = dirList.get(j);
-                            stList[2] = Integer.toString(j);
-                            mtxList.add(stList);
+                    for(int ii =0; ii < textList.size(); ii++){
+                        if(currSel2 == 4 || currSel2 == selList.get(ii)){
+                            if(idxList.isEmpty()) {
+                                String[] stList = new String[3];
+                                stList[0] = textList.get(ii);
+                                stList[1] = dirList.get(ii);
+                                stList[2] = Integer.toString(ii);
+                                mtxList.add(stList);
+                            }
+                            else {
+                                for(int j =0; j < idxList.size(); j++){
+                                    if(idxList.get(j) == ii){
+                                        String[] stList = new String[3];
+                                        stList[0] = textList.get(ii);
+                                        stList[1] = dirList.get(ii);
+                                        stList[2] = Integer.toString(ii);
+                                        mtxList.add(stList);
+                                    }
+                                }
+                            }
                         }
                     }
+
+
                     gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
                 }
                 @Override
@@ -309,9 +349,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //Log.d("PhotoPicker", "11100------------------------: " + newText);
                     if (!newText.isEmpty()) {
                         mlv.setVisibility(View.VISIBLE);
-                        Filter filt  = mAdapter.getFilter();
-                        filt.filter(newText);
-
+                        mAdapter.getFilter().filter(newText);
 
                         //Toast.makeText(MainActivity.this, "Siz is "+indexList.size(), Toast.LENGTH_LONG).show();
 
@@ -347,7 +385,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (keypadHeight > screenHeight * 0.15) {
                     //Toast.makeText(MainActivity.this, "Keyboard is +", Toast.LENGTH_LONG).show();
-                } else {
+                }
+                else {
                     //Toast.makeText(MainActivity.this, "Keyboard is -", Toast.LENGTH_LONG).show();
                     mlv.setVisibility(View.INVISIBLE);
                 }
@@ -356,13 +395,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //------------------------------------------------------------------------------------------------
     }
 
+    @SuppressLint("ResourceType")
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.summary, menu);
         getMenuInflater().inflate(R.menu.save, menu);
         getMenuInflater().inflate(R.menu.impor, menu);
 
+        for(int i = 0; i < menu.size(); i++){
+            MenuItem item = menu.getItem(i);
+//            Drawable drawable = item.getIcon();
+
+//            if(drawable != null) {
+////                drawable.mutate();
+////                drawable.setColorFilter(ContextCompat.getColor(this, R.color.inner_button), PorterDuff.Mode.SRC_ATOP);
+//            }
+
+            SpannableString spannabl = new SpannableString(item.getTitle().toString());
+            spannabl.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.black)),0 ,spannabl.length(),0);
+            item.setTitle(spannabl);
+        }
+        //test.setBackgroundColor(ContextCompat.getColor(test.getContext(), R.color.purple_500));
+
+
         return true;
     }
+
 
     //Para Exportar archivo CSV
     @SuppressLint("SetWorldReadable")
@@ -465,10 +523,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int itemId = view.getId();
         if (itemId == R.id.buttNew) {
             Intent mIntent = new Intent(this, AddActivity.class);
-            Bundle mBundle = new Bundle();
-            mBundle.putBoolean("perm", mPermiss);
-            mBundle.putString("dbname", nameDB);
-            mIntent.putExtras(mBundle);
             startActivity(mIntent);
         }
     }
@@ -488,14 +542,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent mIntent = new Intent(this, ViewActivity.class);
         Bundle mBundle = new Bundle();
         //Log.d("PhotoPicker", "11100------------------------: " + dirList.size());
-        mBundle.putInt("pos", pos);
-        mBundle.putStringArrayList("dlist", dirList);
-        mBundle.putStringArrayList("tlist", textList);
         mBundle.putInt("index", pos);
-        mBundle.putInt("mainsel", currSel2);
-        mBundle.putBoolean("perm", mPermiss);
-        mBundle.putString("dbname", nameDB);
-
         mIntent.putExtras(mBundle);
         startActivity(mIntent);
     }
