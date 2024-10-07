@@ -81,11 +81,11 @@ public class SummaryActivity extends AppCompatActivity {
 
         for (int i = 0; i < userSiz; i++){
 
-            litTotal += Integer.parseInt(listuser.get(i).litros);
-
             int type = Integer.parseInt(listuser.get(i).sel2);
             // Type Vacas
             if(type == 0){
+                //Solo las Vacas tienen valores de litros
+                litTotal += Integer.parseInt(listuser.get(i).litros);
                 vacTotal++;
             }
             // Type Novilla
