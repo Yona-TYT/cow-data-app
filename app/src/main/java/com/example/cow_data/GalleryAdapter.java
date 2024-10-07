@@ -98,7 +98,7 @@ public class GalleryAdapter extends BaseAdapter {
         cardView.setLayoutParams(new GridLayout.LayoutParams(spec(140), spec(150)));
         params.gravity = Gravity.CENTER;
         cardView.setLayoutParams(params);
-        
+
         cardView.addView(mimgView);
         cardView.setRadius(20f);
 

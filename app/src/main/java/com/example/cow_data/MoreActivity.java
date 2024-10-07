@@ -68,34 +68,8 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                List<Usuario> listuser = SatrtVar.listuser;
-                int i = 0;
-                if (currIdx < listuser.size()) {
-                    String text = listuser.get(currIdx).more1;
-                    if(!text.isEmpty()){
-                        morlist.add(text);
-                    }
-                    text = listuser.get(currIdx).more2;
-                    if(!text.isEmpty()){
-                        morlist.add(text);
-                    }
-                    text = listuser.get(currIdx).more3;
-                    if(!text.isEmpty()){
-                        morlist.add(text);
-                    }
-                    text = listuser.get(currIdx).more4;
-                    if(!text.isEmpty()){
-                        morlist.add(text);
-                    }
-                    text = listuser.get(currIdx).more5;
-                    if(!text.isEmpty()){
-                        morlist.add(text);
-                    }
-                    //Se guardan los datos de more list
-                    SatrtVar mVars = new SatrtVar(getApplicationContext());
-                    mVars.setMorlist(morlist);
-                }
-
+                //Guarda los datos previos de la DB
+                moreSave();
                 MoreActivity.this.finish();
             }
         };
@@ -179,35 +153,9 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if(itemId == android.R.id.home){
-            List<Usuario> listuser = SatrtVar.listuser;
-            int i = 0;
-            if (currIdx < listuser.size()) {
-                String text = listuser.get(currIdx).more1;
-                if(!text.isEmpty()){
-                    morlist.add(text);
-                }
-                text = listuser.get(currIdx).more2;
-                if(!text.isEmpty()){
-                    morlist.add(text);
-                }
-                text = listuser.get(currIdx).more3;
-                if(!text.isEmpty()){
-                    morlist.add(text);
-                }
-                text = listuser.get(currIdx).more4;
-                if(!text.isEmpty()){
-                    morlist.add(text);
-                }
-                text = listuser.get(currIdx).more5;
-                if(!text.isEmpty()){
-                    morlist.add(text);
-                }
-                //Se guardan los datos de more list
-                SatrtVar mVars = new SatrtVar(getApplicationContext());
-                mVars.setMorlist(morlist);
-            }
+            //Guarda los datos previos de la DB
+            moreSave();
             this.finish();
-
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -243,7 +191,38 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         if (itemId == R.id.buttCANC) {
+            //Guarda los datos previos de la DB
+            moreSave();
             this.finish(); //Finaliza la actividad y ya no se accede mas
+        }
+    }
+
+    private void moreSave(){
+        List<Usuario> listuser = SatrtVar.listuser;
+        if (currIdx < listuser.size()) {
+            String text = listuser.get(currIdx).more1;
+            if(!text.isEmpty()){
+                morlist.add(text);
+            }
+            text = listuser.get(currIdx).more2;
+            if(!text.isEmpty()){
+                morlist.add(text);
+            }
+            text = listuser.get(currIdx).more3;
+            if(!text.isEmpty()){
+                morlist.add(text);
+            }
+            text = listuser.get(currIdx).more4;
+            if(!text.isEmpty()){
+                morlist.add(text);
+            }
+            text = listuser.get(currIdx).more5;
+            if(!text.isEmpty()){
+                morlist.add(text);
+            }
+            //Se guardan los datos de more list
+            SatrtVar mVars = new SatrtVar(getApplicationContext());
+            mVars.setMorlist(morlist);
         }
     }
 

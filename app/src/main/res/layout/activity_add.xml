@@ -191,27 +191,4 @@
         app:layout_constraintGuide_begin="82dp" />
 
 
-    <LinearLayout
-        android:layout_width="387dp"
-        android:layout_height="129dp"
-        android:layout_marginBottom="28dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttAdd"
-        tools:layout_editor_absoluteX="16dp"
-        tools:ignore="MissingConstraints">
-
-        <!-- ...Toolbar, other layouts, other elements... -->
-
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/layout1"
-            android:layout_width="match_parent"
-            android:layout_height="89dp">
-
-            <!-- Here are the existing layout elements, now wrapped in
-             a CoordinatorLayout. -->
-
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

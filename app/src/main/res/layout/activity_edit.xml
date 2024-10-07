@@ -306,27 +306,6 @@
         app:layout_constraintTop_toBottomOf="@+id/txEdit2"
         app:layout_constraintVertical_bias="0.0" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/layout3"
-        android:layout_width="374dp"
-        android:layout_height="41dp"
-        tools:layout_editor_absoluteX="14dp"
-        tools:layout_editor_absoluteY="685dp">
-
-        <!-- Here are the existing layout elements, now wrapped in
-             a CoordinatorLayout. -->
-
-        <LinearLayout
-            android:id="@+id/linearLayout3"
-            android:layout_width="352dp"
-            android:layout_height="75dp"
-            android:orientation="vertical">
-
-            <!-- ...Toolbar, other layouts, other elements... -->
-
-        </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
     <Button
         android:id="@+id/buttMORE"
         android:layout_width="148dp"
@@ -341,6 +320,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline8"
         app:layout_constraintTop_toBottomOf="@+id/txEdit4"
         app:layout_constraintVertical_bias="1.0" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

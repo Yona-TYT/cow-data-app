@@ -90,7 +90,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private String sImage = "";
     private String saveImage = "null";
 
-    private String mIndex = "";
     private String mUser = "";
     private Uri oldFile = null;
     private Uri currUri = null;
@@ -164,7 +163,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mBtnDel  = findViewById(R.id.buttDEL);
         mSw = findViewById(R.id.swDelete);
         mBtnCam = findViewById(R.id.bttGall);
-        mLayout = findViewById(R.id.layout3);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mSw.setFocusedByDefault(false);
@@ -245,7 +243,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
-            mIndex = ""+currIdx;
             List<Usuario> listuser = SatrtVar.listuser;
 
             int i = 0;
@@ -312,12 +309,21 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         // GUARDA los datos ---------------------------------------------------------------
         if (itemId == R.id.buttOK) {
             boolean result = true;
+            int msgIdx = 0;
             mList.add(mUser);
             for(int i = 0; i < mInputList.size(); i++) {
                 TextView textv = mInputList.get(i);
                 String text = textv.getText().toString();
 
                 if (text.isEmpty()){
+                    if(i == 2) {
+                        //MSG para entrada de Litros
+                        msgIdx = 3;
+                    }
+                    else if (i == 3) {
+                        //MSG para entrada de Edad
+                        msgIdx = 2;
+                    }
                     result = false;
                     break;
                 }
@@ -358,6 +364,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                             }
                             else {
                                 result = false;
+                                //MSG para entrada de Fechas
+                                msgIdx = 1;
                                 break;
                             }
                         }
@@ -393,7 +401,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         sImage = fmang.SavePhoto(bitmap, mUser, oldFile, this, this.getContentResolver());
                     }
                 } catch (IOException e) {
-                    textSnackbar("Error al guardar la IMAGEN!");
+                    //textSnackbar("Erorro con imagen");
                     e.printStackTrace();
                     sImage = "";
                 }
@@ -426,7 +434,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
-                textSnackbar("La entrada esta vacia! (SIN TEXTO).");
+                textSnackbar(getTextMessage(msgIdx));
                 mList.clear();
             }
         }
@@ -454,6 +462,27 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             mIntent.putExtras(getAndSetBundle());
             startActivity(mIntent);
         }
+    }
+
+    private String getTextMessage(int idx){
+        String msg = "Error";
+        if (idx == 0) {
+            msg = "La entrada esta vacia! (SIN TEXTO).";
+        }
+        else if (idx == 1) {
+            msg = "Fecha formato Invalido, Debe ser: DIA-MES-AÑO ";
+        }
+        else if (idx == 2) {
+            msg = "Ingrese el numero de FECHA/EDAD";
+        }
+        else if (idx == 3) {
+            msg = "Ingrese el numero de LITROS ";
+        }
+        return msg;
+    }
+
+    private void textSnackbar(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
 //    @RequiresApi(api = Build.VERSION_CODES.O)
@@ -515,11 +544,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("PhotoPicker", "No media selected");
                 }
             });
-
-    private void textSnackbar(String text) {
-        Snackbar mySnackbar = Snackbar.make(mLayout, text, Snackbar.LENGTH_SHORT);
-        mySnackbar.show();
-    }
 
     private void getImge(String sImage) {
         if (!sImage.isEmpty()) {

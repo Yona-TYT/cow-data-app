@@ -88,7 +88,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private Spinner mSpin2;
 
     private Button mBtnAdd;
-    private CoordinatorLayout mLayout;
 
     private List<String> mList = new ArrayList<>();
     private List<TextView> mInputList = new ArrayList<>();
@@ -168,7 +167,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mSpin2 = findViewById(R.id.spinType);
 
         mBtnAdd = findViewById(R.id.buttAdd);
-        mLayout = findViewById(R.id.layout1);
 
         mBtnCam.setOnClickListener(this);
         mBtnAdd.setOnClickListener(this);
@@ -270,12 +268,21 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         if (itemId == R.id.buttAdd) {
             boolean result = true;
+            int msgIdx = 0;
             mList.add("userID"+mIndex);
             for(int i = 0; i < mInputList.size(); i++) {
                 String text = mInputList.get(i).getText().toString();
                 text = text.replaceAll("\"", "");
                 text = text.replaceAll(",", "");
                 if (text.isEmpty()){
+                    if(i == 2) {
+                        //MSG para entrada de Litros
+                        msgIdx = 3;
+                    }
+                    else if (i == 3) {
+                        //MSG para entrada de Edad
+                        msgIdx = 2;
+                    }
                     result = false;
                     break;
                 }
@@ -317,6 +324,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                                 res = from.toString();
                             }
                             else {
+                                //MSG para entrada de Fechas
+                                msgIdx = 1;
                                 result = false;
                                 break;
                             }
@@ -378,15 +387,31 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
-                textSnackbar("La entrada esta vacia! (SIN TEXTO).");
+                textSnackbar(getTextMessage(msgIdx));
                 mList.clear();
             }
 
         }
     }
-    private void textSnackbar(String text){
-        Snackbar mySnackbar = Snackbar.make(mLayout, text, Snackbar.LENGTH_SHORT);
-        mySnackbar.show();
+    private String getTextMessage(int idx){
+        String msg = "Error";
+        if (idx == 0) {
+            msg = "La entrada esta vacia! (SIN TEXTO).";
+        }
+        else if (idx == 1) {
+            msg = "Fecha formato Invalido, Debe ser: DIA-MES-AÑO ";
+        }
+        else if (idx == 2) {
+            msg = "Ingrese el numero de FECHA/EDAD";
+        }
+        else if (idx == 3) {
+            msg = "Ingrese el numero de LITROS ";
+        }
+        return msg;
+    }
+
+    private void textSnackbar(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
     // Registers a photo picker activity launcher in single-select mode.
