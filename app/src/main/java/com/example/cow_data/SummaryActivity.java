@@ -102,7 +102,7 @@ public class SummaryActivity extends AppCompatActivity {
             }
         }
         mView1.setText("Total Animales: "+ allTotal);
-        mView2.setText("Total Litros Diarios: "+ litTotal+" L");
+        mView2.setText("Total Litros: "+ litTotal+" L (Diarios)");
         mView3.setText("Total Vacas: "+ vacTotal);
         mView4.setText("Total Novillas: "+ novTotal);
         mView5.setText("Total Becerros: "+ becTotal);
