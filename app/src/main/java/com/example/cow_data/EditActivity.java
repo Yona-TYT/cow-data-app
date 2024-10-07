@@ -187,10 +187,17 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 currSel1 = i;
                 if(i == 3){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                    String text = mInput4.getText().toString();
+                    String[] txlist = CalcCalendar.dataValidate(text);
+                    if(txlist == null){
+                        mInput4.setText("");
+                        mInput4.setHint("Ejemplo: 1-1-1");
+
+                    }
                 }
                 else {
                     String text = mInput4.getText().toString();
-                    String[] txlist = dataValidate(text);
+                    String[] txlist = CalcCalendar.dataValidate(text);
                     if(txlist == null){
                         Pattern patt = Pattern.compile("(\\d{1,3})$");
                         Matcher matcher = patt.matcher(text);
@@ -199,8 +206,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     else {
-                        mInput4.setText("0");
+                        mInput4.setText("1");
                     }
+                    mInput4.setHint("");
                     mInput4.setInputType(InputType.TYPE_CLASS_NUMBER);
                 }
             }
@@ -267,7 +275,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 i++;
                 mInputList.get(i).setText(listuser.get(currIdx).litros);
                 i++;
-                mInputList.get(i).setText(dataConverted(listuser.get(currIdx).edad, currSel1));
+                mInputList.get(i).setText(CalcCalendar.dataConverted(listuser.get(currIdx).edad, currSel1));
                 i++;
                 saveImage = fmang.getImage(listuser.get(currIdx).imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
@@ -354,7 +362,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         //Para Validar Fechas completas
                         else if(currSel1 == 3){
-                            String[] dateList = dataValidate(text);
+                            String[] dateList = CalcCalendar.dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
                                 LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
                                 from = from.minusMonths(Long.parseLong(dateList[1]));
@@ -485,51 +493,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    private LocalDate validateDate(int year, int moth, int day){
-//        Log.d("PhotoPicker", "1-->>>>>>>>>>>>>>>>>>>>>>>>>>>> year: " + year + " mes: "+ moth);
-//
-//        //Esto saca un aproximado de los meses restantes pero no es perfecto
-//        if(moth > 12) {
-//            float myFloat =  ((float)(moth-1) / (float)12);
-//            year = ((int)myFloat)+1;
-//            moth = getFloatPart(myFloat)+1;
-//
-//            Log.d("PhotoPicker", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> year: " + year + " mes: "+ moth);
-//        }
-//        boolean result = true;
-//        try{
-//            LocalDate.of(year, moth, day);
-//        }
-//        catch(DateTimeException e) {
-//            result = false;
-//        }
-//        if(result){
-//            return LocalDate.of(year, moth, day);
-//        }
-//        else {
-//            return LocalDate.of(1, 1, 1);
-//        }
-//    }
-
-//    private int getFloatPart(float numero) {
-//
-//        Log.d("", String.format("El número originalmente es: %f\n", numero));
-//
-//        int parteEntera = (int)numero; // Le quitamos la parte decimal pasando a int
-//
-//        float parteDecimal = (numero - (float)parteEntera); // restamos la parte entera
-//
-//        String text =  Float.toString(parteDecimal); //Convertimos los decimales a string
-//
-//        text = text.replace('.', '0');
-//        text = ""+(text.length() > 2? text.charAt(2): 0);
-//        Log.d("", String.format("Parte entera: %d. Parte decimal: %s\n", parteEntera, text));
-//
-//        return Integer.parseInt(text);
-//
-//    }
-
     // Registers a photo picker activity launcher in single-select mode.
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -545,77 +508,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
 
-    private void getImge(String sImage) {
-        if (!sImage.isEmpty()) {
-            Uri mUri = Uri.parse(sImage);
-            saveImage = sImage;
-            oldFile = mUri;
-            try {
-                if (fmang.isBlockedPath(this, sImage)) {
-                    mImgPrev.setImageURI(mUri);
-                }
-                else {
-                    Log.d("PhotoPicker", "noooooo hayyyyyyyyyy: " + saveImage);
-                    textSnackbar("Acceso No Autorizado o No Exite");
-                }
-            } catch (Exception e) {
-                textSnackbar("No se encontro la imagen (SIN IMAGEN).");
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     private Bundle getAndSetBundle() {
         Bundle bundle = new Bundle();
         bundle.putInt("index", currIdx);
         return bundle;
-    }
-    public String dataConverted(String text, int selec){
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            //Convierte Sting  a forrmato de fecha
-            LocalDate date = LocalDate.parse(text);
-            //Inicia la fecha actual
-            LocalDate currdate = LocalDate.now();
-
-            long vlresult = 0;
-            //Para años
-            if(selec == 0){
-                vlresult = ChronoUnit.YEARS.between(date, currdate);
-            }
-            //Para meses
-            else if(selec == 1){
-                vlresult = ChronoUnit.MONTHS.between(date, currdate );
-            }
-            //Para Dias
-            else if(selec == 2){
-                vlresult = ChronoUnit.DAYS.between(date, currdate );
-            }
-            //Para Formato de fecha
-            else if(selec == 3){
-                Period result = date.until(currdate);
-                return result.getDays()+"-"+result.getMonths()+"-"+result.getYears();
-            }
-            return ""+(vlresult < 0? 1 : vlresult);
-        }
-        return "1";
-    }
-    public String[] dataValidate(String text){
-        Pattern patt = Pattern.compile("(^(\\d{1,2})(/)(\\d{1,2})(/)(\\d{1,3})$)|(^(\\d{1,2})(-)(\\d{1,2})(-)(\\d{1,3})$)|(^(\\d{1,2})(\\.)(\\d{1,2})(\\.)(\\d{1,3})$)");
-        Matcher matcher = patt.matcher(text);
-        if(matcher.find()) {
-            if (text.contains("-")) {
-                return text.split("-");
-            }
-            else if (text.contains("/")) {
-                return text.split("/");
-            }
-            else if (text.contains(".")) {
-                return text.split("\\.");
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
     }
 }

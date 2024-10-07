@@ -97,16 +97,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private Uri oldFile = null;
     private Uri currUri = null;
 
-    TextView mtextCode;
-
     // Para guardar los permisos de app comprobados en main
     private boolean mPermiss = false;
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
-
-    //Nombre de data Base
-    private   String nameDB = "";
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
@@ -185,19 +180,27 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 currSel1 = i;
                 if(i == 3){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                    String text = mInput4.getText().toString();
+                    String[] txlist = CalcCalendar.dataValidate(text);
+                    if(txlist == null){
+                        mInput4.setText("");
+                        mInput4.setHint("Ejemplo: 1-1-1");
+
+                    }
                 }
                 else {
                     String text = mInput4.getText().toString();
-                    String[] txlist = dataValidate(text);
+                    String[] txlist = CalcCalendar.dataValidate(text);
                     if(txlist == null){
                         Pattern patt = Pattern.compile("(\\d{1,3})$");
                         Matcher matcher = patt.matcher(text);
                         if(!matcher.find()) {
                             mInput4.setText("");
+                            mInput4.setHint("Ingrese Edad");
                         }
                     }
                     else {
-                        mInput4.setText("0");
+                        mInput4.setText("1");
                     }
                     mInput4.setInputType(InputType.TYPE_CLASS_NUMBER);
                 }
@@ -315,7 +318,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         }
                         //Para Validar Fechas completas
                         else if(currSel1 == 3){
-                            String[] dateList = dataValidate(text);
+                            String[] dateList = CalcCalendar.dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
                                 LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
                                 from = from.minusMonths(Long.parseLong(dateList[1]));
@@ -429,23 +432,4 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
             });
 
-    public String[] dataValidate(String text){
-        Pattern patt = Pattern.compile("(^(\\d{1,2})(/)(\\d{1,2})(/)(\\d{1,3})$)|(^(\\d{1,2})(-)(\\d{1,2})(-)(\\d{1,3})$)|(^(\\d{1,2})(\\.)(\\d{1,2})(\\.)(\\d{1,3})$)");
-        Matcher matcher = patt.matcher(text);
-        if(matcher.find()) {
-            if (text.contains("-")) {
-                return text.split("-");
-            }
-            else if (text.contains("/")) {
-                return text.split("/");
-            }
-            else if (text.contains(".")) {
-                return text.split("\\.");
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
 }
