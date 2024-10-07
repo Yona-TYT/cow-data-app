@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
@@ -84,21 +85,31 @@ public class GalleryAdapter extends BaseAdapter {
              mimgView.setImageURI(mUri);
          }
          else{
-             mimgView.setImageResource(R.drawable.image_icon);
-         }
+            mimgView.setImageResource(R.drawable.image_icon);
+        }
         mimgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mimgView.setLayoutParams(new GridLayout.LayoutParams(spec(140), spec(150)));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(200, 200);
         params.gravity = Gravity.CENTER;
         mimgView.setLayoutParams(params);
 
+        CardView cardView = new CardView(mContex);
+
+        cardView.setLayoutParams(new GridLayout.LayoutParams(spec(140), spec(150)));
+        params.gravity = Gravity.CENTER;
+        cardView.setLayoutParams(params);
+        
+        cardView.addView(mimgView);
+        cardView.setRadius(20f);
+
         //------------------------------------------------------------------------------
 
         // Se ajustan los parametros del layout ---------------------------------------
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setBackgroundColor(ContextCompat.getColor(text.getContext(), R.color.text_background));
+        layout.setPadding(5,5,5,5);
         layout.addView(text);
-        layout.addView(mimgView);
+        layout.addView(cardView);
         //-------------------------------------------------------------------------------
 
         return layout;

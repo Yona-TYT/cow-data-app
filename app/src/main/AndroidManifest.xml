@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <!--
@@ -39,15 +37,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CowData.NoActionBar"
         tools:targetApi="tiramisu">
+        <activity
+            android:name=".SummaryActivity"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.cow_data.provider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/path"/>
+                android:resource="@xml/path" />
         </provider>
+
         <activity
             android:name=".MoreActivity"
             android:exported="false" />
@@ -92,9 +95,11 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
 
-                    <action android:name="android.intent.action.SEND"/>
-                    <category android:name="android.intent.category.DEFAULT"/>
-                    <data android:mimeType="text/comma-separated-values"/>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/comma-separated-values" />
             </intent-filter>
         </activity>
     </application>

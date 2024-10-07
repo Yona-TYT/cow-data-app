@@ -64,11 +64,11 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     //Base de datos
     public AppDatabase appDatabase = SatrtVar.appDatabase;
 
-    public ImageView mImgPrev;
-    public EditText mInput1;
-    public EditText mInput2;
-    public EditText mInput3;
-    public EditText mInput4;
+    private ImageView mImgPrev;
+    private EditText mInput1;
+    private EditText mInput2;
+    private EditText mInput3;
+    private EditText mInput4;
 
     private Spinner mSpin1;
     private Spinner mSpin2;

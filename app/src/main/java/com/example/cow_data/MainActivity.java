@@ -419,12 +419,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-
     //Para Exportar archivo CSV
     @SuppressLint("SetWorldReadable")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         int itemId = item.getItemId();
+        if (itemId == R.id.summary) {
+            Intent mIntent = new Intent(this, SummaryActivity.class);
+            startActivity(mIntent);
+        }
         if (itemId == R.id.save) {
             try {
                 File file = fmang.csvExport(totalList);

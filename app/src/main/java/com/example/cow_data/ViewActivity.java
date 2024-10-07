@@ -51,20 +51,16 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class ViewActivity extends AppCompatActivity implements View.OnClickListener {
 
-    //Bae de datos
-    public AppDatabase appDatabase;
+    private TextView mView1;
+    private TextView mView2;
+    private TextView mView3;
+    private TextView mView4;
 
-    public TextView mView1;
-    public TextView mView2;
-    public TextView mView3;
-    public TextView mView4;
-    public TextView mView5;
-
-    public TextView mMore1;
-    public TextView mMore2;
-    public TextView mMore3;
-    public TextView mMore4;
-    public TextView mMore5;
+    private TextView mMore1;
+    private TextView mMore2;
+    private TextView mMore3;
+    private TextView mMore4;
+    private TextView mMore5;
 
     private ImageView mImageView;
     private Button mButtEdit;
@@ -101,7 +97,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private int currSel2 = 0;
     private final List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
-
 
     @SuppressLint({"MissingInflatedId", "RestrictedApi"})
     @Override

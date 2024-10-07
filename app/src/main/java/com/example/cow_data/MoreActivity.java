@@ -238,7 +238,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
             //Se guardan los datos de more list
             SatrtVar mVars = new SatrtVar(getApplicationContext());
             mVars.setMorlist(morlist);
-            
+
             this.finish(); //Finaliza la actividad y ya no se accede mas
 
         }

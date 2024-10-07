@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_loing"
+    tools:context=".SummaryActivity">
+
+    <TextView
+        android:id="@+id/textSumm1"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.248" />
+
+    <TextView
+        android:id="@+id/textSumm2"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm1"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textSumm3"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textSumm4"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm3"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textSumm5"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm4"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textSumm6"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:layout_marginBottom="128dp"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm5"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="31dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

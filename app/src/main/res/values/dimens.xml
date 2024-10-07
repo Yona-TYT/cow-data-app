@@ -11,6 +11,8 @@
     <dimen name="textViewLong">16sp</dimen>
     <dimen name="textViewLongH">30dp</dimen>
     <dimen name="textViewLongW">375dp</dimen>
+    <dimen name="textViewSummW">340dp</dimen>
+    <dimen name="textViewSummH">30dp</dimen>
     <dimen name="buttViewH">40dp</dimen>
     <dimen name="buttViewW">105dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
