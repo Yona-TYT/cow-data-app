@@ -144,6 +144,27 @@ public class FilesManager extends AppCompatActivity {
         return true;
     }
 
+    public static void DeleteFile(File file) {
+
+        if (file.isDirectory()) {
+            String[] children = file.list();
+            for (int i = 0; i < children.length; i++) {
+                File currFile = new File(file, children[i]);
+                String name = currFile.getName();
+                if(name.endsWith(".csv")) {
+                    //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: " + name);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                        boolean threis = currFile.exists();
+                        if(threis) {
+                            currFile.delete();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     public void RemoveFile(String dir, ContentResolver resolver) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
            // Log.d("PhotoPicker", " =======================Aquiiiiiiiiii Hayyyyyy 11100------------------------: " );
@@ -162,8 +183,8 @@ public class FilesManager extends AppCompatActivity {
         return false;
     }
 
-    boolean isBlockedPath(Context ctx, String fdCanonical) {
+    boolean isBlockedPath(Context ctx, String dir) {
         // Paths that should rarely be exposed
-        return fdCanonical.startsWith("content://media/" + MediaStore.VOLUME_EXTERNAL_PRIMARY) || fdCanonical.startsWith("/storage/emulated/0/Documents/");
+        return dir.startsWith("content://media/" + MediaStore.VOLUME_EXTERNAL_PRIMARY) || dir.startsWith("/storage/emulated/0/Documents/");
     }
 }

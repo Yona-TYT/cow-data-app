@@ -2,6 +2,7 @@ package com.example.cow_data;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 
 import androidx.activity.EdgeToEdge;
@@ -9,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.io.File;
 
 public class Preloder extends AppCompatActivity {
 
@@ -22,6 +25,11 @@ public class Preloder extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
+        if(file.exists()){
+            FilesManager.DeleteFile(file);
+        }
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
