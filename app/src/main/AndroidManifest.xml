@@ -37,9 +37,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CowData.NoActionBar"
         tools:targetApi="tiramisu">
+
         <activity
             android:name=".SummaryActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -53,34 +57,48 @@
 
         <activity
             android:name=".MoreActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ImgFullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
             android:label="@string/title_activity_img_fullscreen"
-            android:theme="@style/Theme.CowData.NoActionBar.Fullscreen" />
+            android:theme="@style/Theme.CowData.NoActionBar.Fullscreen"/>
         <activity
             android:name=".EditActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ViewActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ViewDetailHostActivity"
             android:exported="false"
             android:label="@string/title_activity_view_detail_host"
             android:resizeableActivity="true"
-            tools:targetApi="24" />
+            tools:targetApi="24"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".AddActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".RegistroActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".Preloder"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -89,7 +107,9 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -32,14 +32,16 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit2"
-        app:layout_constraintVertical_bias="0.028" />
+        app:layout_constraintVertical_bias="0.0" />
+
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txEdit6"
         android:layout_width="320dp"
-        android:layout_height="36dp"
+        android:layout_height="@dimen/textViewAddH"
         android:layout_marginBottom="232dp"
         android:hint="@string/more"
         android:maxLength="35"
@@ -49,15 +51,15 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit5"
-        app:layout_constraintVertical_bias="0.213" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txEdit5"
         android:layout_width="320dp"
         android:layout_height="@dimen/textViewAddH"
-        android:layout_marginEnd="4dp"
         android:hint="@string/more"
         android:maxLength="35"
         android:maxLines="1"
@@ -68,7 +70,8 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit4"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txEdit4"
@@ -82,10 +85,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit3"
-        app:layout_constraintVertical_bias="0.062" />
-
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txEdit2"
@@ -101,13 +104,15 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit1"
-        app:layout_constraintVertical_bias="0.042" />
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.5"
+
+        />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/txEdit1"
         android:layout_width="320dp"
         android:layout_height="@dimen/textViewAddH"
-        android:layout_marginEnd="4dp"
         android:hint="@string/more"
         android:maxLength="35"
         android:maxLines="1"
@@ -118,7 +123,9 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
-        app:layout_constraintVertical_bias="0.114" />
+        app:layout_constraintVertical_bias="0.114"
+        app:layout_constraintHorizontal_bias="0.5"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline13"

@@ -11,13 +11,12 @@
     <Spinner
         android:id="@+id/spinAddEdad"
         android:layout_width="@dimen/textViewW"
-        android:layout_height="25dp"
-        android:layout_marginTop="65dp"
+        android:layout_height="@dimen/textViewAddH"
         android:textSize="@dimen/textViewLong"
         app:layout_constraintBottom_toTopOf="@+id/buttCam"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toEndOf="@+id/inputData4"
-        app:layout_constraintTop_toBottomOf="@+id/InputData2"
+        app:layout_constraintTop_toBottomOf="@+id/InputData3"
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.appcompat.widget.Toolbar
@@ -66,7 +65,6 @@
         android:id="@+id/InputData2"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
-        android:layout_marginTop="10dp"
         android:hint="Ingrese Color"
         android:inputType="textCapWords"
         android:maxLength="35"
@@ -83,7 +81,6 @@
         android:id="@+id/InputData3"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
-        android:layout_marginTop="10dp"
         android:hint="Ingrese Litros"
         android:inputType="number"
         android:maxLength="10"
@@ -101,7 +98,6 @@
         android:id="@+id/inputData4"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
-        android:layout_marginTop="10dp"
         android:hint="Ingrese Edad"
         android:inputType="number"
         android:maxLength="10"
@@ -118,13 +114,14 @@
     <Spinner
         android:id="@+id/spinType"
         android:layout_width="@dimen/textViewW"
-        android:layout_height="25dp"
+        android:layout_height="@dimen/textViewAddH"
         android:layout_marginBottom="88dp"
         android:textSize="@dimen/textViewLong"
         app:layout_constraintBottom_toTopOf="@+id/spinAddEdad"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toEndOf="@+id/InputData1"
-        app:layout_constraintTop_toBottomOf="@+id/my_toolbar" />
+        app:layout_constraintTop_toTopOf="@+id/InputData1"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/textView6"
@@ -138,8 +135,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.038"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
-        app:layout_constraintTop_toBottomOf="@+id/InputData3"
-        app:layout_constraintVertical_bias="0.962" />
+        app:layout_constraintTop_toBottomOf="@+id/inputData4" />
 
     <ImageButton
         android:id="@+id/buttCam"
