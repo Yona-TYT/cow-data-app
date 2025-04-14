@@ -35,4 +35,22 @@
         <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
         <item name="fullscreenTextColor">@color/light_blue_A200</item>
     </style>
+
+
+    <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
+        <item name="android:focusedMonthDateColor">@color/days1</item>
+
+        <item name="android:weekNumberColor">@color/invisible</item>
+        <item name="android:unfocusedMonthDateColor">@color/days2</item>
+        <item name="android:selectedDateVerticalBar">@color/invisible</item>
+        <item name="android:selectedWeekBackgroundColor">@color/invisible</item>
+        <item name="android:dayOfWeekBackground">@color/black</item>
+
+        <item name="android:weekDayTextAppearance">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="android:dateTextAppearance">@style/TextAppearance.AppCompat.Medium</item>
+
+
+    </style>
+
+
 </resources>

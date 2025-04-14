@@ -14,4 +14,6 @@
     <color name="button">#5c5c5c</color>
     <color name="float_button">#5c5c5c</color>
     <color name="inner_button">#FFFFFF</color>
+    <color name="days2">#628c94</color>
+    <color name="days1">#e6e8df</color>
 </resources>

@@ -21,8 +21,10 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="363dp"
+        android:layout_width="365dp"
         android:layout_height="275dp"
+        app:layout_constraintHorizontal_bias="0.5"
+
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
@@ -40,175 +42,16 @@
         android:layout_marginBottom="47dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.24">
+        app:layout_constraintVertical_bias="0.24"
+        tools:ignore="MissingConstraints">
 
         <!-- Here are the existing layout elements, now wrapped in
          a CoordinatorLayout. -->
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <TextView
-        android:id="@+id/txView1"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:layout_marginTop="10dp"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:background="@color/text_background"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.025" />
-
-    <TextView
-        android:id="@+id/txView3"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:background="@color/text_background"
-        android:padding="5dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txView2"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txView2"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:background="@color/text_background"
-        android:padding="5dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txView1"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txMore2"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:background="@color/text_background"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore1"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txMore4"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:background="@color/text_background"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore3"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txMore3"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:background="@color/text_background"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore2"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txMore5"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:background="@color/text_background"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore4"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txMore1"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:background="@color/text_background"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:padding="5dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txView4"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txView4"
-        android:layout_width="@dimen/textViewLongW"
-        android:layout_height="@dimen/textViewLongH"
-        android:text="@string/textVacio"
-        android:textSize="@dimen/textViewLong"
-        android:textStyle="bold"
-        android:background="@color/text_background"
-        android:padding="5dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txView3"
-        app:layout_constraintVertical_bias="0.0" />
 
 
-    <Button
-        android:id="@+id/buttEdit"
-        android:layout_width="@dimen/buttViewW"
-        android:layout_height="@dimen/buttViewH"
-
-        android:layout_marginTop="15dp"
-        android:backgroundTint="@color/button"
-        android:text="@string/buttEdit"
-        android:textColor="@color/inner_button"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore5" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
@@ -227,28 +70,167 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="16dp" />
+        app:layout_constraintGuide_begin="30dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="16dp" />
+        app:layout_constraintGuide_end="30dp" />
+
+
+    <LinearLayout
+        android:id="@+id/lay1"
+        android:layout_width="340dp"
+        android:layout_height="299dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/text_background"
+        android:orientation="vertical"
+
+        android:padding="10dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <TextView
+            android:id="@+id/txView1"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:layout_marginTop="10dp"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txView2"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold"
+
+            />
+
+        <TextView
+            android:id="@+id/txView3"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold"
+
+            />
+
+        <TextView
+            android:id="@+id/txView4"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold"
+
+            />
+
+        <LinearLayout
+            android:layout_width="@dimen/textViewLongW"
+            android:layout_height="31dp"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="176dp"
+            tools:layout_editor_absoluteY="507dp">
+
+            <TextView
+                android:id="@+id/txView5"
+                android:layout_width="@dimen/textViewW"
+                android:layout_height="@dimen/textViewLongH"
+                android:padding="5dp"
+                android:text="@string/textVacio"
+                android:textSize="@dimen/textViewLong"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/buttCale"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginStart="20dp"
+                android:backgroundTint="@color/button"
+
+                android:padding="1dp"
+                android:text="Mostrar"
+                android:textColor="@color/inner_button"
+
+                tools:ignore="MissingConstraints" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txMore1"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold"
+
+            />
+
+        <TextView
+            android:id="@+id/txMore2"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txMore3"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txMore4"
+            android:layout_width="@dimen/textViewW"
+            android:layout_height="@dimen/textViewLongH"
+            android:padding="5dp"
+            android:text="@string/textVacio"
+            android:textSize="@dimen/textViewLong"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttEdit"
+        android:layout_width="@dimen/buttViewW"
+        android:layout_height="@dimen/buttViewH"
+
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/button"
+        android:text="@string/buttEdit"
+        android:textColor="@color/inner_button"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/lay1" />
 
     <ImageButton
         android:id="@+id/buttNext"
         android:layout_width="65dp"
         android:layout_height="@dimen/buttViewH"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
 
         android:backgroundTint="@color/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.052"
         app:layout_constraintStart_toEndOf="@+id/buttEdit"
-        app:layout_constraintTop_toBottomOf="@+id/txMore5"
+        app:layout_constraintTop_toTopOf="@+id/buttEdit"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@android:drawable/ic_media_next" />
 
@@ -256,17 +238,49 @@
         android:id="@+id/buttPrev"
         android:layout_width="65dp"
         android:layout_height="@dimen/buttViewH"
-        android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
 
         android:backgroundTint="@color/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttEdit"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.912"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/txMore5"
+        app:layout_constraintTop_toTopOf="@+id/buttEdit"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@android:drawable/ic_media_previous" />
+
+
+    <CalendarView
+        android:id="@+id/calenView1"
+        style="@style/Widget.CalendarView.Custom"
+
+        android:layout_width="337dp"
+        android:layout_height="293dp"
+        android:layout_marginTop="10dp"
+
+        android:background="@color/text_background"
+
+        android:dateTextAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+
+    <Button
+        android:id="@+id/buttClos"
+        android:layout_width="@dimen/buttViewW"
+        android:layout_height="@dimen/buttViewH"
+
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/button"
+        android:text="Cerrar"
+        android:textColor="@color/inner_button"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toBottomOf="@+id/lay1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

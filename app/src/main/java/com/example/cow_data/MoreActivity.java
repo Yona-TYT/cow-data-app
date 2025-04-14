@@ -138,8 +138,6 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 mInputList.get(i).setText(listuser.get(currIdx).more3);
                 i++;
                 mInputList.get(i).setText(listuser.get(currIdx).more4);
-                i++;
-                mInputList.get(i).setText(listuser.get(currIdx).more5);
             }
         }
         else {
@@ -213,10 +211,6 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 morlist.add(text);
             }
             text = listuser.get(currIdx).more4;
-            if(!text.isEmpty()){
-                morlist.add(text);
-            }
-            text = listuser.get(currIdx).more5;
             if(!text.isEmpty()){
                 morlist.add(text);
             }

@@ -6,57 +6,35 @@ import static androidx.core.util.TypedValueCompat.dpToPx;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.media.RouteListingPreference;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Filter;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SearchView;
-
-import com.airbnb.lottie.BuildConfig;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.ColorRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -64,35 +42,24 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.room.Room;
 
 import com.example.cow_data.databinding.ActivityMainBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.io.FileOutputStream;
 import java.util.Objects;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
+
 
 import io.reactivex.annotations.NonNull;
 
@@ -194,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dirList.clear();
 
         //Se agrega un indicador numerico para identificar nuevas versiones del save.csv
-        totalList.add(new String[]{"1"});
+        totalList.add(new String[]{"2"});
 
         List<List> mlist = new ArrayList<>();
 
@@ -207,21 +174,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             //------------------------------------------------------
             // Se crea la lista para esportar a csv  ---------------
-            String[] txList= new String[13];
+            String[] txList= new String[14];
 
             txList[0]=listuser.get(i).usuario;
             txList[1]=txname;
             txList[2]=listuser.get(i).color;
             txList[3]=listuser.get(i).litros;
             txList[4]=listuser.get(i).edad;
-            txList[5]=tximg;
-            txList[6]=listuser.get(i).sel1;
-            txList[7]=txsel;
-            txList[8]=listuser.get(i).more1;
-            txList[9]=listuser.get(i).more2;
-            txList[10]=listuser.get(i).more3;
-            txList[11]=listuser.get(i).more4;
-            txList[12]=listuser.get(i).more5;
+            txList[5]=listuser.get(i).edad;
+            txList[6]=tximg;
+            txList[7]=listuser.get(i).sel1;
+            txList[8]=txsel;
+            txList[9]="0";
+            txList[10]=listuser.get(i).more1;
+            txList[11]=listuser.get(i).more2;
+            txList[12]=listuser.get(i).more3;
+            txList[13]=listuser.get(i).more4;
 
             totalList.add(txList);
             //--------------------------------------------------------
@@ -431,13 +399,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (itemId == R.id.save) {
             try {
                 File file = fmang.csvExport(totalList);
+
                 if(file != null) {
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.setType("text/comma-separated-values");
+
+                    Log.d("Files", " --------Aquiiiiiiiiii Hayyyyyy ------------: "+ file);
+
+
                     // Se obtine la Uri , se debe modificar manidest con: android:authorities="com.example.cow_data.provider"
                     Uri fileUri = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".provider", file);
-                    // Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ fileUri.toString());
+                    Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ fileUri.toString());
 
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // this will not work
                     intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); // this will not work
@@ -447,6 +420,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             catch (Exception e) {
+                Log.d("Files", " Trace --------Aquiiiiiiiiii Hayyyyyy ------------: "+ e.getMessage());
+
                 e.printStackTrace();
             }
         }
@@ -488,14 +463,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if(Objects.equals(version, "0")) {
                                     Usuario obj = new Usuario(
                                             spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], "0", (f > 7 ? spl[7] : ""),
-                                            (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")
+                                            "0", (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")
                                     );
                                     appDatabase.daoUser().insetUser(obj);
                                 }
                                 else if(Objects.equals(version, "1")) {
                                     Usuario obj = new Usuario(
                                             spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], (f > 8 ? spl[8] : ""),
-                                            (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")
+                                            "0", (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")
+                                    );
+                                    appDatabase.daoUser().insetUser(obj);
+                                }
+
+                                else if(Objects.equals(version, "2")) {
+                                    Usuario obj = new Usuario(
+                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], spl[8], spl[9],
+                                            (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : ""), (f > 13 ? spl[13] : "")
                                     );
                                     appDatabase.daoUser().insetUser(obj);
                                 }

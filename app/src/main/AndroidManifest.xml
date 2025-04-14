@@ -2,29 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
-    <!--
- Required only if your app needs to access images or photos
-     that other apps created.
-    -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!--
- Required only if your app needs to access videos
-         that other apps created.
-    -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <!--
- Required only if your app needs to access audio files
-         that other apps created.
-    -->
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <!--
- If your app doesn't need to access media files that other apps created,
-         set the "maxSdkVersion" attribute to "28" instead.
-    -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -41,13 +34,12 @@
         <activity
             android:name=".SummaryActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"
             />
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.cow_data.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -58,7 +50,6 @@
         <activity
             android:name=".MoreActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ImgFullscreenActivity"
@@ -69,35 +60,18 @@
         <activity
             android:name=".EditActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".ViewActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize"/>
-        <activity
-            android:name=".ViewDetailHostActivity"
-            android:exported="false"
-            android:label="@string/title_activity_view_detail_host"
-            android:resizeableActivity="true"
-            tools:targetApi="24"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".AddActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|screenSize"/>
-        <activity
-            android:name=".RegistroActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"/>
         <activity
             android:name=".Preloder"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -108,7 +82,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

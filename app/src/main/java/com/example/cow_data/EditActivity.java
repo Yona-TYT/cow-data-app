@@ -1,16 +1,20 @@
 package com.example.cow_data;
 
-import android.annotation.SuppressLint;
-import android.content.ContentValues;
-import android.content.Context;
+import static android.service.controls.ControlsProviderService.TAG;
+
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,33 +30,31 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.time.DateTimeException;
+import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,32 +62,43 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EditActivity extends AppCompatActivity implements View.OnClickListener {
+public class EditActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
     //Base de datos
     public AppDatabase appDatabase = SatrtVar.appDatabase;
+
+    private static final int STORAGE_PERMISSION_CODE = 23;
+    private static final int CAMERA_PERMISSION_CODE = 100;
+    private boolean mPermiss = false;
+    private boolean mCamPermiss = false;
+
+    private ActivityResultLauncher<Uri> takePictureLauncher;
+    private ActivityResultLauncher<String> selectPictureLauncher;
+    private Uri photoUri;
 
     private ImageView mImgPrev;
     private EditText mInput1;
     private EditText mInput2;
     private EditText mInput3;
     private EditText mInput4;
+    private EditText mInput5;
 
     private Spinner mSpin1;
     private Spinner mSpin2;
 
-    private List<TextView> mInputList = new ArrayList<>();
+    private List<EditText> mInputList = new ArrayList<>();
     private List<String> mList = new ArrayList<>();
 
     private Button mBtnMore;
     private ExtendedFloatingActionButton mBtnAdd;
     private ExtendedFloatingActionButton mBtnDel;
-    private SwitchMaterial mSw;
+    private SwitchMaterial mSw1;
     private boolean swDel = false;
+
+    private SwitchMaterial mSw2;
+    private boolean swPre = false;
+
     private ImageButton mBtnCam;
     private CoordinatorLayout mLayout;
-
-    // Para guardar los permisos de app comprobados en main
-    private boolean mPermiss = false;
 
     private String sImage = "";
     private String saveImage = "null";
@@ -155,28 +168,38 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInput2 = findViewById(R.id.txEdit2);
         mInput3 = findViewById(R.id.txEdit3);
         mInput4 = findViewById(R.id.txEdit4);
+        mInput5 = findViewById(R.id.txEdit5);
+
         mSpin1 = findViewById(R.id.spinEdad);
         mSpin2 = findViewById(R.id.spinType);
 
         mBtnMore = findViewById(R.id.buttMORE);
         mBtnAdd  = findViewById(R.id.buttOK);
         mBtnDel  = findViewById(R.id.buttDEL);
-        mSw = findViewById(R.id.swDelete);
+        mSw1 = findViewById(R.id.swDelete);
+        mSw2 = findViewById(R.id.swPre);
         mBtnCam = findViewById(R.id.bttGall);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mSw.setFocusedByDefault(false);
+            mSw1.setFocusedByDefault(false);
+            mSw2.setFocusedByDefault(false);
+
         }
         mBtnMore.setOnClickListener(this);
         mBtnCam.setOnClickListener(this);
+        mBtnCam.setOnLongClickListener(this);
+
         mBtnAdd.setOnClickListener(this);
         mBtnDel.setOnClickListener(this);
-        mSw.setOnClickListener(this);
+        mSw1.setOnClickListener(this);
+        mSw2.setOnClickListener(this);
 
         mInputList.add(mInput1);
         mInputList.add(mInput2);
         mInputList.add(mInput3);
         mInputList.add(mInput4);
+
+        setupActivityResultLaunchers();
 
         //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
@@ -254,8 +277,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             List<Usuario> listuser = SatrtVar.listuser;
 
             int i = 0;
-            currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
-            currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
+            Usuario mList = listuser.get(currIdx);
+            currSel1 = Integer.parseInt(mList.sel1);
+            currSel2 = Integer.parseInt(mList.sel2);
             if(currSel1 == 3){
                 mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
             }
@@ -267,17 +291,24 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
             if (currIdx < listuser.size()) {
                 //Se obtiene el usuario real
-                mUser = listuser.get(currIdx).usuario;
+                mUser = mList.usuario;
 
-                mInputList.get(i).setText(listuser.get(currIdx).nombre);
+                mInputList.get(i).setText(mList.nombre);
                 i++;
-                mInputList.get(i).setText(listuser.get(currIdx).color);
+                mInputList.get(i).setText(mList.color);
                 i++;
-                mInputList.get(i).setText(listuser.get(currIdx).litros);
+                mInputList.get(i).setText(mList.litros);
                 i++;
-                mInputList.get(i).setText(CalcCalendar.dataConverted(listuser.get(currIdx).edad, currSel1));
+                mInputList.get(i).setText(CalcCalendar.dataConverted(mList.edad, currSel1));
                 i++;
-                saveImage = fmang.getImage(listuser.get(currIdx).imagen, mImgPrev);
+
+                mInput5.setText(CalcCalendar.getFormat(mList.pre));
+                swPre = !mList.sel3.equals("0");
+                mInput5.setEnabled(swPre);
+
+                mSw2.setChecked(swPre);
+
+                saveImage = fmang.getImage(mList.imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
                 mSpin1.setSelection(currSel1);
                 mSpin2.setSelection(currSel2);
@@ -286,6 +317,98 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         else {
             textSnackbar("Aqui no hay :(");
         }
+
+        //Para el input de pre -----------------------------------------------------
+
+        mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mText = CalcCalendar.isDateFormat( mInput5.getText().toString());
+                if (swPre && mText.isEmpty()){
+                    textSnackbar("Formato de FECHA incorrecta!.");
+                }
+                else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        int mDayA = SatrtVar.mDayA;
+                        int mDayB = SatrtVar.mDayB;
+
+                        LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(mDayA);
+                        LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(mDayB);
+
+                        textSnackbar("Parto estimado del: "+mDateA.format(formatter)+" al "+ mDateB.format(formatter));
+
+                    }
+                }
+                return false;
+            }
+        });
+
+        mInput5.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                String mText = CalcCalendar.isDateFormat( mInput5.getText().toString());
+                if (swPre && mText.isEmpty()){
+                    textSnackbar("Formato de FECHA incorrecto!.");
+                }
+                else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                        long mDayA = 276;
+                        long mDayB = 283;
+
+                        LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(mDayA);
+                        LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(mDayB);
+
+                        textSnackbar("Parto estimado del: "+mDateA.format(formatter)+" al "+ mDateB.format(formatter));
+
+                    }
+                }
+            }
+        });
+
+        //--------------------------------------------------------------------------
+    }
+
+    private void setupActivityResultLaunchers() {
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+            if (success) {
+                try {
+                    InputStream stream = getContentResolver().openInputStream(photoUri);
+                    currUri = photoUri;
+                    mImgPrev.setImageURI(currUri);
+                    //binding.imageView.setImageBitmap(bitmap);
+                    //processImage(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        selectPictureLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                try {
+                    InputStream stream = getContentResolver().openInputStream(uri);
+                    currUri = uri;
+                    mImgPrev.setImageURI(currUri);
+
+                    //binding.imageView.setImageBitmap(bitmap);
+                    //processImage(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void dispatchSelectPictureIntent() {
+        selectPictureLauncher.launch("image/*");
+    }
+
+    private void dispatchTakePictureIntent() throws IOException {
+        File imageFile = File.createTempFile("IMG_", ".jpg", getCacheDir());
+        photoUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", imageFile);
+        takePictureLauncher.launch(photoUri);
     }
 
     // this event will enable the back
@@ -306,11 +429,17 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         int itemId = view.getId();
         if (itemId == R.id.bttGall) {
-            if (mPermiss){
-                // Launch the photo picker and let the user choose only images.
-                pickMedia.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
+            if(!mPermiss) {
+                mPermiss = checkStoragePermissions();
+                if (!mPermiss){
+                    requestForStoragePermissions();
+                }
             }
-            else{
+            if (mPermiss) {
+                // Launch the photo picker and let the user choose only images.
+                dispatchSelectPictureIntent();
+            }
+            else {
                 textSnackbar("Error Permiso Denegado!");
             }
         }
@@ -389,6 +518,15 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 text = text.replaceAll(",", "");
                 mList.add(text);
             }
+
+            //Se comprueba el imput de fecha pre-------------------------------------------
+            String mPreDate =  CalcCalendar.isDateFormat(mInput5.getText().toString());
+            if (swPre && mPreDate.isEmpty()){
+                msgIdx = 4;
+                result = false;
+            }
+            //-----------------------------------------------------------------------------
+
             if (result) {
                 ArrayList<String> morlist = SatrtVar.morlist;
 
@@ -415,11 +553,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 //-------------------------------------------------------------------
-
                 appDatabase.daoUser().updateUser(
-                        mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4),
-                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSel1), Integer.toString(currSel2),
-                        (max>0?morlist.get(0):""),(max>1?morlist.get(1):""),(max>2?morlist.get(2):""),(max>3?morlist.get(3):""),(max>4?morlist.get(4):"")
+                        mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
+                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSel1), Integer.toString(currSel2),(swPre?"1":"0"),
+                        (max>0?morlist.get(0):""),(max>1?morlist.get(1):""),(max>2?morlist.get(2):""),(max>3?morlist.get(3):"")
                 );
 
                 //listuser.add(currIdx, obj);
@@ -465,11 +602,30 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             finish(); //Finaliza la actividad y ya no se accede mas
 
         }
+        if (itemId == R.id.swPre){
+            swPre = !swPre;
+            mInput5.setEnabled(swPre);
+        }
         if (itemId == R.id.buttMORE) {
             Intent mIntent = new Intent(this, MoreActivity.class);
             mIntent.putExtras(getAndSetBundle());
             startActivity(mIntent);
         }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        int itemId = view.getId();
+        if (itemId == R.id.bttGall) {
+            if( requestForCameraPermissions() || mCamPermiss) {
+                try {
+                    dispatchTakePictureIntent();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return false;
     }
 
     private String getTextMessage(int idx){
@@ -486,12 +642,16 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         else if (idx == 3) {
             msg = "Ingrese el numero de LITROS ";
         }
+        else if (idx == 4) {
+            msg = "Formato de FECHA incorrecto!.";
+        }
         return msg;
     }
 
     private void textSnackbar(String text) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
+
 
     // Registers a photo picker activity launcher in single-select mode.
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
@@ -507,6 +667,113 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("PhotoPicker", "No media selected");
                 }
             });
+
+    private boolean checkStoragePermissions(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+            //Android is 11 (R) or above
+            else if (Environment.isExternalStorageManager()){
+                Log.d("PhotoPicker", " Permiso Aquiiiiiiiiii Hayyyyyy 11100------------------------: " );
+                return true;
+            }
+            else {
+                try {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.addCategory("android.intent.category.DEFAULT");
+                    intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                    startActivityIfNeeded(intent, 101);
+                    return true;
+                }
+                catch (Exception e) {
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    startActivityIfNeeded(intent, 101);
+                    return true;
+                }
+            }
+        }
+        else {
+            Log.d("PhotoPicker", " -----Permiso Aquiiiiiiiiii Hayyyyyy 11100------------------------: " );
+
+            //Below android 11
+            int write = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int read = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            return read == PackageManager.PERMISSION_GRANTED && write == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    private ActivityResultLauncher<Intent> storageActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>(){
+                        @Override
+                        public void onActivityResult(ActivityResult o) {
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+                                //Android is 11 (R) or above
+                                if(Environment.isExternalStorageManager()) {
+                                    //Manage External Storage Permissions Granted
+                                    Log.d(TAG, "onActivityResult: Manage External Storage Permissions Granted");
+                                }
+                                else {
+                                    Toast.makeText(EditActivity.this, "Storage Permissions Denied", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+
+    void requestForStoragePermissions() {
+        //Android is 11 (R) or above
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            try {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+                intent.setData(uri);
+                storageActivityResultLauncher.launch(intent);
+            }
+            catch (Exception e){
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                storageActivityResultLauncher.launch(intent);
+            }
+        }
+        else{
+            //Below android 11
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                    },
+                    STORAGE_PERMISSION_CODE
+            );
+        }
+    }
+
+    private boolean requestForCameraPermissions() {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else{
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(EditActivity.this, "Permisos de Camara ACEPTADOS", Toast.LENGTH_SHORT).show();
+                mCamPermiss = true;
+            } else {
+                Toast.makeText(EditActivity.this, "Permisos de Camara Denegados", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
 
     private Bundle getAndSetBundle() {
         Bundle bundle = new Bundle();

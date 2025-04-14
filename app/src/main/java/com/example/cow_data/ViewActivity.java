@@ -5,7 +5,6 @@ import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,23 +12,21 @@ import java.util.regex.Pattern;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.GridView;
+import android.widget.CalendarView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -44,7 +41,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -55,23 +51,32 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mView2;
     private TextView mView3;
     private TextView mView4;
+    private TextView mView5;
 
     private TextView mMore1;
     private TextView mMore2;
     private TextView mMore3;
     private TextView mMore4;
-    private TextView mMore5;
+
+    private LinearLayout mLay2;
 
     private ImageView mImageView;
     private Button mButtEdit;
     private ImageButton buttNext;
     private ImageButton buttPrev;
 
+
+    private CalendarView mCalen1;
+    private Calendar mCalend;
+    private Button mButtCale;
+    private Button mButtCanc;
+    private boolean mSwCale = false;
+
     private List<TextView> mviewList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
     private ArrayList<String> typeList = SatrtVar.typeList;
 
-    private CoordinatorLayout mLayout;
+    private CoordinatorLayout mLay1;
     private HorizontalScrollView mScroll;
 
     private ActivityResultLauncher<Intent> launcher; // Initialise this object in Activity.onCreate()
@@ -146,34 +151,43 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mView2 = findViewById(R.id.txView2);
         mView3 = findViewById(R.id.txView3);
         mView4 = findViewById(R.id.txView4);
+        mView5 = findViewById(R.id.txView5);
 
         mMore1 = findViewById(R.id.txMore1);
         mMore2 = findViewById(R.id.txMore2);
         mMore3 = findViewById(R.id.txMore3);
         mMore4 = findViewById(R.id.txMore4);
-        mMore5 = findViewById(R.id.txMore5);
 
         mImageView = findViewById(R.id.imageView);
         mButtEdit = findViewById(R.id.buttEdit);
         buttNext = findViewById(R.id.buttNext);
         buttPrev = findViewById(R.id.buttPrev);
-        mLayout = findViewById(R.id.layout2);
+        mButtCale = findViewById(R.id.buttCale);
+        mButtCanc = findViewById(R.id.buttClos);
+        mLay1 = findViewById(R.id.layout2);
+        mLay2 = findViewById(R.id.lay1);
+
+        mCalen1 = findViewById(R.id.calenView1);
 
         mImageView.setOnClickListener(this);
         mButtEdit.setOnClickListener(this);
         buttNext.setOnClickListener(this);
         buttPrev.setOnClickListener(this);
+        mButtCale.setOnClickListener(this);
+        mButtCanc.setOnClickListener(this);
 
         mviewList.add(mView1);
         mviewList.add(mView2);
         mviewList.add(mView3);
         mviewList.add(mView4);
+        mviewList.add(mView5);
+
         mviewList.add(mMore1);
         mviewList.add(mMore2);
         mviewList.add(mMore3);
         mviewList.add(mMore4);
-        mviewList.add(mMore5);
 
+        mCalend = Calendar.getInstance();
         mPermiss = SatrtVar.mPermiss;
         mainSel = SatrtVar.currSel2;
         typeList = SatrtVar.typeList;
@@ -185,32 +199,48 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             int i = 0;
-            currSel1 = Integer.parseInt(listuser.get(currIdx).sel1);
-            currSel2 = Integer.parseInt(listuser.get(currIdx).sel2);
+            Usuario mUser = listuser.get(currIdx);
+            currSel1 = Integer.parseInt(mUser.sel1);
+            currSel2 = Integer.parseInt(mUser.sel2);
             if (currIdx < userSiz) {
-                mviewList.get(i).setText(""+ listuser.get(currIdx).nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
+                mviewList.get(i).setText(""+ mUser.nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
-                mviewList.get(i).setText("Color:   "+ listuser.get(currIdx).color.toUpperCase());
+                mviewList.get(i).setText("Color:   "+ mUser.color.toUpperCase());
                 i++;
                 if(currSel2 == 0) {
-                    mviewList.get(i).setText("Litros:   " + listuser.get(currIdx).litros + " Litros Diarios");
+                    mviewList.get(i).setText("Litros:   " + mUser.litros + " Litros Diarios");
                 }
                 else {
                     mviewList.get(i).setVisibility(View.INVISIBLE);
                 }
                 i++;
-                mviewList.get(i).setText("Edad:   "+dataConverted(listuser.get(currIdx).edad, currSel1)+ " "+mSpinList.get(currSel1));
-                currDir = fmang.getImage(listuser.get(currIdx).imagen, mImageView);
+                mviewList.get(i).setText("Edad:   "+dataConverted(mUser.edad, currSel1)+ " "+mSpinList.get(currSel1));
+                currDir = fmang.getImage(mUser.imagen, mImageView);
                 i++;
-                setTextView(mviewList.get(i), listuser.get(currIdx).more1);
+                if(mUser.sel3.equals("1")) {
+                    mviewList.get(i).setText("Fecha de Parto: (" + mUser.pre + ")");
+
+                    mCalen1.setMinDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayA));
+                    mCalen1.setMaxDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayB));
+
+                    Log.d("Calendar", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayA));
+
+                }
+                else {
+                    mviewList.get(i).setVisibility(View.INVISIBLE);
+                    mCalen1.setVisibility(View.INVISIBLE);
+                    mButtCale.setVisibility(View.INVISIBLE);
+
+                }
                 i++;
-                setTextView(mviewList.get(i), listuser.get(currIdx).more2);
+                setTextView(mviewList.get(i), mUser.more1);
                 i++;
-                setTextView(mviewList.get(i), listuser.get(currIdx).more3);
+                setTextView(mviewList.get(i), mUser.more2);
                 i++;
-                setTextView(mviewList.get(i), listuser.get(currIdx).more4);
+                setTextView(mviewList.get(i), mUser.more3);
                 i++;
-                setTextView(mviewList.get(i), listuser.get(currIdx).more5);
+                setTextView(mviewList.get(i), mUser.more4);
+
             }
         }
         else {
@@ -247,6 +277,32 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         int itemId = view.getId();
+
+        if (itemId == R.id.buttCale) {
+            mSwCale = !mSwCale;
+
+            if(mSwCale){
+                mButtCanc.setVisibility(View.VISIBLE);
+                mCalen1.setVisibility(View.VISIBLE);
+
+                mButtEdit.setVisibility(View.INVISIBLE);
+                buttPrev.setVisibility(View.INVISIBLE);
+                buttNext.setVisibility(View.INVISIBLE);
+                mLay2.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        if (itemId == R.id.buttClos) {
+           mButtCanc.setVisibility(View.INVISIBLE);
+           mCalen1.setVisibility(View.INVISIBLE);
+
+           mButtEdit.setVisibility(View.VISIBLE);
+           buttPrev.setVisibility(View.VISIBLE);
+           buttNext.setVisibility(View.VISIBLE);
+           mLay2.setVisibility(View.VISIBLE);
+        }
+
+
         if (itemId == R.id.buttEdit) {
             Intent mIntent = new Intent(this, EditActivity.class);
             Bundle mBundle = new Bundle();
@@ -342,8 +398,10 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void textSnackbar(String text) {
-        Snackbar mySnackbar = Snackbar.make(mLayout, text, Snackbar.LENGTH_SHORT);
-        mySnackbar.show();
+        Snackbar mySnackbar = Snackbar.make(mLay1, text, Snackbar.LENGTH_SHORT);
+       //mySnackbar.show();
+
+        Toast.makeText(this, text, Toast.LENGTH_SHORT);
     }
 
     boolean isBlockedPath(Context ctx, String fdCanonical) {

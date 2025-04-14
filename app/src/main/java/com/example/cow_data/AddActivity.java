@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,13 +53,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.room.Room;
 
+import androidx.core.content.FileProvider;
+
 import com.example.cow_data.databinding.ActivityMainBinding;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -67,14 +72,21 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AddActivity extends AppCompatActivity implements View.OnClickListener{
+public class AddActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener{
     private ActivityMainBinding binding;
 
     // DB
     private AppDatabase appDatabase = SatrtVar.appDatabase;
 
-    private static final int REQUEST_PERMISSION_CAMERA = 100;
     private static final int STORAGE_PERMISSION_CODE = 23;
+    private static final int CAMERA_PERMISSION_CODE = 100;
+    private boolean mPermiss = false;
+    private boolean mCamPermiss = false;
+
+    private ActivityResultLauncher<Uri> takePictureLauncher;
+    private ActivityResultLauncher<String> selectPictureLauncher;
+    private Uri photoUri;
+
     private ImageButton mBtnCam;
     private ImageView mImgPrev;
 
@@ -83,9 +95,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private EditText mInput2;
     private EditText mInput3;
     private EditText mInput4;
+    private EditText mInput5;
 
     private Spinner mSpin1;
     private Spinner mSpin2;
+
+    private SwitchMaterial mSw1;
+    private boolean swPre = false;
 
     private Button mBtnAdd;
 
@@ -96,9 +112,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private String mIndex = "";
     private Uri oldFile = null;
     private Uri currUri = null;
-
-    // Para guardar los permisos de app comprobados en main
-    private boolean mPermiss = false;
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
@@ -158,18 +171,30 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInput2 = findViewById(R.id.InputData2);
         mInput3 = findViewById(R.id.InputData3);
         mInput4 = findViewById(R.id.inputData4);
+        mInput5 = findViewById(R.id.inputData5);
+
         mSpin1 = findViewById(R.id.spinAddEdad);
         mSpin2 = findViewById(R.id.spinType);
+        mSw1 = findViewById(R.id.ADDswPre);
+
+        mInput5.setEnabled(false);
+
+        mSw1.setChecked(false);
 
         mBtnAdd = findViewById(R.id.buttAdd);
 
         mBtnCam.setOnClickListener(this);
+        mBtnCam.setOnLongClickListener(this);
         mBtnAdd.setOnClickListener(this);
+        mSw1.setOnClickListener(this);
 
         mInputList.add(mInput1);
         mInputList.add(mInput2);
         mInputList.add(mInput3);
         mInputList.add(mInput4);
+        mInputList.add(mInput5);
+
+        setupActivityResultLaunchers();
 
         //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
@@ -240,6 +265,48 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             mIndex = "0";
         }
     }
+
+    private void setupActivityResultLaunchers() {
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+            if (success) {
+                try {
+                    InputStream stream = getContentResolver().openInputStream(photoUri);
+                    currUri = photoUri;
+                    mImgPrev.setImageURI(currUri);
+                    //binding.imageView.setImageBitmap(bitmap);
+                    //processImage(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        selectPictureLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                try {
+                    InputStream stream = getContentResolver().openInputStream(uri);
+                    currUri = uri;
+                    mImgPrev.setImageURI(currUri);
+
+                    //binding.imageView.setImageBitmap(bitmap);
+                    //processImage(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void dispatchSelectPictureIntent() {
+        selectPictureLauncher.launch("image/*");
+    }
+
+    private void dispatchTakePictureIntent() throws IOException {
+        File imageFile = File.createTempFile("IMG_", ".jpg", getCacheDir());
+        photoUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", imageFile);
+        takePictureLauncher.launch(photoUri);
+    }
+
     // this event will enable the back
     // function to the button on press
     @Override
@@ -259,14 +326,24 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     public void onClick(View view) {
         int itemId = view.getId();
         if (itemId == R.id.buttCam) {
-            if (mPermiss){
-                // Launch the photo picker and let the user choose only images.
-                //fmang.FilesManager();
-                pickMedia.launch(new PickVisualMediaRequest.Builder().setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build());
+            if(!mPermiss) {
+                mPermiss = checkStoragePermissions();
+                if (!mPermiss){
+                    requestForStoragePermissions();
+                }
             }
-            else{
+            if (mPermiss) {
+                // Launch the photo picker and let the user choose only images.
+                dispatchSelectPictureIntent();
+            }
+            else {
                 textSnackbar("Error Permiso Denegado!");
             }
+        }
+
+        if (itemId == R.id.ADDswPre){
+            swPre = !swPre;
+            mInput5.setEnabled(swPre);
         }
 
         if (itemId == R.id.buttAdd) {
@@ -349,7 +426,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                     mInputList.get(i).setText("");
                 }
                 //Se guarda la foto en un nuevo directorio --------------------------------
-                Bitmap bitmap = null;
+                Bitmap bitmap;
                 try {
                     if(!sImage.isEmpty() || currUri == null){
                         oldFile = Uri.parse(sImage);
@@ -369,8 +446,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
                 Usuario obj =
                         new Usuario(
-                                mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4),
-                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), "" ,"" ,"" ,"" ,""
+                                mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mList.get(5),
+                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), (swPre?"1":"0") ,"" ,"" ,"" ,""
                             );
                 appDatabase.daoUser().insetUser(obj);
 
@@ -396,6 +473,23 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         }
     }
+
+    @Override
+    public boolean onLongClick(View view) {
+        int itemId = view.getId();
+        if (itemId == R.id.buttCam) {
+            if( requestForCameraPermissions() || mCamPermiss) {
+                try {
+                    dispatchTakePictureIntent();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return false;
+    }
+
+
     private String getTextMessage(int idx){
         String msg = "Error";
         if (idx == 0) {
@@ -432,4 +526,110 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
             });
 
+    private boolean checkStoragePermissions(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+            //Android is 11 (R) or above
+            else if (Environment.isExternalStorageManager()){
+                Log.d("PhotoPicker", " Permiso Aquiiiiiiiiii Hayyyyyy 11100------------------------: " );
+                return true;
+            }
+            else {
+                try {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.addCategory("android.intent.category.DEFAULT");
+                    intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                    startActivityIfNeeded(intent, 101);
+                    return true;
+                }
+                catch (Exception e) {
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    startActivityIfNeeded(intent, 101);
+                    return true;
+                }
+            }
+        }
+        else {
+            Log.d("PhotoPicker", " -----Permiso Aquiiiiiiiiii Hayyyyyy 11100------------------------: " );
+
+            //Below android 11
+            int write = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int read = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            return read == PackageManager.PERMISSION_GRANTED && write == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    private ActivityResultLauncher<Intent> storageActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>(){
+                        @Override
+                        public void onActivityResult(ActivityResult o) {
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+                                //Android is 11 (R) or above
+                                if(Environment.isExternalStorageManager()) {
+                                    //Manage External Storage Permissions Granted
+                                    Log.d(TAG, "onActivityResult: Manage External Storage Permissions Granted");
+                                }
+                                else {
+                                    Toast.makeText(AddActivity.this, "Storage Permissions Denied", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+
+    void requestForStoragePermissions() {
+        //Android is 11 (R) or above
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            try {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+                intent.setData(uri);
+                storageActivityResultLauncher.launch(intent);
+            }
+            catch (Exception e){
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                storageActivityResultLauncher.launch(intent);
+            }
+        }
+        else{
+            //Below android 11
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                    },
+                    STORAGE_PERMISSION_CODE
+            );
+        }
+    }
+
+    private boolean requestForCameraPermissions() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+        else{
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(AddActivity.this, "Permisos de Camara ACEPTADOS", Toast.LENGTH_SHORT).show();
+                mCamPermiss = true;
+            } else {
+                Toast.makeText(AddActivity.this, "Permisos de Camara Denegados", Toast.LENGTH_SHORT).show();
+
+            }
+        }
+    }
 }

@@ -1,9 +1,16 @@
 package com.example.cow_data;
 
 import android.content.Context;
+import android.icu.util.Calendar;
+import android.os.Build;
+import android.util.Log;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -59,6 +66,101 @@ public class CalcCalendar {
             }
         }
         return null;
+    }
+
+    public static String isDateFormat(String rawTx){
+
+        Pattern patt = Pattern.compile("^(\\d{1,2})([/:-])(\\d{1,2})([/:-])(\\d{4})$");
+        Matcher m = patt.matcher(rawTx);
+        if (m.find()) {
+            rawTx = rawTx.replaceAll("[-:]", "/");
+            String[] mArray = rawTx.split("/");
+            if(mArray.length>2){
+                NumberFormat formatter = new DecimalFormat("00");
+                String dd = formatter.format(Integer.parseInt(mArray[0]));
+                String mm = formatter.format(Integer.parseInt(mArray[1]));
+                String yyyy = mArray[2];
+                rawTx = dd+"/"+mm+"/"+yyyy;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                //rawTx = "14/08/2024";
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                try {
+                    LocalDate.parse(rawTx, formatter);
+                }
+                catch (Exception e) {
+                    return "";
+                }
+            }
+            return rawTx;
+        }
+        return "";
+    }
+
+    public static String getFormat(String rawTx){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //rawTx = "14/08/2024";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            try {
+                rawTx = LocalDate.parse(rawTx, formatter).format(formatter);
+            }
+            catch (Exception e) {
+                return "";
+            }
+        }
+        return rawTx;
+    }
+
+    public static long getDateFromDays(Calendar mCale, String rawTx, long days){
+        long myLong = 0;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            try {
+                LocalDate myDate = LocalDate.parse(rawTx, formatter).plusDays(days);
+                mCale.set(Calendar.YEAR, myDate.getYear());
+                mCale.set(Calendar.MONTH, myDate.getMonthValue()-1);
+                mCale.set(Calendar.DAY_OF_MONTH, myDate.getDayOfMonth());
+                myLong = mCale.getTimeInMillis();
+
+            }
+            catch (Exception e) {
+
+                //Log.d("Calendar", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+e.getMessage());
+
+                return 0;
+            }
+        }
+        return myLong;
+    }
+
+    public static String dateDaysCount(String rawTx){
+
+        Pattern patt = Pattern.compile("^(\\d{1,2})([/:-])(\\d{1,2})([/:-])(\\d{4})$");
+        Matcher m = patt.matcher(rawTx);
+        if (m.find()) {
+            rawTx = rawTx.replaceAll("[-:]", "/");
+            String[] mArray = rawTx.split("/");
+            if(mArray.length>2){
+                String dd = Integer.parseInt(mArray[0]) < 10 ? "0"+mArray[0] : mArray[0];
+                String mm = Integer.parseInt(mArray[1]) < 10 ? "0"+mArray[1] : mArray[1];
+                String yyyy = mArray[2];
+                rawTx = dd+"/"+mm+"/"+yyyy;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                //rawTx = "14/08/2024";
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                try {
+                    LocalDate.parse(rawTx, formatter);
+                }
+                catch (Exception e) {
+                    return "";
+                }
+            }
+            return rawTx;
+        }
+        return "";
     }
 }
 

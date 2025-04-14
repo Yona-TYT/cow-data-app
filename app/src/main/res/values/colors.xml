@@ -15,8 +15,15 @@
     <color name="text_background">#99ffffff</color>
     <color name="alert_background">#ff2d06</color>
     <color name="alert_text">#FFFFFF</color>
-    <color name="button">#05a6f1</color>
+    <color name="button">#FF01579B</color>
     <color name="float_button">#05a6f1</color>
     <color name="inner_button">#FFFFFF</color>
+    <color name="invisible">#000000FF</color>
+    <color name="days1">#20341e</color>
+    <color name="days2">#05a6f1</color>
+
+
+
+
 
 </resources>

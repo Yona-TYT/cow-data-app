@@ -15,6 +15,8 @@ public class SatrtVar {
     // Var redundants
     public static List<Usuario> listuser;
     public static boolean mPermiss;
+    public static int mDayA = 276;
+    public static int mDayB = 283;
 
     // DB
     public static AppDatabase appDatabase;
@@ -23,9 +25,7 @@ public class SatrtVar {
     public static ArrayList<String> typeList;
     public static ArrayList<String> morlist = new ArrayList<>();
 
-
     public static int currSel2 = 4;
-
 
     private  Context mContex;
     public  SatrtVar(Context mContex){
