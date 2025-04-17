@@ -103,7 +103,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private final List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
 
-    @SuppressLint({"MissingInflatedId", "RestrictedApi"})
+    @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -214,7 +214,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                     mviewList.get(i).setVisibility(View.INVISIBLE);
                 }
                 i++;
-                mviewList.get(i).setText("Edad:   "+dataConverted(mUser.edad, currSel1)+ " "+mSpinList.get(currSel1));
+                mviewList.get(i).setText("Edad: "+dataConverted(mUser.edad));
                 currDir = fmang.getImage(mUser.imagen, mImageView);
                 i++;
                 if(mUser.sel3.equals("1")) {
@@ -411,32 +411,40 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         }
         return false;
     }
-    public String dataConverted(String text, int selec){
+    public String dataConverted(String text){
+        //Log.d("Calendar", "View -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+text);
+
+        if(text.isEmpty()){
+            return "";
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             //Convierte Sting  a forrmato de fecha
             LocalDate date = LocalDate.parse(text);
             //Inicia la fecha actual
             LocalDate currdate = LocalDate.now();
 
+            String mText = "";
+
             long vlresult = 0;
             //Para años
-            if(selec == 0){
-                vlresult = ChronoUnit.YEARS.between(date, currdate);
+            int mYears = date.until(currdate).getYears();
+            if(mYears > 1){
+                mText += mYears+" años ";
             }
+
             //Para meses
-            else if(selec == 1){
-                vlresult = ChronoUnit.MONTHS.between(date, currdate );
+            int mMonth = date.until(currdate).getMonths();
+            if(mMonth >= 1){
+                mText += mMonth+" meses ";
             }
             //Para Dias
-            else if(selec == 2){
-                vlresult = ChronoUnit.DAYS.between(date, currdate );
+            int mDays = date.until(currdate).getDays();
+            if(mDays >= 0){
+                mText += mDays+" dias";
             }
-            //Para Formato de fecha
-            else if(selec == 3){
-                Period result = date.until(currdate);
-                return result.getYears()+" Años y "+result.getMonths()+" Meses";
-            }
-            return ""+(vlresult < 0? 1 : vlresult);
+
+            return  mText.isEmpty()?"Fecha no Valida":mText;
+
         }
         return "1";
     }

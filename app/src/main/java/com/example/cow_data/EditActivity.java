@@ -91,10 +91,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private Button mBtnMore;
     private ExtendedFloatingActionButton mBtnAdd;
     private ExtendedFloatingActionButton mBtnDel;
-    private SwitchMaterial mSw1;
+    private SwitchMaterial mSw2;
     private boolean swDel = false;
 
-    private SwitchMaterial mSw2;
+    private SwitchMaterial mSw1;
     private boolean swPre = false;
 
     private ImageButton mBtnCam;
@@ -110,7 +110,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "D-M-A");
+    private List<String> mSpinL1 = Arrays.asList("Fech. Nacim.", "Años", "Meses", "Dias", "A/M/D");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -176,14 +176,13 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mBtnMore = findViewById(R.id.buttMORE);
         mBtnAdd  = findViewById(R.id.buttOK);
         mBtnDel  = findViewById(R.id.buttDEL);
-        mSw1 = findViewById(R.id.swDelete);
-        mSw2 = findViewById(R.id.swPre);
+        mSw1 = findViewById(R.id.swPre);
+        mSw2 = findViewById(R.id.swDelete);
         mBtnCam = findViewById(R.id.bttGall);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mSw1.setFocusedByDefault(false);
             mSw2.setFocusedByDefault(false);
-
         }
         mBtnMore.setOnClickListener(this);
         mBtnCam.setOnClickListener(this);
@@ -208,21 +207,35 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currSel1 = i;
-                if(i == 3){
+                if(i == 0){
+                    mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                    mInput4.setHint("dd/mm/aaaa");
+
+                    String text = CalcCalendar.getFormatDateEN(mInput4.getText().toString());
+                    if(text.isEmpty()){
+                       mInput4.setText("");
+                    }
+                }
+                else if(i == 4){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
                     String text = mInput4.getText().toString();
                     String[] txlist = CalcCalendar.dataValidate(text);
                     if(txlist == null){
                         mInput4.setText("");
-                        mInput4.setHint("Ejemplo: 1-1-1");
+                        mInput4.setHint("año/mes/dia");
 
                     }
                 }
                 else {
                     String text = mInput4.getText().toString();
+                    Pattern patt = Pattern.compile("^(\\d{1,2})([/:-])(\\d{1,2})([/:-])(\\d{4})$");
+                    Matcher m = patt.matcher(text);
+                    if (m.find()) {
+                        text = "";
+                    }
                     String[] txlist = CalcCalendar.dataValidate(text);
                     if(txlist == null){
-                        Pattern patt = Pattern.compile("(\\d{1,3})$");
+                        patt = Pattern.compile("(\\d{1,3})$");
                         Matcher matcher = patt.matcher(text);
                         if(!matcher.find()) {
                             mInput4.setText("");
@@ -248,18 +261,30 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                //SatrtVar test = new SatrtVar(EditActivity.this);
-                //test.setUserListDB();
-                //Toast.makeText(EditActivity.this, "Siz is "+SatrtVar.currSel2, Toast.LENGTH_LONG).show();
-
                 currSel2 = i;
                 if(i == 0){
                     mInput3.setEnabled(true);
+
+                    mInput5.setVisibility(View.VISIBLE);
+                    mSw1.setVisibility(View.VISIBLE);
                 }
+                else if(i == 1){
+                    mInput3.setText("0");
+                    mInput3.setEnabled(false);
+
+                    mInput5.setVisibility(View.VISIBLE);
+                    mSw1.setVisibility(View.VISIBLE);
+                }
+
                 else {
                     mInput3.setText("0");
                     mInput3.setEnabled(false);
+
+                    mInput5.setVisibility(View.INVISIBLE);
+                    mInput5.setEnabled(false);
+                    mSw1.setVisibility(View.INVISIBLE);
+                    swPre = false;
+                    mSw1.setChecked(false);
                 }
             }
             @Override
@@ -300,13 +325,15 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mInputList.get(i).setText(mList.litros);
                 i++;
                 mInputList.get(i).setText(CalcCalendar.dataConverted(mList.edad, currSel1));
+                //Log.d("Calendar", "Calen1 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getFormatDateES(mList.edad));
                 i++;
 
-                mInput5.setText(CalcCalendar.getFormat(mList.pre));
+                mInput5.setText(CalcCalendar.getFormatDateES(mList.pre));
+
                 swPre = !mList.sel3.equals("0");
                 mInput5.setEnabled(swPre);
 
-                mSw2.setChecked(swPre);
+                mSw1.setChecked(swPre);
 
                 saveImage = fmang.getImage(mList.imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
@@ -323,22 +350,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                String mText = CalcCalendar.isDateFormat( mInput5.getText().toString());
-                if (swPre && mText.isEmpty()){
-                    textSnackbar("Formato de FECHA incorrecta!.");
-                }
-                else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                        int mDayA = SatrtVar.mDayA;
-                        int mDayB = SatrtVar.mDayB;
-
-                        LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(mDayA);
-                        LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(mDayB);
-
-                        textSnackbar("Parto estimado del: "+mDateA.format(formatter)+" al "+ mDateB.format(formatter));
-
-                    }
+                if (swPre) {
+                    chehkingPreInput();
                 }
                 return false;
             }
@@ -347,27 +360,30 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInput5.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                String mText = CalcCalendar.isDateFormat( mInput5.getText().toString());
-                if (swPre && mText.isEmpty()){
-                    textSnackbar("Formato de FECHA incorrecto!.");
-                }
-                else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                        long mDayA = 276;
-                        long mDayB = 283;
-
-                        LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(mDayA);
-                        LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(mDayB);
-
-                        textSnackbar("Parto estimado del: "+mDateA.format(formatter)+" al "+ mDateB.format(formatter));
-
-                    }
+                if (!b && swPre) {
+                    chehkingPreInput();
                 }
             }
         });
 
         //--------------------------------------------------------------------------
+    }
+
+    private void chehkingPreInput(){
+        String mText = CalcCalendar.isDateFormat(mInput5.getText().toString());
+        if (mText.isEmpty()) {
+            textSnackbar("Formato de FECHA incorrecto!.");
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+                LocalDate mDateA = LocalDate.parse(mText).plusDays(SatrtVar.mDayA);
+                LocalDate mDateB = LocalDate.parse(mText).plusDays(SatrtVar.mDayB);
+
+                textSnackbar("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+            }
+        }
     }
 
     private void setupActivityResultLaunchers() {
@@ -467,35 +483,45 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 //Input de Edad
                 if(i == 3){
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        long vlresult = currSel1 == 3? 0 : Long.parseLong(text);
+                        long vlresult = Long.parseLong(text.replaceAll("\\D",""));
 
-                        //Inicia la fecha a comparra en cero
+                        //Inicia la fecha a comparar en cero
                         LocalDate date = LocalDate.of(1, 1, 1);
                         //Inicia la fecha actual
                         LocalDate currdate = LocalDate.now();
                         String res= "";
-                        //Para años
+                        //Para Fechas de nacimiento
                         if(currSel1 == 0){
+                            String mDate =  CalcCalendar.isDateFormat(text);
+                            if (mDate.isEmpty()){
+                                msgIdx = 4;
+                                result = false;
+                                break;
+                            }
+                            res = mDate;
+                        }
+                        //Para años
+                        else if(currSel1 == 1){
                             LocalDate from = currdate.minusYears(vlresult);
                             res = from.toString();
                         }
                         //Para meses
-                       else if(currSel1 == 1){
+                       else if(currSel1 == 2){
                             LocalDate from = currdate.minusMonths(vlresult);
                             res = from.toString();
                         }
                        //Para Dias
-                        else if(currSel1 == 2){
+                        else if(currSel1 == 3){
                             LocalDate from = currdate.minusDays(vlresult);
                             res = from.toString();
                         }
                         //Para Validar Fechas completas
-                        else if(currSel1 == 3){
+                        else if(currSel1 == 4){
                             String[] dateList = CalcCalendar.dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
-                                LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
+                                LocalDate from = currdate.minusYears(Long.parseLong(dateList[0]));
                                 from = from.minusMonths(Long.parseLong(dateList[1]));
-                                from = from.minusDays(Long.parseLong(dateList[0]));
+                                from = from.minusDays(Long.parseLong(dateList[2]));
                                 //Log.d("PhotoPicker", "1-->>>>>>>>>>>>>>>>>>>>>>>>>>>> Experimento: "+ from.toString());
                                 res = from.toString();
                             }

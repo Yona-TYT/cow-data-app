@@ -2,8 +2,6 @@ package com.example.cow_data;
 
 import static android.service.controls.ControlsProviderService.TAG;
 
-import static androidx.core.util.TypedValueCompat.dpToPx;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -25,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.SearchView;
@@ -38,6 +35,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -88,7 +86,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchAdapter mAdapter;
     private GridView gridView;
     private ArrayList<String> dirList = new ArrayList<>();
-    private ArrayList<String> textList = new ArrayList<>();
+    private ArrayList<String> nameList = new ArrayList<>();
+    private ArrayList<String> ltrosList = new ArrayList<>();
+    private ArrayList<String> datePreList = new ArrayList<>();
+    private ArrayList<String> swPreList = new ArrayList<>();
     //---------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -168,9 +169,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         List<Integer> selList = new ArrayList<>();
         for(int i = 0; i < listuser.size(); i++) {
             // Se definen los datos de la imagen y el nombre--------
-            String tximg = listuser.get(i).imagen;
-            String txname = listuser.get(i).nombre;
-            String txsel = listuser.get(i).sel2;
+            Usuario myUser = listuser.get(i);
+            String tximg = myUser.imagen;
+            String txname = myUser.nombre;
+            String txsel2 = myUser.sel2;
+            String txsel3 = myUser.sel3;
+            String txpre = myUser.pre;
+            String txlitros = myUser.litros;
+
 
             //------------------------------------------------------
             // Se crea la lista para esportar a csv  ---------------
@@ -178,27 +184,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             txList[0]=listuser.get(i).usuario;
             txList[1]=txname;
-            txList[2]=listuser.get(i).color;
-            txList[3]=listuser.get(i).litros;
-            txList[4]=listuser.get(i).edad;
-            txList[5]=listuser.get(i).edad;
+            txList[2]=myUser.color;
+            txList[3]=myUser.litros;
+            txList[4]=myUser.edad;
+            txList[5]=txpre;
             txList[6]=tximg;
-            txList[7]=listuser.get(i).sel1;
-            txList[8]=txsel;
-            txList[9]="0";
-            txList[10]=listuser.get(i).more1;
-            txList[11]=listuser.get(i).more2;
-            txList[12]=listuser.get(i).more3;
-            txList[13]=listuser.get(i).more4;
+            txList[7]=myUser.sel1;
+            txList[8]=txsel2;
+            txList[9]=txsel3;
+            txList[10]=myUser.more1;
+            txList[11]=myUser.more2;
+            txList[12]=myUser.more3;
+            txList[13]=myUser.more4;
 
             totalList.add(txList);
+
             //--------------------------------------------------------
+            // Se obtine la direccion de la image,  el nombre, la listSelec etc.
+            nameList.add(txname);
+            ltrosList.add(txlitros);
+            datePreList.add(txpre);
 
-            typeList.add(txsel);
+            swPreList.add(txsel3);
+            typeList.add(txsel2);
 
-            // Se obtine la direccion de la image,  el nombre y la listSelec
-            textList.add(txname);
-            selList.add(Integer.parseInt(txsel));
+            selList.add(Integer.parseInt(txsel2));
 
             if ( fmang.isBlockedPath(this, tximg)) {
                 dirList.add(tximg);
@@ -212,12 +222,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(mPermiss) {
             int mainSelec = SatrtVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
-            for(int j =0; j < textList.size(); j++){
-                String[] stList= new String[3];
-                stList[0] = textList.get(j);
-                stList[1] = dirList.get(j);
-                stList[2] = Integer.toString(j);
-                mtxList.add(stList);
+            for(int j = 0; j < nameList.size(); j++){
+                mtxList.add(setGalleryArray(j));
             }
             gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
 
@@ -244,23 +250,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                    // Toast.makeText(MainActivity.this, "Siz is "+test.getUserList().size(), Toast.LENGTH_LONG).show();
 
                     List<String[]> mtxList = new ArrayList<>();
-                    for(int ii =0; ii < textList.size(); ii++){
+                    for(int ii = 0; ii < nameList.size(); ii++){
                         if(currSel2 == 4 || currSel2 == selList.get(ii)){
                             if(idxList.isEmpty()) {
-                                String[] stList = new String[3];
-                                stList[0] = textList.get(ii);
-                                stList[1] = dirList.get(ii);
-                                stList[2] = Integer.toString(ii);
-                                mtxList.add(stList);
+                                mtxList.add(setGalleryArray(ii));
                             }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == ii){
-                                        String[] stList = new String[3];
-                                        stList[0] = textList.get(ii);
-                                        stList[1] = dirList.get(ii);
-                                        stList[2] = Integer.toString(ii);
-                                        mtxList.add(stList);
+                                        mtxList.add(setGalleryArray(ii));
                                     }
                                 }
                             }
@@ -274,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
 
-
             //Para el adapter del buscador -------------------------------------------------------
             searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
@@ -282,23 +279,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
                     //Toast.makeText(MainActivity.this, "Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
                     List<String[]> mtxList = new ArrayList<>();
-                    for(int i =0; i < textList.size(); i++){
+                    for(int i = 0; i < nameList.size(); i++){
                         if(currSel2 == 4 || currSel2 == selList.get(i)){
                             if(idxList.isEmpty()) {
-                                String[] stList = new String[3];
-                                stList[0] = textList.get(i);
-                                stList[1] = dirList.get(i);
-                                stList[2] = Integer.toString(i);
-                                mtxList.add(stList);
+                                mtxList.add(setGalleryArray(i));
                             }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == i){
-                                        String[] stList = new String[3];
-                                        stList[0] = textList.get(i);
-                                        stList[1] = dirList.get(i);
-                                        stList[2] = Integer.toString(i);
-                                        mtxList.add(stList);
+                                        mtxList.add(setGalleryArray(i));
                                     }
                                 }
                             }
@@ -338,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // on below line we are creating a variable for rect
                 Rect rect = new Rect();
 
-                RelativeLayout contain = findViewById(R.id.container);
+                ConstraintLayout contain = findViewById(R.id.container);
 
                 // on below line getting frame for our relative layout.
                 contain.getWindowVisibleDisplayFrame(rect);
@@ -361,6 +350,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //------------------------------------------------------------------------------------------------
     }
 
+    private String[] setGalleryArray(int idx){
+        String[] stList = new String[7];
+        stList[0] = dirList.get(idx);
+        stList[1] = nameList.get(idx);
+        stList[2] = ltrosList.get(idx);
+        stList[3] = datePreList.get(idx);
+        stList[4] = typeList.get(idx);
+        stList[5] = swPreList.get(idx);
+        stList[6] = Integer.toString(idx);
+        return stList;
+    }
     @SuppressLint("ResourceType")
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -382,8 +382,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             item.setTitle(spannabl);
         }
         //test.setBackgroundColor(ContextCompat.getColor(test.getContext(), R.color.purple_500));
-
-
         return true;
     }
 
@@ -438,7 +436,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return true;
     }
-
     //Para importar archivos CSV
     private final ActivityResultLauncher<String[]> mCsvRequest = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(),
@@ -469,9 +466,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 else if(Objects.equals(version, "1")) {
                                     Usuario obj = new Usuario(
-                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], (f > 8 ? spl[8] : ""),
-                                            "0", (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")
-                                    );
+                                            spl[0], spl[1], spl[2], spl[3], spl[4], ""/*spl[5]*/, spl[5], spl[6], spl[7], "0",
+                                            (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")                                    );
                                     appDatabase.daoUser().insetUser(obj);
                                 }
 

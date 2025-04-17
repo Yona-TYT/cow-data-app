@@ -1,29 +1,20 @@
 package com.example.cow_data;
 
-import static android.service.controls.ControlsProviderService.TAG;
-import static android.widget.GridLayout.CENTER;
 import static android.widget.GridLayout.spec;
 
-import android.app.ActionBar;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
@@ -52,26 +43,28 @@ public class GalleryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        return Long.parseLong(textList.get(i)[2]);
+        return Long.parseLong(textList.get(i)[6]);
     }
 
     @Override
     public View getView(int pos, View convertView, ViewGroup parent){
+        LinearLayout layoutH = new LinearLayout(mContex);
+        // Se ajustan los parametros del layout ---------------------------------------
+        layoutH.setOrientation(LinearLayout.HORIZONTAL);
+        if(textList.get(pos)[5].equals("1")) {
+            layoutH.setBackgroundColor(ContextCompat.getColor(layoutH.getContext(), R.color.highlight_background));
+        }
+        else{
+            layoutH.setBackgroundColor(ContextCompat.getColor(layoutH.getContext(), R.color.text_background));
+
+        }
+        layoutH.setPadding(5,5,5,5);
+        //-------------------------------------------------------------------------------
+
         ImageView mimgView = new ImageView(mContex);
-        TextView text = new TextView(mContex);
-        LinearLayout layout = new LinearLayout(mContex);
-        // Se ajustan los parametros del Texto ----------------------------------
-        text.setText(textList.get(pos)[0]);
-        text.setTypeface(Typeface.DEFAULT_BOLD);
-        text.setGravity(Gravity.CENTER);
-        text.setTextSize(12);
-        text.setMaxLines(1);
-        text.setPadding(2,2,2,2);
-        text.setBackgroundColor(ContextCompat.getColor(text.getContext(), R.color.text_background));
-        //-----------------------------------------------------------------------
 
         // Se ajustan los parametros de las imagenes-------------------------------
-        String dir = textList.get(pos)[1];
+        String dir = textList.get(pos)[0];
         if(!dir.isEmpty()) {
              File file = new File(dir);
              boolean threis = file.exists();
@@ -102,16 +95,52 @@ public class GalleryAdapter extends BaseAdapter {
         cardView.addView(mimgView);
         cardView.setRadius(20f);
 
+        layoutH.addView(cardView);
         //------------------------------------------------------------------------------
 
+        // Se ajustan los parametros de los TextView--------------------------------------
+
+        LinearLayout layoutV = new LinearLayout(mContex);
         // Se ajustan los parametros del layout ---------------------------------------
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setBackgroundColor(ContextCompat.getColor(text.getContext(), R.color.text_background));
-        layout.setPadding(5,5,5,5);
-        layout.addView(text);
-        layout.addView(cardView);
+        layoutV.setOrientation(LinearLayout.VERTICAL);
+        layoutV.setPadding(5,5,5,5);
         //-------------------------------------------------------------------------------
 
-        return layout;
+        // Texto Name
+        TextView text1 = setTextView(textList.get(pos)[1]);
+        layoutV.addView(text1);
+
+        //Litros Text
+        if(textList.get(pos)[4].equals("0")) {
+            TextView text2 = setTextView("Litros: "+textList.get(pos)[2]+" (diarios)");
+            layoutV.addView(text2);
+        }
+
+        //Date Text
+        if(textList.get(pos)[5].equals("1")) {
+            String txCount = CalcCalendar.dateDaysCount(textList.get(pos)[3]);
+            TextView text3 = setTextView("Preñada (faltan "+txCount+" dias)");
+            layoutV.addView(text3);
+        }
+
+        layoutH.addView(layoutV);
+        //-------------------------------------------------------------------------------
+
+        return layoutH;
+    }
+
+    private TextView setTextView(String mText){
+        TextView mView = new TextView(mContex);
+
+        // Se ajustan los parametros del Texto ----------------------------------
+        mView.setText(mText);
+        mView.setTypeface(Typeface.DEFAULT_BOLD);
+        mView.setGravity(Gravity.START);
+        mView.setTextSize(18);
+        mView.setMaxLines(1);
+        mView.setPadding(8,2,8,2);
+        //-----------------------------------------------------------------------
+
+        return mView;
     }
 }

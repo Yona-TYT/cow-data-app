@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -66,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -118,7 +120,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinL1 = Arrays.asList("Años", "Meses", "Dias", "D-M-A");
+    private List<String> mSpinL1 = Arrays.asList("Fech. Nacim.", "Años", "Meses", "Dias", "D/M/A");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -179,6 +181,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         mInput5.setEnabled(false);
 
+
         mSw1.setChecked(false);
 
         mBtnAdd = findViewById(R.id.buttAdd);
@@ -192,7 +195,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInputList.add(mInput2);
         mInputList.add(mInput3);
         mInputList.add(mInput4);
-        mInputList.add(mInput5);
 
         setupActivityResultLaunchers();
 
@@ -203,14 +205,22 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currSel1 = i;
-                if(i == 3){
+                if(i == 0){
+                    mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                    mInput4.setHint("Edad: dd/mm/aaaa");
+
+                    String text = CalcCalendar.getFormatDateEN(mInput4.getText().toString());
+                    if(text.isEmpty()){
+                        mInput4.setText("");
+                    }
+                }
+                else if(i == 3){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
                     String text = mInput4.getText().toString();
                     String[] txlist = CalcCalendar.dataValidate(text);
                     if(txlist == null){
                         mInput4.setText("");
-                        mInput4.setHint("Ejemplo: 1-1-1");
-
+                        mInput4.setHint("año/mes/dia");
                     }
                 }
                 else {
@@ -246,15 +256,30 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 currSel2 = i;
                 if(i == 0){
                     mInput3.setEnabled(true);
+
+                    mInput5.setVisibility(View.VISIBLE);
+                    mSw1.setVisibility(View.VISIBLE);
+                }
+                else if(i == 1){
+                    mInput3.setText("0");
+                    mInput3.setEnabled(false);
+
+                    mInput5.setVisibility(View.VISIBLE);
+                    mSw1.setVisibility(View.VISIBLE);
                 }
                 else {
                     mInput3.setText("0");
                     mInput3.setEnabled(false);
+
+                    mInput5.setVisibility(View.INVISIBLE);
+                    mInput5.setEnabled(false);
+                    mSw1.setVisibility(View.INVISIBLE);
+                    swPre = false;
+                    mSw1.setChecked(false);
                 }
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
         //--------------------------------------------------------------------------------------------
@@ -295,6 +320,44 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
             }
         });
+
+        //Para el input de pre -----------------------------------------------------
+
+        mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (swPre) {
+                    chehkingPreInput();
+                }
+                return false;
+            }
+        });
+
+        mInput5.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!b && swPre) {
+                    chehkingPreInput();
+                }
+            }
+        });
+
+        //--------------------------------------------------------------------------
+    }
+
+    private void chehkingPreInput(){
+        String mText = CalcCalendar.isDateFormat(mInput5.getText().toString());
+        if (mText.isEmpty()) {
+            textSnackbar("Formato de FECHA incorrecto!.");
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate mDateA = LocalDate.parse(mText).plusDays(SatrtVar.mDayA);
+                LocalDate mDateB = LocalDate.parse(mText).plusDays(SatrtVar.mDayB);
+                textSnackbar("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+            }
+        }
     }
 
     private void dispatchSelectPictureIntent() {
@@ -369,7 +432,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 //Input de Edad
                 if(i == 3){
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        long vlresult = currSel1==3? 0 : Long.parseLong(text);
+                        long vlresult = Long.parseLong(text.replaceAll("\\D",""));
 
                         //Inicia la fecha a comparra en cero
                         LocalDate date = LocalDate.of(1, 1, 1);
@@ -377,29 +440,38 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         LocalDate currdate = LocalDate.now();
 
                         String res= "";
-
-                        //Para años
+                        //Para Fechas de nacimiento
                         if(currSel1 == 0){
+                            String mDate =  CalcCalendar.isDateFormat(text);
+                            if (mDate.isEmpty()){
+                                msgIdx = 4;
+                                result = false;
+                                break;
+                            }
+                            res = mDate;
+                        }
+                        //Para años
+                        else if(currSel1 == 1){
                             LocalDate from = currdate.minusYears(vlresult);
                             res = from.toString();
                         }
                         //Para meses
-                        else if(currSel1 == 1){
+                        else if(currSel1 == 2){
                             LocalDate from = currdate.minusMonths(vlresult);
                             res = from.toString();
                         }
                         //Para Dias
-                        else if(currSel1 == 2){
+                        else if(currSel1 == 3){
                             LocalDate from = currdate.minusDays(vlresult);
                             res = from.toString();
                         }
                         //Para Validar Fechas completas
-                        else if(currSel1 == 3){
+                        else if(currSel1 == 4){
                             String[] dateList = CalcCalendar.dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
-                                LocalDate from = currdate.minusYears(Long.parseLong(dateList[2]));
+                                LocalDate from = currdate.minusYears(Long.parseLong(dateList[0]));
                                 from = from.minusMonths(Long.parseLong(dateList[1]));
-                                from = from.minusDays(Long.parseLong(dateList[0]));
+                                from = from.minusDays(Long.parseLong(dateList[2]));
                                 //Log.d("PhotoPicker", "1-->>>>>>>>>>>>>>>>>>>>>>>>>>>> Experimento: "+ from.toString());
                                 res = from.toString();
                             }
@@ -420,6 +492,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
                 mList.add(text);
             }
+            //Se comprueba el imput de fecha pre-------------------------------------------
+            String mPreDate =  CalcCalendar.isDateFormat(mInput5.getText().toString());
+            if (swPre && mPreDate.isEmpty()){
+                msgIdx = 4;
+                result = false;
+            }
+            //-----------------------------------------------------------------------------
             if (result) {
                 //Para Limpiar Todos Los inputs
                 for(int i = 0; i < mInputList.size(); i++) {
@@ -446,7 +525,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
                 Usuario obj =
                         new Usuario(
-                                mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mList.get(5),
+                                mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
                                 sImage, Integer.toString(currSel1), Integer.toString(currSel2), (swPre?"1":"0") ,"" ,"" ,"" ,""
                             );
                 appDatabase.daoUser().insetUser(obj);
@@ -503,6 +582,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         }
         else if (idx == 3) {
             msg = "Ingrese el numero de LITROS ";
+        }
+        else if (idx == 4) {
+            msg = "Formato de FECHA incorrecto!.";
         }
         return msg;
     }

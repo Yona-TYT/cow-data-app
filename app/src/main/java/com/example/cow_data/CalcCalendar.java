@@ -1,6 +1,5 @@
 package com.example.cow_data;
 
-import android.content.Context;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.util.Log;
@@ -10,9 +9,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +17,9 @@ public class CalcCalendar {
     public CalcCalendar(){
     }
     public static String dataConverted(String text, int selec){
+        if(text.isEmpty()){
+            return "";
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             //Convierte Sting  a forrmato de fecha
             LocalDate date = LocalDate.parse(text);
@@ -27,22 +27,28 @@ public class CalcCalendar {
             LocalDate currdate = LocalDate.now();
 
             long vlresult = 0;
-            //Para años
+
+            //Para fecha de Nacimiento
             if(selec == 0){
+                //Log.d("Calendar", "Calen3 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+text);
+                return getFormatDateES(text);
+            }
+            //Para años
+            else if(selec == 1){
                 vlresult = ChronoUnit.YEARS.between(date, currdate);
             }
             //Para meses
-            else if(selec == 1){
+            else if(selec == 2){
                 vlresult = ChronoUnit.MONTHS.between(date, currdate );
             }
             //Para Dias
-            else if(selec == 2){
+            else if(selec == 3){
                 vlresult = ChronoUnit.DAYS.between(date, currdate );
             }
             //Para Formato de fecha
-            else if(selec == 3){
+            else if(selec == 4){
                 Period result = date.until(currdate);
-                return result.getDays()+"-"+result.getMonths()+"-"+result.getYears();
+                return result.getYears()+"-"+result.getMonths()+"-"+result.getDays();
             }
             return ""+(vlresult < 0? 1 : vlresult);
         }
@@ -86,28 +92,57 @@ public class CalcCalendar {
                 //rawTx = "14/08/2024";
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 try {
-                    LocalDate.parse(rawTx, formatter);
+                    LocalDate date = LocalDate.parse(rawTx, formatter);
+                    //Inicia la fecha actual
+                    LocalDate currdate = LocalDate.now();
+//                    //Para descartar fechas futuras
+//                    if (date.until(currdate).getDays() > 0) {
+//                        rawTx = date.toString();
+//                    }
+                    rawTx = date.toString();
                 }
                 catch (Exception e) {
                     return "";
                 }
             }
+           // Log.d("Calendar", "Calen RESULT -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
             return rawTx;
         }
         return "";
     }
 
-    public static String getFormat(String rawTx){
+    public static String getFormatDateES(String rawTx){
+        //Log.d("Calendar", "Calen ES -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
+
+        return getFormatDate(rawTx,"","dd/MM/yyyy");
+    }
+
+    public static String getFormatDateEN(String rawTx){
+        //Log.d("Calendar", "Calen EN -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
+
+        return getFormatDate(rawTx,"dd/MM/yyyy", "yyyy/MM/dd");
+    }
+
+    public static String getFormatDate(String rawTx, String txA, String txB){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //rawTx = "14/08/2024";
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter formatA = DateTimeFormatter.ofPattern(txA);
+            DateTimeFormatter formatB = DateTimeFormatter.ofPattern(txB);
             try {
-                rawTx = LocalDate.parse(rawTx, formatter).format(formatter);
+                if (txA.isEmpty()) {
+                    rawTx = LocalDate.parse(rawTx).format(formatB);
+                }
+                else{
+                    rawTx = LocalDate.parse(rawTx, formatA).format(formatB);
+                }
             }
             catch (Exception e) {
+                //Log.d("Calendar", "Calen2 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+e.getMessage());
+
                 return "";
             }
         }
+        //Log.d("Calendar", "Calen4 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
+
         return rawTx;
     }
 
@@ -115,15 +150,12 @@ public class CalcCalendar {
         long myLong = 0;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
             try {
-                LocalDate myDate = LocalDate.parse(rawTx, formatter).plusDays(days);
+                LocalDate myDate = LocalDate.parse(rawTx).plusDays(days);
                 mCale.set(Calendar.YEAR, myDate.getYear());
                 mCale.set(Calendar.MONTH, myDate.getMonthValue()-1);
                 mCale.set(Calendar.DAY_OF_MONTH, myDate.getDayOfMonth());
                 myLong = mCale.getTimeInMillis();
-
             }
             catch (Exception e) {
 
@@ -136,29 +168,17 @@ public class CalcCalendar {
     }
 
     public static String dateDaysCount(String rawTx){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                LocalDate mDate = LocalDate.parse(rawTx).plusDays(SatrtVar.mDayA);
+                //Inicia la fecha actual
+                LocalDate currdate = LocalDate.now();
 
-        Pattern patt = Pattern.compile("^(\\d{1,2})([/:-])(\\d{1,2})([/:-])(\\d{4})$");
-        Matcher m = patt.matcher(rawTx);
-        if (m.find()) {
-            rawTx = rawTx.replaceAll("[-:]", "/");
-            String[] mArray = rawTx.split("/");
-            if(mArray.length>2){
-                String dd = Integer.parseInt(mArray[0]) < 10 ? "0"+mArray[0] : mArray[0];
-                String mm = Integer.parseInt(mArray[1]) < 10 ? "0"+mArray[1] : mArray[1];
-                String yyyy = mArray[2];
-                rawTx = dd+"/"+mm+"/"+yyyy;
+                return Long.toString(ChronoUnit.DAYS.between(currdate, mDate ));
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                //rawTx = "14/08/2024";
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                try {
-                    LocalDate.parse(rawTx, formatter);
-                }
-                catch (Exception e) {
-                    return "";
-                }
+            catch (Exception e) {
+                return "";
             }
-            return rawTx;
         }
         return "";
     }

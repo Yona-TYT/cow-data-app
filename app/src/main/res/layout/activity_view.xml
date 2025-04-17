@@ -96,7 +96,7 @@
 
         <TextView
             android:id="@+id/txView1"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:layout_marginTop="10dp"
             android:padding="5dp"
@@ -106,7 +106,7 @@
 
         <TextView
             android:id="@+id/txView2"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -117,7 +117,7 @@
 
         <TextView
             android:id="@+id/txView3"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -128,7 +128,7 @@
 
         <TextView
             android:id="@+id/txView4"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -169,7 +169,7 @@
 
         <TextView
             android:id="@+id/txMore1"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -180,7 +180,7 @@
 
         <TextView
             android:id="@+id/txMore2"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -189,7 +189,7 @@
 
         <TextView
             android:id="@+id/txMore3"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
@@ -198,7 +198,7 @@
 
         <TextView
             android:id="@+id/txMore4"
-            android:layout_width="@dimen/textViewW"
+            android:layout_width="@dimen/textViewLongW"
             android:layout_height="@dimen/textViewLongH"
             android:padding="5dp"
             android:text="@string/textVacio"
