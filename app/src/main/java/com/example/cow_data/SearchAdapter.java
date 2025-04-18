@@ -58,12 +58,12 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int pos, View convertView, ViewGroup parent){
 
-       // Log.d("PhotoPicker", "Ya hay ? 11111------------------------: "+ newList.size());
+       //Log.d("PhotoPicker", "Ya hay ? 11111------------------------: "+ newList.size());
         TextView text = new TextView(mContex);
         LinearLayout layout = new LinearLayout(mContex);
         // Se ajustan los parametros del Texto ----------------------------------
 
-        text.setText(textList.get(newList.get(pos))[0]);
+        text.setText(textList.get(newList.get(pos))[1]);
         text.setTypeface(Typeface.DEFAULT_BOLD);
         text.setGravity(Gravity.CENTER);
         text.setTextSize(18);
@@ -139,7 +139,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                 else {
                     constraint = constraint.toString().toLowerCase();
                     for (int i = 0; i < currList.size(); i++) {
-                        String data = currList.get(i)[0];
+                        String data = currList.get(i)[1];
                         if (data.toLowerCase().startsWith(constraint.toString())) {
                             FilteredArrList.add(i);
                             //Log.d("PhotoPicker", "Constrain ------------------------: " + i);

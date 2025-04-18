@@ -55,12 +55,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-
-
 import io.reactivex.annotations.NonNull;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
@@ -163,8 +159,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Se agrega un indicador numerico para identificar nuevas versiones del save.csv
         totalList.add(new String[]{"2"});
-
-        List<List> mlist = new ArrayList<>();
 
         List<Integer> selList = new ArrayList<>();
         for(int i = 0; i < listuser.size(); i++) {
@@ -277,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
-                    //Toast.makeText(MainActivity.this, "Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(MainActivity.this, "---Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
                     List<String[]> mtxList = new ArrayList<>();
                     for(int i = 0; i < nameList.size(); i++){
                         if(currSel2 == 4 || currSel2 == selList.get(i)){
@@ -306,7 +300,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mlv.setVisibility(View.VISIBLE);
                         mAdapter.getFilter().filter(newText);
 
-                        //Toast.makeText(MainActivity.this, "Siz is "+indexList.size(), Toast.LENGTH_LONG).show();
+                        //ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
+                        //Toast.makeText(MainActivity.this, "Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
 
                         //Log.d("PhotoPicker", "11100------------------------: " + indexList.size());
                     }
