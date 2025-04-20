@@ -7,7 +7,7 @@ import androidx.room.Room;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SatrtVar {
+public class StartVar {
 
     //Nombre de data Base
     private static String nameDB = "Registro2";
@@ -28,19 +28,19 @@ public class SatrtVar {
     public static int currSel2 = 4;
 
     private  Context mContex;
-    public  SatrtVar(Context mContex){
+    public StartVar(Context mContex){
         this.mContex = mContex;
     }
 
     public void setUserListDB(){
         //Instancia de la base de datos
-        SatrtVar.appDatabase = Room.databaseBuilder( mContex, AppDatabase.class, nameDB).allowMainThreadQueries().build();
-        SatrtVar.listuser =  appDatabase.daoUser().getUsers();
+        StartVar.appDatabase = Room.databaseBuilder( mContex, AppDatabase.class, nameDB).allowMainThreadQueries().build();
+        StartVar.listuser =  appDatabase.daoUser().getUsers();
     }
 
-    public void getUserListDB(){
+    public static void getUserListDB(){
         //Instancia de la base de datos
-        SatrtVar.listuser =  SatrtVar.appDatabase.daoUser().getUsers();
+        StartVar.listuser =  StartVar.appDatabase.daoUser().getUsers();
     }
 
     public void setmPermiss(boolean permiss){
@@ -48,17 +48,17 @@ public class SatrtVar {
     }
 
     public void setArrayList(ArrayList<String> listA, ArrayList<String> listB, ArrayList<String> listC){
-        SatrtVar.textList = listA;
-        SatrtVar.dirList = listB;
-        SatrtVar.typeList = listC;
+        StartVar.textList = listA;
+        StartVar.dirList = listB;
+        StartVar.typeList = listC;
     }
 
     public void setCurrSel2(int value){
-        SatrtVar.currSel2 = value;
+        StartVar.currSel2 = value;
     }
 
     public void setMorlist(ArrayList<String> list){
-        SatrtVar.morlist.clear();
-        SatrtVar.morlist = list;
+        StartVar.morlist.clear();
+        StartVar.morlist = list;
     }
 }

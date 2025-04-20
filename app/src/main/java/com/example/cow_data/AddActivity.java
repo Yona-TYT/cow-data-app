@@ -3,14 +3,9 @@ package com.example.cow_data;
 import static android.service.controls.ControlsProviderService.TAG;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,14 +13,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.InputType;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,7 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.result.ActivityResult;
@@ -42,43 +34,35 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
 
 import androidx.core.content.FileProvider;
 
 import com.example.cow_data.databinding.ActivityMainBinding;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener{
     private ActivityMainBinding binding;
 
     // DB
-    private AppDatabase appDatabase = SatrtVar.appDatabase;
+    private AppDatabase appDatabase = StartVar.appDatabase;
 
     private static final int STORAGE_PERMISSION_CODE = 23;
     private static final int CAMERA_PERMISSION_CODE = 100;
@@ -105,7 +89,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private SwitchMaterial mSw1;
     private boolean swPre = false;
 
-    private Button mBtnAdd;
+    private ExtendedFloatingActionButton mBtnAdd;
 
     private List<String> mList = new ArrayList<>();
     private List<TextView> mInputList = new ArrayList<>();
@@ -120,7 +104,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinL1 = Arrays.asList("Fech. Nacim.", "Años", "Meses", "Dias", "D/M/A");
+    private List<String> mSpinL1 = Arrays.asList("Fech Nac", "Años", "Meses", "Dias", "año/mes/dia");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -204,40 +188,24 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mSpin1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String text = mInput4.getText().toString();
+                String newText = CalcCalendar.dataConvertedTo(text, currSel1, i);
                 currSel1 = i;
+
                 if(i == 0){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
-                    mInput4.setHint("Edad: dd/mm/aaaa");
-
-                    String text = CalcCalendar.getFormatDateEN(mInput4.getText().toString());
-                    if(text.isEmpty()){
-                        mInput4.setText("");
-                    }
+                    mInput4.setHint("dd/mm/aaaa");
+                    mInput4.setText(newText);
                 }
-                else if(i == 3){
+                else if(i == 4){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
-                    String text = mInput4.getText().toString();
-                    String[] txlist = CalcCalendar.dataValidate(text);
-                    if(txlist == null){
-                        mInput4.setText("");
-                        mInput4.setHint("año/mes/dia");
-                    }
+                    mInput4.setText(newText);
+                    mInput4.setHint("año/mes/dia");
                 }
                 else {
-                    String text = mInput4.getText().toString();
-                    String[] txlist = CalcCalendar.dataValidate(text);
-                    if(txlist == null){
-                        Pattern patt = Pattern.compile("(\\d{1,3})$");
-                        Matcher matcher = patt.matcher(text);
-                        if(!matcher.find()) {
-                            mInput4.setText("");
-                            mInput4.setHint("Ingrese Edad");
-                        }
-                    }
-                    else {
-                        mInput4.setText("1");
-                    }
                     mInput4.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    mInput4.setText(newText);
+                    mInput4.setHint("");
                 }
             }
             @Override
@@ -284,7 +252,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         });
         //--------------------------------------------------------------------------------------------
 
-        mPermiss = SatrtVar.mPermiss;
+        mPermiss = StartVar.mPermiss;
         mIndex = "" + appDatabase.daoUser().getUsers().size();
         if (mIndex.isEmpty()) {
             mIndex = "0";
@@ -321,13 +289,37 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             }
         });
 
-        //Para el input de pre -----------------------------------------------------
+        //Para el input de Edad -----------------------------------------------------
+        mInput4.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (currSel1 == 0) {
+                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                        Basic.msg("Formato de FECHA incorrecto!.");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
+        mInput4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!b && currSel1 == 0) {
+                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                        Basic.msg("Formato de FECHA incorrecto!.");
+                    }
+                }
+            }
+        });
+
+        //Para el input de pre -----------------------------------------------------
         mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (swPre) {
-                    chehkingPreInput();
+                if (mInput5.hasFocus() && swPre) {
+                    return chehkingPreInput();
                 }
                 return false;
             }
@@ -341,23 +333,24 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 }
             }
         });
-
         //--------------------------------------------------------------------------
     }
 
-    private void chehkingPreInput(){
+    private boolean chehkingPreInput(){
         String mText = CalcCalendar.isDateFormat(mInput5.getText().toString());
         if (mText.isEmpty()) {
-            textSnackbar("Formato de FECHA incorrecto!.");
+            Basic.msg("Formato de FECHA incorrecto!.");
+            return true;
         }
         else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate mDateA = LocalDate.parse(mText).plusDays(SatrtVar.mDayA);
-                LocalDate mDateB = LocalDate.parse(mText).plusDays(SatrtVar.mDayB);
-                textSnackbar("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+                LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayA);
+                LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayB);
+                Basic.msg("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
             }
         }
+        return false;
     }
 
     private void dispatchSelectPictureIntent() {
@@ -400,7 +393,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 dispatchSelectPictureIntent();
             }
             else {
-                textSnackbar("Error Permiso Denegado!");
+                Basic.msg("Error Permiso Denegado!");
             }
         }
 
@@ -448,7 +441,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                                 result = false;
                                 break;
                             }
-                            res = mDate;
+                            res = CalcCalendar.getFormatDateEN(mDate);
                         }
                         //Para años
                         else if(currSel1 == 1){
@@ -494,6 +487,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             }
             //Se comprueba el imput de fecha pre-------------------------------------------
             String mPreDate =  CalcCalendar.isDateFormat(mInput5.getText().toString());
+            mPreDate = CalcCalendar.getFormatDateEN(mPreDate);
             if (swPre && mPreDate.isEmpty()){
                 msgIdx = 4;
                 result = false;
@@ -517,7 +511,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                     }
                 }
                 catch (IOException e) {
-                    textSnackbar("Error al guardar la IMAGEN!");
+                    Basic.msg("Error al guardar la IMAGEN!");
                     e.printStackTrace();
                     sImage = "";
                 }
@@ -537,7 +531,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 oldFile = null;
 
                 //Recarga La lista de la DB ----------------------------
-                SatrtVar mVars = new SatrtVar(getApplicationContext());
+                StartVar mVars = new StartVar(getApplicationContext());
                 mVars.getUserListDB();
                 //-------------------------------------------------------
 
@@ -546,7 +540,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
-                textSnackbar(getTextMessage(msgIdx));
+                Basic.msg(getTextMessage(msgIdx));
                 mList.clear();
             }
 
@@ -587,10 +581,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             msg = "Formato de FECHA incorrecto!.";
         }
         return msg;
-    }
-
-    private void textSnackbar(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
     // Registers a photo picker activity launcher in single-select mode.

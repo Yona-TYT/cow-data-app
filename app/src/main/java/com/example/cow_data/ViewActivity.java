@@ -1,8 +1,7 @@
 package com.example.cow_data;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +15,6 @@ import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -74,7 +72,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
     private List<TextView> mviewList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
-    private ArrayList<String> typeList = SatrtVar.typeList;
+    private ArrayList<String> typeList = StartVar.typeList;
 
     private CoordinatorLayout mLay1;
     private HorizontalScrollView mScroll;
@@ -188,11 +186,11 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mviewList.add(mMore4);
 
         mCalend = Calendar.getInstance();
-        mPermiss = SatrtVar.mPermiss;
-        mainSel = SatrtVar.currSel2;
-        typeList = SatrtVar.typeList;
+        mPermiss = StartVar.mPermiss;
+        mainSel = StartVar.currSel2;
+        typeList = StartVar.typeList;
 
-        List<Usuario> listuser = SatrtVar.listuser;
+        List<Usuario> listuser = StartVar.listuser;
         int userSiz = listuser.size();
 
         Intent intent = getIntent();
@@ -214,16 +212,17 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                     mviewList.get(i).setVisibility(View.INVISIBLE);
                 }
                 i++;
-                mviewList.get(i).setText("Edad: "+dataConverted(mUser.edad));
+                mviewList.get(i).setText("Edad: "+ CalcCalendar.getBrithDateText(mUser.edad));
                 currDir = fmang.getImage(mUser.imagen, mImageView);
                 i++;
                 if(mUser.sel3.equals("1")) {
                     mviewList.get(i).setText("Fecha de Parto: (" + mUser.pre + ")");
 
-                    mCalen1.setMinDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayA));
-                    mCalen1.setMaxDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayB));
+                    mCalen1.setDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA-1));
+                    mCalen1.setMinDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA));
+                    mCalen1.setMaxDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayB));
 
-                    Log.d("Calendar", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getDateFromDays(mCalend, mUser.pre, SatrtVar.mDayA));
+                    //Log.d("Calendar", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA));
 
                 }
                 else {
@@ -411,43 +410,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         }
         return false;
     }
-    public String dataConverted(String text){
-        //Log.d("Calendar", "View -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+text);
 
-        if(text.isEmpty()){
-            return "";
-        }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            //Convierte Sting  a forrmato de fecha
-            LocalDate date = LocalDate.parse(text);
-            //Inicia la fecha actual
-            LocalDate currdate = LocalDate.now();
-
-            String mText = "";
-
-            long vlresult = 0;
-            //Para años
-            int mYears = date.until(currdate).getYears();
-            if(mYears > 1){
-                mText += mYears+" años ";
-            }
-
-            //Para meses
-            int mMonth = date.until(currdate).getMonths();
-            if(mMonth >= 1){
-                mText += mMonth+" meses ";
-            }
-            //Para Dias
-            int mDays = date.until(currdate).getDays();
-            if(mDays >= 0){
-                mText += mDays+" dias";
-            }
-
-            return  mText.isEmpty()?"Fecha no Valida":mText;
-
-        }
-        return "1";
-    }
     public String moreValidate(String text){
         Pattern patt = Pattern.compile("^(\\s?\\w{1,10}\\s?:\\s?)");
         Matcher matcher = patt.matcher(text);

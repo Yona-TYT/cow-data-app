@@ -4,12 +4,9 @@ import android.annotation.SuppressLint;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -165,8 +162,8 @@ public class ImgFullscreenActivity extends AppCompatActivity {
 //        actionBar.setTitle("---");
 //        actionBar.setDisplayShowHomeEnabled(true);
 
-        mPermiss = SatrtVar.mPermiss;
-        typeList = SatrtVar.typeList;
+        mPermiss = StartVar.mPermiss;
+        typeList = StartVar.typeList;
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {

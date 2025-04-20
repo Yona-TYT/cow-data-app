@@ -70,7 +70,7 @@ public class SummaryActivity extends AppCompatActivity {
         mView5 = findViewById(R.id.textSumm5);
         mView6 = findViewById(R.id.textSumm6);
 
-        List<Usuario> listuser = SatrtVar.listuser;
+        List<Usuario> listuser = StartVar.listuser;
         int userSiz = listuser.size();
         int allTotal = userSiz;
         int litTotal = 0;

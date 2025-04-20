@@ -43,7 +43,7 @@ public class GalleryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int i) {
-        return Long.parseLong(textList.get(i)[6]);
+        return Long.parseLong(textList.get(i)[7]);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class GalleryAdapter extends BaseAdapter {
         LinearLayout layoutH = new LinearLayout(mContex);
         // Se ajustan los parametros del layout ---------------------------------------
         layoutH.setOrientation(LinearLayout.HORIZONTAL);
-        if(textList.get(pos)[5].equals("1")) {
+        if(textList.get(pos)[6].equals("1")) {
             layoutH.setBackgroundColor(ContextCompat.getColor(layoutH.getContext(), R.color.highlight_background));
         }
         else{
@@ -111,17 +111,22 @@ public class GalleryAdapter extends BaseAdapter {
         layoutV.addView(text1);
 
         //Litros Text
-        if(textList.get(pos)[4].equals("0")) {
+        if(textList.get(pos)[5].equals("0")) {
             TextView text2 = setTextView("Litros: "+textList.get(pos)[2]+" (diarios)");
             layoutV.addView(text2);
         }
 
         //Date Text
-        if(textList.get(pos)[5].equals("1")) {
+        if(textList.get(pos)[6].equals("1")) {
             String txCount = CalcCalendar.dateDaysCount(textList.get(pos)[3]);
             TextView text3 = setTextView("Preñada (faltan "+txCount+" dias)");
             layoutV.addView(text3);
         }
+
+        //BrithDate Text
+        String txCount = textList.get(pos)[4];
+        TextView text4 = setTextView("Edad: "+ CalcCalendar.getBrithDateText(txCount));
+        layoutV.addView(text4);
 
         layoutH.addView(layoutV);
         //-------------------------------------------------------------------------------

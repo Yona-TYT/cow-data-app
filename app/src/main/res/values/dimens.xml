@@ -4,7 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="textView">12sp</dimen>
     <dimen name="textViewH">15dp</dimen>
-    <dimen name="textViewW">150dp</dimen>
+    <dimen name="textViewW">160dp</dimen>
     <dimen name="textViewAdd">18sp</dimen>
     <dimen name="textViewAddH">40dp</dimen>
     <dimen name="textInput">20sp</dimen>
@@ -22,5 +22,7 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="container_margin">8dp</dimen>
     <dimen name="container_horizontal_margin">16dp</dimen>
+    <dimen name="spinner_w1">150dp</dimen>
+    <dimen name="spinner_h1">5dp</dimen>
 
 </resources>

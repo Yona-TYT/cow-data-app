@@ -40,7 +40,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.room.Room;
 
 import com.example.cow_data.databinding.ActivityMainBinding;
 import com.google.android.material.snackbar.Snackbar;
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<String[]> totalList = new ArrayList<>();
     private ArrayList<String> typeList = new ArrayList<>();
 
-    public AppDatabase appDatabase;
+    public AppDatabase appDatabase ;
 
     private static final int REQUEST_PERMISSION_CAMERA = 100;
     private static final int STORAGE_PERMISSION_CODE = 23;
@@ -85,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<String> nameList = new ArrayList<>();
     private ArrayList<String> ltrosList = new ArrayList<>();
     private ArrayList<String> datePreList = new ArrayList<>();
+    private ArrayList<String> dateBrithList = new ArrayList<>();
     private ArrayList<String> swPreList = new ArrayList<>();
     //---------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Nombre de data Base
     public static String nameDB = "Registro2";
 
-    public SatrtVar satrtVar;
+    public StartVar startVar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mPermiss = checkStoragePermissions();
         }
 
+        new Basic(getApplicationContext());
+
         mBtnNew = findViewById(R.id.buttNew);
         mLayout = findViewById(R.id.layout);
         gridView = findViewById(R.id.gcImg);
@@ -148,13 +150,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mlv.setOnItemClickListener(this);
 
         //Satrted variables
-        satrtVar = new SatrtVar(getApplicationContext());
-        satrtVar.setUserListDB();
-        satrtVar.setmPermiss(mPermiss);
+        startVar = new StartVar(getApplicationContext());
+        startVar.setUserListDB();
+        startVar.setmPermiss(mPermiss);
 
         //Instancia de la base de datos
-        appDatabase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, nameDB).allowMainThreadQueries().build();
-        listuser =  appDatabase.daoUser().getUsers();
+        StartVar.getUserListDB();
+        listuser =  StartVar.listuser;
         dirList.clear();
 
         //Se agrega un indicador numerico para identificar nuevas versiones del save.csv
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String txsel3 = myUser.sel3;
             String txpre = myUser.pre;
             String txlitros = myUser.litros;
-
+            String txedad = myUser.edad;
 
             //------------------------------------------------------
             // Se crea la lista para esportar a csv  ---------------
@@ -180,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             txList[1]=txname;
             txList[2]=myUser.color;
             txList[3]=myUser.litros;
-            txList[4]=myUser.edad;
+            txList[4]=txedad;
             txList[5]=txpre;
             txList[6]=tximg;
             txList[7]=myUser.sel1;
@@ -198,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             nameList.add(txname);
             ltrosList.add(txlitros);
             datePreList.add(txpre);
+            dateBrithList.add(txedad);
 
             swPreList.add(txsel3);
             typeList.add(txsel2);
@@ -212,9 +215,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             //------------------------------------------
         }
-        satrtVar.setArrayList(dirList, dirList, typeList);
+        startVar.setArrayList(dirList, dirList, typeList);
         if(mPermiss) {
-            int mainSelec = SatrtVar.currSel2;
+            int mainSelec = StartVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
             for(int j = 0; j < nameList.size(); j++){
                 mtxList.add(setGalleryArray(j));
@@ -233,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     currSel2 = i;
-                    satrtVar.setCurrSel2(i);
+                    startVar.setCurrSel2(i);
                     CharSequence newText = null;
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         newText = searchBar.getQuery();
@@ -346,14 +349,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String[] setGalleryArray(int idx){
-        String[] stList = new String[7];
+        String[] stList = new String[8];
         stList[0] = dirList.get(idx);
         stList[1] = nameList.get(idx);
         stList[2] = ltrosList.get(idx);
         stList[3] = datePreList.get(idx);
-        stList[4] = typeList.get(idx);
-        stList[5] = swPreList.get(idx);
-        stList[6] = Integer.toString(idx);
+        stList[4] = dateBrithList.get(idx);
+        stList[5] = typeList.get(idx);
+        stList[6] = swPreList.get(idx);
+        stList[7] = Integer.toString(idx);
         return stList;
     }
     @SuppressLint("ResourceType")

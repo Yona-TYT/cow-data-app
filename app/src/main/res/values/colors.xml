@@ -13,6 +13,7 @@
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#000000</color>
     <color name="text_background">#99ffffff</color>
+    <color name="text_background2">#05a6f1</color>
     <color name="alert_background">#ff2d06</color>
     <color name="alert_text">#FFFFFF</color>
     <color name="button">#FF01579B</color>

@@ -15,8 +15,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
         android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
         tools:ignore="MissingConstraints" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -24,28 +24,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="30dp" />
+        app:layout_constraintGuide_begin="15dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="30dp" />
+        app:layout_constraintGuide_end="15dp" />
 
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/InputData1"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
-        android:textSize="@dimen/textViewAdd"
-        android:layout_marginTop="4dp"
         android:hint="Ingrese Nombre"
         android:imeOptions="actionNext"
         android:inputType="textCapWords"
         android:maxLength="35"
         android:maxLines="1"
         android:singleLine="true"
+        android:textSize="@dimen/textViewAdd"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
@@ -97,13 +96,13 @@
         android:id="@+id/inputData4"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
+        android:layout_marginBottom="10dp"
         android:hint="Ingrese Edad"
         android:inputType="number"
         android:maxLength="10"
         android:maxLines="1"
         android:singleLine="true"
         android:textSize="@dimen/textViewAdd"
-        android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
@@ -115,7 +114,7 @@
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
         android:textSize="@dimen/textViewLong"
-
+        android:singleLine="true"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toEndOf="@+id/inputData4"
         app:layout_constraintTop_toBottomOf="@+id/InputData3" />
@@ -141,9 +140,11 @@
         android:id="@+id/ADDswPre"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
-        android:padding="6dp"
+        android:padding="10dp"
         android:text="Preñada"
         android:textSize="@dimen/textViewLong"
+        android:textAlignment="textStart"
+
 
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintStart_toEndOf="@+id/inputData5"
@@ -153,64 +154,62 @@
         android:id="@+id/textView6"
         android:layout_width="169dp"
         android:layout_height="20dp"
-        android:layout_marginBottom="360dp"
+        android:layout_marginTop="60dp"
         android:text="Imagen / Foto:"
         android:textSize="@dimen/textView"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline4" />
+        app:layout_constraintStart_toStartOf="@+id/guideline4"
+        app:layout_constraintTop_toBottomOf="@+id/inputData5" />
 
     <ImageButton
         android:id="@+id/buttCam"
         android:layout_width="70dp"
         android:layout_height="50dp"
+        android:layout_marginTop="35dp"
         android:layout_marginEnd="60dp"
-        android:layout_marginBottom="300dp"
         android:backgroundTint="@color/float_button"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toEndOf="@+id/imgPrev"
-        app:layout_constraintTop_toBottomOf="@+id/textView6"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintTop_toTopOf="@+id/imgPrev"
         app:srcCompat="@android:drawable/ic_menu_gallery" />
 
     <ImageView
         android:id="@+id/imgPrev"
         android:layout_width="122dp"
         android:layout_height="122dp"
-        android:layout_marginBottom="236dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toBottomOf="@+id/textView6"
-        app:layout_constraintVertical_bias="0.509"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/buttAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/float_button"
         android:text="@string/btagregar"
-        android:textSize="20sp"
         android:textColor="@color/inner_button"
-        android:backgroundTint="@color/button"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:fabSize="normal"
+        app:icon="@drawable/add_button"
+        app:iconTint="@color/inner_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintHorizontal_bias="0.474"
-        app:layout_constraintStart_toStartOf="@+id/guideline4"
-        app:layout_constraintTop_toBottomOf="@+id/imgPrev"
-        app:layout_constraintVertical_bias="0.157" />
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="@+id/guideline4" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="82dp" />
+        app:layout_constraintGuide_begin="124dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

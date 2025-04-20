@@ -1,12 +1,7 @@
 package com.example.cow_data;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -16,8 +11,6 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.activity.result.PickVisualMediaRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,16 +20,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 
 public class MoreActivity extends AppCompatActivity implements View.OnClickListener {
@@ -120,13 +108,13 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         mLayout = findViewById(R.id.layout6);
 
         // Para guardar los permisos de app comprobados en main
-        boolean mPermiss = SatrtVar.mPermiss;
+        boolean mPermiss = StartVar.mPermiss;
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
 
-            List<Usuario> listuser = SatrtVar.listuser;
+            List<Usuario> listuser = StartVar.listuser;
 
             int i = 0;
             if (currIdx < listuser.size()) {
@@ -182,7 +170,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             //Se guardan los datos de more list
-            SatrtVar mVars = new SatrtVar(getApplicationContext());
+            StartVar mVars = new StartVar(getApplicationContext());
             mVars.setMorlist(morlist);
 
             this.finish(); //Finaliza la actividad y ya no se accede mas
@@ -196,7 +184,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void moreSave(){
-        List<Usuario> listuser = SatrtVar.listuser;
+        List<Usuario> listuser = StartVar.listuser;
         if (currIdx < listuser.size()) {
             String text = listuser.get(currIdx).more1;
             if(!text.isEmpty()){
@@ -215,7 +203,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 morlist.add(text);
             }
             //Se guardan los datos de more list
-            SatrtVar mVars = new SatrtVar(getApplicationContext());
+            StartVar mVars = new StartVar(getApplicationContext());
             mVars.setMorlist(morlist);
         }
     }

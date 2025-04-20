@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
     //Base de datos
-    public AppDatabase appDatabase = SatrtVar.appDatabase;
+    public AppDatabase appDatabase = StartVar.appDatabase;
 
     private static final int STORAGE_PERMISSION_CODE = 23;
     private static final int CAMERA_PERMISSION_CODE = 100;
@@ -110,7 +110,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
-    private List<String> mSpinL1 = Arrays.asList("Fech. Nacim.", "Años", "Meses", "Dias", "A/M/D");
+    private List<String> mSpinL1 = Arrays.asList("Fech Nac", "Años", "Meses", "Dias", "año/mes/dia");
     //-----------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -200,52 +200,31 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         setupActivityResultLaunchers();
 
-        //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
+        //Para la lista del selector de edades ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
         mSpin1.setAdapter(adapter);
         mSpin1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String text = mInput4.getText().toString();
+                String newText = CalcCalendar.dataConvertedTo(text, currSel1, i);
+
                 currSel1 = i;
+
                 if(i == 0){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
                     mInput4.setHint("dd/mm/aaaa");
-
-                    String text = CalcCalendar.getFormatDateEN(mInput4.getText().toString());
-                    if(text.isEmpty()){
-                       mInput4.setText("");
-                    }
+                    mInput4.setText(newText);
                 }
                 else if(i == 4){
                     mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
-                    String text = mInput4.getText().toString();
-                    String[] txlist = CalcCalendar.dataValidate(text);
-                    if(txlist == null){
-                        mInput4.setText("");
-                        mInput4.setHint("año/mes/dia");
-
-                    }
+                    mInput4.setText(newText);
+                    mInput4.setHint("año/mes/dia");
                 }
                 else {
-                    String text = mInput4.getText().toString();
-                    Pattern patt = Pattern.compile("^(\\d{1,2})([/:-])(\\d{1,2})([/:-])(\\d{4})$");
-                    Matcher m = patt.matcher(text);
-                    if (m.find()) {
-                        text = "";
-                    }
-                    String[] txlist = CalcCalendar.dataValidate(text);
-                    if(txlist == null){
-                        patt = Pattern.compile("(\\d{1,3})$");
-                        Matcher matcher = patt.matcher(text);
-                        if(!matcher.find()) {
-                            mInput4.setText("");
-                        }
-                    }
-                    else {
-                        mInput4.setText("1");
-                    }
-                    mInput4.setHint("");
                     mInput4.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    mInput4.setText(newText);
+                    mInput4.setHint("");
                 }
             }
             @Override
@@ -255,7 +234,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         });
         //----------------------------------------------------------------------------------------------------
 
-        //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
+        //Para la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
         mSpin2.setAdapter(adapt2);
         mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -294,12 +273,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         });
         //--------------------------------------------------------------------------------------------
 
-        mPermiss = SatrtVar.mPermiss;
+        mPermiss = StartVar.mPermiss;
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
-            List<Usuario> listuser = SatrtVar.listuser;
+            List<Usuario> listuser = StartVar.listuser;
 
             int i = 0;
             Usuario mList = listuser.get(currIdx);
@@ -325,6 +304,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mInputList.get(i).setText(mList.litros);
                 i++;
                 mInputList.get(i).setText(CalcCalendar.dataConverted(mList.edad, currSel1));
+
                 //Log.d("Calendar", "Calen1 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getFormatDateES(mList.edad));
                 i++;
 
@@ -337,21 +317,47 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 saveImage = fmang.getImage(mList.imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
-                mSpin1.setSelection(currSel1);
+
+                //Comentado para futura eliminacion
+                //mSpin1.setSelection(currSel1);
                 mSpin2.setSelection(currSel2);
             }
         }
         else {
-            textSnackbar("Aqui no hay :(");
+            Basic.msg("Aqui no hay :(");
         }
 
-        //Para el input de pre -----------------------------------------------------
+        //Para el input de Edad -----------------------------------------------------
+        mInput4.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (currSel1 == 0) {
+                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                        Basic.msg("Formato de FECHA incorrecto!.");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
+        mInput4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!b && currSel1 == 0) {
+                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                        Basic.msg("Formato de FECHA incorrecto!.");
+                    }
+                }
+            }
+        });
+
+        //Para el input de pre -----------------------------------------------------
         mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (swPre) {
-                    chehkingPreInput();
+                if (mInput5.hasFocus() && swPre) {
+                    return chehkingPreInput();
                 }
                 return false;
             }
@@ -365,25 +371,27 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
-
         //--------------------------------------------------------------------------
     }
 
-    private void chehkingPreInput(){
+    private boolean chehkingPreInput(){
         String mText = CalcCalendar.isDateFormat(mInput5.getText().toString());
         if (mText.isEmpty()) {
-            textSnackbar("Formato de FECHA incorrecto!.");
+            Basic.msg("Formato de FECHA incorrecto!.");
+            return true;
         }
         else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-                LocalDate mDateA = LocalDate.parse(mText).plusDays(SatrtVar.mDayA);
-                LocalDate mDateB = LocalDate.parse(mText).plusDays(SatrtVar.mDayB);
+                LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayA);
+                LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayB);
 
-                textSnackbar("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+                Basic.msg("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+                return false;
             }
         }
+        return false;
     }
 
     private void setupActivityResultLaunchers() {
@@ -395,7 +403,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     mImgPrev.setImageURI(currUri);
                     //binding.imageView.setImageBitmap(bitmap);
                     //processImage(bitmap);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -456,7 +465,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 dispatchSelectPictureIntent();
             }
             else {
-                textSnackbar("Error Permiso Denegado!");
+                Basic.msg("Error Permiso Denegado!");
             }
         }
         // GUARDA los datos ---------------------------------------------------------------
@@ -467,7 +476,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             for(int i = 0; i < mInputList.size(); i++) {
                 TextView textv = mInputList.get(i);
                 String text = textv.getText().toString();
-
                 if (text.isEmpty()){
                     if(i == 2) {
                         //MSG para entrada de Litros
@@ -498,7 +506,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                                 result = false;
                                 break;
                             }
-                            res = mDate;
+                            res = CalcCalendar.getFormatDateEN(mDate);
                         }
                         //Para años
                         else if(currSel1 == 1){
@@ -547,6 +555,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
             //Se comprueba el imput de fecha pre-------------------------------------------
             String mPreDate =  CalcCalendar.isDateFormat(mInput5.getText().toString());
+            mPreDate = CalcCalendar.getFormatDateEN(mPreDate);
             if (swPre && mPreDate.isEmpty()){
                 msgIdx = 4;
                 result = false;
@@ -554,7 +563,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             //-----------------------------------------------------------------------------
 
             if (result) {
-                ArrayList<String> morlist = SatrtVar.morlist;
+                ArrayList<String> morlist = StartVar.morlist;
 
                 //Siz maximo para la lista de more datos
                 int max = (morlist == null? 0: morlist.size());
@@ -594,7 +603,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 oldFile = null;
 
                 //Recarga La lista de la DB ----------------------------
-                SatrtVar mVars = new SatrtVar(getApplicationContext());
+                StartVar mVars = new StartVar(getApplicationContext());
                 mVars.getUserListDB();
                 //-------------------------------------------------------
 
@@ -605,7 +614,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
-                textSnackbar(getTextMessage(msgIdx));
+                Basic.msg(getTextMessage(msgIdx));
                 mList.clear();
             }
         }
@@ -673,11 +682,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
         return msg;
     }
-
-    private void textSnackbar(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-    }
-
 
     // Registers a photo picker activity launcher in single-select mode.
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia =

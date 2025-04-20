@@ -10,36 +10,50 @@
 
     <Spinner
         android:id="@+id/spinType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="38dp"
         android:layout_marginTop="28dp"
         android:clickable="true"
         android:focusable="true"
         android:textSize="@dimen/textViewLong"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/my_toolbar"
+        app:layout_constraintHorizontal_bias="0.0"
+
         tools:ignore="MissingConstraints" />
 
     <android.widget.SearchView
         android:id="@+id/searchBar"
-        android:layout_width="350dp"
-        android:layout_height="47dp"
+        android:layout_width="340dp"
+        android:layout_height="45dp"
         android:background="@color/text_background"
         android:iconifiedByDefault="false"
         android:queryHint="Buscar Lista"
         android:translationZ="999dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/spinType"
+
         tools:ignore="MissingConstraints" />
 
+    <ListView
+        android:id="@+id/lv"
+        android:layout_width="340dp"
+        android:layout_height="116dp"
+        android:background="?attr/colorBackgroundFloating"
+        android:translationZ="999dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toBottomOf="@+id/searchBar"
+        app:layout_constraintHorizontal_bias="0.0"
 
-    <!-- ...Toolbar, other layouts, other elements... -->
-
+        />
 
     <GridView
         android:id="@+id/gcImg"
-        android:layout_width="357dp"
+        android:layout_width="340dp"
         android:layout_height="483dp"
         android:columnWidth="90dp"
         android:gravity="center"
@@ -48,7 +62,7 @@
         android:stretchMode="columnWidth"
         android:verticalSpacing="10dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintHorizontal_bias="0.569"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/searchBar">
 
@@ -125,15 +139,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="69dp" />
 
-    <ListView
-        android:id="@+id/lv"
-        android:layout_width="352dp"
-        android:layout_height="125dp"
-        android:background="?attr/colorBackgroundFloating"
-        android:translationZ="999dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/searchBar" />
+
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

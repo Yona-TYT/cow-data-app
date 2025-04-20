@@ -9,6 +9,7 @@
     <color name="white">#FF000000</color>
     <color name="black_overlay">#FFFFFFFF</color>
     <color name="text_background">#33000000</color>
+    <color name="text_background2">#5c5c5c</color>
     <color name="alert_background">#ff2d06</color>
     <color name="alert_text">#FFFFFF</color>
     <color name="button">#5c5c5c</color>
