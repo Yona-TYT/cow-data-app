@@ -22,9 +22,11 @@ public class CalcCalendar {
         if(text.isEmpty()){
             return "";
         }
+      //  Basic.msg("1 a: "+text +" sel: "+selec);
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             //Convierte Sting  a forrmato de fecha
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormEN);
             LocalDate date;
 
 
@@ -80,16 +82,16 @@ public class CalcCalendar {
             //Inicia la fecha actual
             LocalDate currdate = LocalDate.now();
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormEN);
 
             String myParse = text.replaceAll("\\D", "");
             long vlresult = Long.parseLong(myParse.isEmpty()?"0" : myParse);
+
 
             //Para fecha de Nacimiento
             if (selA == 0) {
                 //Log.d("Calendar", "Calen3 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+text);
                 dateResult = getFormatDateEN(isDateFormat(text));
-
             }
             //Para años
             else if (selA == 1) {
@@ -118,6 +120,9 @@ public class CalcCalendar {
                     dateResult = from.format(formatter);
                 }
             }
+
+            //Basic.msg("?a: "+2 +" b: "+dateResult+" - "+ selA);
+
         }
         return dateResult.isEmpty()? "" : dataConverted(dateResult, selB);
     }
@@ -130,7 +135,7 @@ public class CalcCalendar {
             text = text.replaceAll("[/:]","-");
             return text.split("-");
         }
-        return null;
+        return new String[0];
     }
 
     public static String isDateFormat(String rawTx){
@@ -149,7 +154,7 @@ public class CalcCalendar {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 //rawTx = "14/08/2024";
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormES);
                 try {
                     LocalDate date = LocalDate.parse(rawTx, formatter);
                     //Inicia la fecha actual
@@ -173,13 +178,13 @@ public class CalcCalendar {
     public static String getFormatDateES(String rawTx){
         //Log.d("Calendar", "Calen ES -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
 
-        return getFormatDate(rawTx,"","dd-MM-yyyy");
+        return getFormatDate(rawTx,StartVar.mDateFormEN,StartVar.mDateFormES);
     }
 
     public static String getFormatDateEN(String rawTx){
         //Log.d("Calendar", "Calen EN -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+rawTx);
 
-        return getFormatDate(rawTx,"dd-MM-yyyy", "yyyy-MM-dd");
+        return getFormatDate(rawTx,StartVar.mDateFormES, StartVar.mDateFormEN);
     }
 
     public static String getFormatDate(String rawTx, String txA, String txB){
@@ -187,16 +192,10 @@ public class CalcCalendar {
             DateTimeFormatter formatA = DateTimeFormatter.ofPattern(txA);
             DateTimeFormatter formatB = DateTimeFormatter.ofPattern(txB);
             try {
-                if (txA.isEmpty()) {
-                    rawTx = LocalDate.parse(rawTx).format(formatB);
-                }
-                else{
-                    rawTx = LocalDate.parse(rawTx, formatA).format(formatB);
-                }
+                rawTx = LocalDate.parse(rawTx, formatA).format(formatB);
             }
             catch (Exception e) {
                 //Log.d("Calendar", "Calen2 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+e.getMessage());
-
                 return "";
             }
         }
@@ -230,8 +229,16 @@ public class CalcCalendar {
                 LocalDate mDate = LocalDate.parse(rawTx).plusDays(StartVar.mDayA);
                 //Inicia la fecha actual
                 LocalDate currdate = LocalDate.now();
-
-                return Long.toString(ChronoUnit.DAYS.between(currdate, mDate ));
+                long mLong = ChronoUnit.DAYS.between(currdate, mDate );
+                if(mLong < 0){
+                     if (mLong < (-7)) {
+                         return "N/A";
+                     }
+                     else {
+                         return "0";
+                     }
+                }
+                return Long.toString(mLong);
             }
             catch (Exception e) {
                 return "";
@@ -247,7 +254,7 @@ public class CalcCalendar {
         }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             //Convierte Sting  a forrmato de fecha
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormEN);
             LocalDate date;
             try{
                 date = LocalDate.parse(text, formatter);

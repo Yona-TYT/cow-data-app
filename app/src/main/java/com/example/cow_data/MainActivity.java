@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         new Basic(getApplicationContext());
 
+
+
         mBtnNew = findViewById(R.id.buttNew);
         mLayout = findViewById(R.id.layout);
         gridView = findViewById(R.id.gcImg);
@@ -440,6 +442,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             new ActivityResultContracts.OpenDocument(),
             uri -> {
                 if (uri != null) {
+
+                    StartVar mStartVar = new StartVar(getApplicationContext());
+                    mStartVar.setUserListDB();
+
+                    appDatabase = StartVar.appDatabase;
+
                     // call this to persist permission across decice reboots
                     getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     StringBuilder stringBuilder = new StringBuilder();

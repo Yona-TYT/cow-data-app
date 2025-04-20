@@ -255,13 +255,11 @@ public class Basic {
         text.setWidth(R.dimen.spinner_w1);
         //text.setHeight(R.dimen.spinner_h1);
 
-        text.setMaxLines(1);
+        text.setMaxLines(2);
         text.setTextColor(ContextCompat.getColor(text.getContext(), R.color.inner_button));
         text.setBackgroundColor(ContextCompat.getColor(text.getContext(), R.color.text_background2));
         text.setTextSize(18);
         //text.setTextAppearance(R.style.Theme_CowData);
-
-
 
         text.setPadding(10,5,10,5);
 
@@ -271,8 +269,11 @@ public class Basic {
         cardView.setRadius(10f);
 
         Toast mToast = new Toast(mContex);
+        mToast.setDuration(Toast.LENGTH_LONG);
         mToast.setView(cardView);
+
         mToast.show();
+
     }
     public static void checkClt(){
 

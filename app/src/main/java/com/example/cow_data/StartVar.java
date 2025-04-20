@@ -17,6 +17,10 @@ public class StartVar {
     public static boolean mPermiss;
     public static int mDayA = 276;
     public static int mDayB = 283;
+    public static String mDateFormEN = "yyyy-MM-dd";
+    public static String mDateFormES = "dd-MM-yyyy";
+
+
 
     // DB
     public static AppDatabase appDatabase;

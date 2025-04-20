@@ -57,6 +57,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener{
     private ActivityMainBinding binding;
@@ -289,13 +290,64 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             }
         });
 
+        //Para el input de Nombre -----------------------------------------------------
+        mInput1.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mTxInput = textView.getText().toString();
+                if (mTxInput.isEmpty()) {
+                    textView.setError("Ingrese Texto!.");
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        //Para el input de Color -----------------------------------------------------
+        mInput2.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mTxInput = textView.getText().toString();
+                if (mTxInput.isEmpty()) {
+                    textView.setError("Ingrese Texto!.");
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        //Para el input de Litros -----------------------------------------------------
+        mInput3.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mTxInput = textView.getText().toString();
+                if (mTxInput.isEmpty()) {
+                    textView.setError("Ingrese Numeros!.");
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
         //Para el input de Edad -----------------------------------------------------
         mInput4.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mTxInput = textView.getText().toString();
                 if (currSel1 == 0) {
-                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                    if(CalcCalendar.isDateFormat(mTxInput).isEmpty()){
                         Basic.msg("Formato de FECHA incorrecto!.");
+                        textView.setError("Fecha Incorrecta!.");
+                        return true;
+                    }
+                }
+                else if (currSel1 == 4) {
+                    if(Objects.requireNonNull(CalcCalendar.dataValidate(mTxInput)).length < 2){
+                        Basic.msg("Formato de FECHA incorrecto!.");
+                        textView.setError("Ingrese 3 digitos Ejm: 2/5/3");
                         return true;
                     }
                 }
@@ -318,8 +370,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInput5.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if (mInput5.hasFocus() && swPre) {
-                    return chehkingPreInput();
+                if (textView.hasFocus() && chehkingPreInput() && swPre) {
+                    textView.setError("Fecha Incorrecta!.");
+                    return true;
                 }
                 return false;
             }
@@ -344,7 +397,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         }
         else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormES);
                 LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayA);
                 LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayB);
                 Basic.msg("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
@@ -400,6 +453,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         if (itemId == R.id.ADDswPre){
             swPre = !swPre;
             mInput5.setEnabled(swPre);
+            mInput5.setError(null);
         }
 
         if (itemId == R.id.buttAdd) {
