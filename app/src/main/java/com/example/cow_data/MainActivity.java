@@ -101,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public StartVar startVar;
 
+    //Type of import for csv
+    private int importType = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -367,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.summary, menu);
         getMenuInflater().inflate(R.menu.save, menu);
+        getMenuInflater().inflate(R.menu.merge, menu);
         getMenuInflater().inflate(R.menu.impor, menu);
 
         for(int i = 0; i < menu.size(); i++){
@@ -424,9 +428,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
+
+        if (itemId == R.id.marge) {
+            Basic.msg("???");
+            if (mPermiss) {
+                try {
+                    importType = 0;
+                    String[] mimetype = {"text/csv", "text/comma-separated-values"};
+                    mCsvRequest.launch(mimetype);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+
+
         if (itemId == R.id.impor) {
             if (mPermiss) {
                 try {
+                    importType = 1;
                     String[] mimetype = {"text/csv", "text/comma-separated-values"};
                     mCsvRequest.launch(mimetype);
                 }
@@ -455,6 +477,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                          BufferedReader reader = new BufferedReader( new InputStreamReader(Objects.requireNonNull(inputStream)))) {
                             String line;
                             String version = "0";
+
+                            DaoUser mDao = appDatabase.daoUser();
+                            for (Usuario mUser : mDao.getUsers()){
+                                mDao.removerUser(mUser.usuario);
+                            }
                             while ((line = reader.readLine()) != null) {
                                 line = line.replaceAll("\"", "");
                                 String[] spl = line.split(",");
@@ -466,24 +493,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 if(Objects.equals(version, "0")) {
                                     Usuario obj = new Usuario(
-                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], "0", (f > 7 ? spl[7] : ""),
+                                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], "0", (f > 7 ? spl[7] : ""),
                                             "0", (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")
                                     );
-                                    appDatabase.daoUser().insetUser(obj);
+                                    mDao.insetUser(obj);
                                 }
                                 else if(Objects.equals(version, "1")) {
                                     Usuario obj = new Usuario(
-                                            spl[0], spl[1], spl[2], spl[3], spl[4], ""/*spl[5]*/, spl[5], spl[6], spl[7], "0",
+                                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], ""/*spl[5]*/, spl[5], spl[6], spl[7], "0",
                                             (f > 8 ? spl[8] : ""), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : "")                                    );
-                                    appDatabase.daoUser().insetUser(obj);
+                                    mDao.insetUser(obj);
+
                                 }
 
                                 else if(Objects.equals(version, "2")) {
                                     Usuario obj = new Usuario(
-                                            spl[0], spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], spl[8], spl[9],
+                                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], spl[7], spl[8], spl[9],
                                             (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : ""), (f > 13 ? spl[13] : "")
                                     );
-                                    appDatabase.daoUser().insetUser(obj);
+                                    mDao.insetUser(obj);
                                 }
 
                                 stringBuilder.append(line);
@@ -618,5 +646,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             );
         }
 
+    }
+    private String getUserId(DaoUser mDao){
+        //Configura el nuevo index-------------------------------------------------------------------
+        int mSiz = mDao.getUsers().size();
+        String mIdx = "userID0";
+        if(mSiz > 0) {
+            mIdx = "userID" + mSiz;
+        }
+        for(int i = 0; i < mSiz; i++){
+            Usuario mUser = mDao.getUsers("userID"+i);
+            if(mUser == null){
+                mIdx =  "userID"+i;
+                break;
+            }
+        }
+        Basic.msg(mIdx);
+        return mIdx;
+        //-------------------------------------------------------------------------------------------
     }
 }

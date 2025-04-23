@@ -528,6 +528,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             for(int i = 0; i < mInputList.size(); i++) {
                 TextView textv = mInputList.get(i);
                 String text = textv.getText().toString();
+                text = text.replaceAll("\"", "");
+                text = text.replaceAll(",", "");
+                text = text.replaceAll("(^\\s+)|(\\s+$)", "");
+
                 if (text.isEmpty()){
                     if(i == 2) {
                         //MSG para entrada de Litros

@@ -254,10 +254,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         //--------------------------------------------------------------------------------------------
 
         mPermiss = StartVar.mPermiss;
-        mIndex = "" + appDatabase.daoUser().getUsers().size();
-        if (mIndex.isEmpty()) {
-            mIndex = "0";
-        }
+        mIndex = getUserId(appDatabase.daoUser());
     }
 
     private void setupActivityResultLaunchers() {
@@ -459,11 +456,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         if (itemId == R.id.buttAdd) {
             boolean result = true;
             int msgIdx = 0;
-            mList.add("userID"+mIndex);
+            mList.add(mIndex);
             for(int i = 0; i < mInputList.size(); i++) {
                 String text = mInputList.get(i).getText().toString();
                 text = text.replaceAll("\"", "");
                 text = text.replaceAll(",", "");
+                text = text.replaceAll("(^\\s+)|(\\s+$)", "");
+
                 if (text.isEmpty()){
                     if(i == 2) {
                         //MSG para entrada de Litros
@@ -561,7 +560,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                     else {
                         //Log.d("PhotoPicker", "Aqi hayyyyyyyyyyyyy5555----------------------------------: ");
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currUri);
-                        sImage = fmang.SavePhoto(bitmap, ("userID"+mIndex), oldFile, this, this.getContentResolver());
+                        sImage = fmang.SavePhoto(bitmap, mIndex, oldFile, this, this.getContentResolver());
                     }
                 }
                 catch (IOException e) {
@@ -757,5 +756,22 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
             }
         }
+    }
+
+    private String getUserId(DaoUser mDao){
+        //Configura el nuevo index-------------------------------------------------------------------
+        int mSiz = mDao.getUsers().size();
+        String mIdx = "userID0";
+        if(mSiz > 0) {
+            mIdx = "userID" + mSiz;
+        }
+        for(int i = 0; i < mSiz; i++){
+            Usuario mUser = mDao.getUsers("userID"+i);
+            if(mUser == null){
+                return  "userID"+i;
+            }
+        }
+        return mIdx;
+        //-------------------------------------------------------------------------------------------
     }
 }

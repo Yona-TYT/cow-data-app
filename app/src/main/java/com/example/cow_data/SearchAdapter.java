@@ -140,7 +140,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                     constraint = constraint.toString().toLowerCase();
                     for (int i = 0; i < currList.size(); i++) {
                         String data = currList.get(i)[1];
-                        if (data.toLowerCase().startsWith(constraint.toString())) {
+                        if (data.toLowerCase().contains(constraint.toString())){
                             FilteredArrList.add(i);
                             //Log.d("PhotoPicker", "Constrain ------------------------: " + i);
                         }
