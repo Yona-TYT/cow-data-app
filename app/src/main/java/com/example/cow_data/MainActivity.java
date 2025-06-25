@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -96,13 +97,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
 
-    //Nombre de data Base
-    public static String nameDB = "Registro2";
-
     public StartVar startVar;
 
     //Type of import for csv
     private int importType = 0;
+
+    //ChckBox for pre estatus
+    private CheckBox mCheck1;
+    private boolean isPre = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchBar = findViewById(R.id.searchBar);
         mlv = findViewById(R.id.lv);
         mSpin2 = findViewById(R.id.spinType);
+        mCheck1 = findViewById(R.id.check1);
 
         mBtnNew.setOnClickListener(this);
         gridView.setOnItemClickListener(this);
@@ -225,7 +228,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int mainSelec = StartVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
             for(int j = 0; j < nameList.size(); j++){
-                mtxList.add(setGalleryArray(j));
+                if(isPre){
+                    if(swPreList.get(j).equals("1")){
+                        mtxList.add(setGalleryArray(j));
+                    }
+                }
+                else {
+                    mtxList.add(setGalleryArray(j));
+                }
             }
             gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
 
@@ -251,17 +261,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                    // Toast.makeText(MainActivity.this, "Siz is "+test.getUserList().size(), Toast.LENGTH_LONG).show();
 
+                    //Desactiva el CheckBox cuando no es vaca o novilla--------------------------------
+                    if(currSel2 == 2 || currSel2 == 3) {
+                        mCheck1.setVisibility(View.INVISIBLE);
+                        isPre = false;
+                    }
+                    else {
+                        mCheck1.setVisibility(View.VISIBLE);
+                        isPre = mCheck1.isChecked();
+                    }
+
                     List<String[]> mtxList = new ArrayList<>();
                     for(int ii = 0; ii < nameList.size(); ii++){
                         if(currSel2 == 4 || currSel2 == selList.get(ii)){
                             if(idxList.isEmpty()) {
-                                mtxList.add(setGalleryArray(ii));
-                            }
+                                if(isPre){
+                                    if(swPreList.get(ii).equals("1")){
+                                        mtxList.add(setGalleryArray(ii));
+                                    }
+                                }
+                                else {
+                                    mtxList.add(setGalleryArray(ii));
+                                }                            }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == ii){
-                                        mtxList.add(setGalleryArray(ii));
-                                    }
+                                        if(isPre){
+                                            if(swPreList.get(ii).equals("1")){
+                                                mtxList.add(setGalleryArray(ii));
+                                            }
+                                        }
+                                        else {
+                                            mtxList.add(setGalleryArray(ii));
+                                        }                                    }
                                 }
                             }
                         }
@@ -271,6 +303,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
 
+                }
+            });
+
+            //PAra CheckBox de estatus pre ------------------------------------------------------------
+            mCheck1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(v.getId() == R.id.check1){
+                        isPre = !isPre;
+                        List<String[]> mtxList = new ArrayList<>();
+                        for(int j = 0; j < nameList.size(); j++){
+                            if(isPre){
+                                if(swPreList.get(j).equals("1")){
+                                    mtxList.add(setGalleryArray(j));
+                                }
+                            }
+                            else {
+                                mtxList.add(setGalleryArray(j));
+                            }
+                        }
+                        gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+                    }
                 }
             });
 
@@ -284,12 +338,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for(int i = 0; i < nameList.size(); i++){
                         if(currSel2 == 4 || currSel2 == selList.get(i)){
                             if(idxList.isEmpty()) {
-                                mtxList.add(setGalleryArray(i));
-                            }
+                                if(isPre){
+                                    if(swPreList.get(i).equals("1")){
+                                        mtxList.add(setGalleryArray(i));
+                                    }
+                                }
+                                else {
+                                    mtxList.add(setGalleryArray(i));
+                                }                            }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == i){
-                                        mtxList.add(setGalleryArray(i));
+                                        if(isPre){
+                                            if(swPreList.get(i).equals("1")){
+                                                mtxList.add(setGalleryArray(i));
+                                            }
+                                        }
+                                        else {
+                                            mtxList.add(setGalleryArray(i));
+                                        }
                                     }
                                 }
                             }
@@ -368,10 +435,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressLint("ResourceType")
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.calc, menu);
         getMenuInflater().inflate(R.menu.summary, menu);
         getMenuInflater().inflate(R.menu.save, menu);
-        getMenuInflater().inflate(R.menu.merge, menu);
         getMenuInflater().inflate(R.menu.impor, menu);
+        getMenuInflater().inflate(R.menu.merge, menu);
 
         for(int i = 0; i < menu.size(); i++){
             MenuItem item = menu.getItem(i);
@@ -395,10 +463,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         int itemId = item.getItemId();
+
+        if (itemId == R.id.calc) {
+            Intent mIntent = new Intent(this, CalcActivity.class);
+            startActivity(mIntent);
+        }
+
         if (itemId == R.id.summary) {
             Intent mIntent = new Intent(this, SummaryActivity.class);
             startActivity(mIntent);
         }
+
         if (itemId == R.id.save) {
             try {
                 File file = fmang.csvExport(totalList);
@@ -409,7 +484,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent.setType("text/comma-separated-values");
 
                     Log.d("Files", " --------Aquiiiiiiiiii Hayyyyyy ------------: "+ file);
-
 
                     // Se obtine la Uri , se debe modificar manidest con: android:authorities="com.example.cow_data.provider"
                     Uri fileUri = FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".provider", file);
@@ -424,26 +498,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             catch (Exception e) {
                 Log.d("Files", " Trace --------Aquiiiiiiiiii Hayyyyyy ------------: "+ e.getMessage());
-
                 e.printStackTrace();
             }
         }
-
-        if (itemId == R.id.marge) {
-            Basic.msg("???");
-            if (mPermiss) {
-                try {
-                    importType = 0;
-                    String[] mimetype = {"text/csv", "text/comma-separated-values"};
-                    mCsvRequest.launch(mimetype);
-                }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-        }
-
 
         if (itemId == R.id.impor) {
             if (mPermiss) {
@@ -457,6 +514,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+
+        if (itemId == R.id.marge) {
+            if (mPermiss) {
+                try {
+                    importType = 0;
+                    String[] mimetype = {"text/csv", "text/comma-separated-values"};
+                    mCsvRequest.launch(mimetype);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+
         return true;
     }
     //Para importar archivos CSV

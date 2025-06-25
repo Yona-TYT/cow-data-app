@@ -38,8 +38,8 @@
         android:textSize="@dimen/textViewLong"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textView1"
-        app:layout_constraintTop_toBottomOf="@+id/textView1" />
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -53,7 +53,7 @@
 
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textEditView1"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewH"
         android:layout_marginTop="10dp"
@@ -82,11 +82,11 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/textView1"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView1"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/textEditView2"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewH"
         android:layout_marginTop="16dp"
@@ -115,11 +115,11 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView2"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/textEditView3"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewH"
         android:layout_marginTop="10dp"
@@ -150,11 +150,11 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView3"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/textEditView4"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewH"
         android:layout_marginTop="10dp"
@@ -184,11 +184,11 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView4"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/textEditView5"
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewH"
         android:layout_marginTop="10dp"
@@ -218,9 +218,8 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView5"
         app:layout_constraintVertical_bias="0.0" />
-
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/swPre"
@@ -232,7 +231,8 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/txEdit5"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+        app:layout_constraintTop_toBottomOf="@+id/textEditView5" />
+
 
     <ImageView
         android:id="@+id/imageView"
@@ -281,7 +281,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/txEdit4"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/textEditView4" />
 
     <ImageButton
         android:id="@+id/bttGall"

@@ -8,6 +8,18 @@
     android:background="@drawable/back_loing"
     tools:context=".SummaryActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp" />
+
     <TextView
         android:id="@+id/textSumm1"
         android:layout_width="@dimen/textViewSummW"
@@ -90,6 +102,23 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/textSumm7"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:layout_marginBottom="128dp"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewSummLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm6"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
         android:id="@+id/textSumm6"
         android:layout_width="@dimen/textViewSummW"
         android:layout_height="@dimen/textViewSummH"
@@ -106,17 +135,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textSumm5"
         app:layout_constraintVertical_bias="0.0" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline15"

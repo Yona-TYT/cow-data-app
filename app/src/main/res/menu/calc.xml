@@ -2,10 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/save"
-        android:icon="@drawable/save"
-        android:title="Guardar Datos"
+        android:id="@+id/calc"
+        android:icon="@drawable/calc"
+        android:title="Calcular Fechas"
         app:showAsAction="always"
+
         />
+
 
 </menu>

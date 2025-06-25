@@ -25,6 +25,7 @@ public class SummaryActivity extends AppCompatActivity {
     private TextView mView4;
     private TextView mView5;
     private TextView mView6;
+    private TextView mView7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,7 @@ public class SummaryActivity extends AppCompatActivity {
         mView4 = findViewById(R.id.textSumm4);
         mView5 = findViewById(R.id.textSumm5);
         mView6 = findViewById(R.id.textSumm6);
+        mView7 = findViewById(R.id.textSumm7);
 
         List<Usuario> listuser = StartVar.listuser;
         int userSiz = listuser.size();
@@ -78,14 +80,14 @@ public class SummaryActivity extends AppCompatActivity {
         int novTotal = 0;
         int becTotal = 0;
         int torTotal = 0;
+        int preTotal = 0;
 
-        for (int i = 0; i < userSiz; i++){
-
-            int type = Integer.parseInt(listuser.get(i).sel2);
+        for(Usuario mUser : listuser){
+            int type = Integer.parseInt(mUser.sel2);
             // Type Vacas
             if(type == 0){
                 //Solo las Vacas tienen valores de litros
-                litTotal += Integer.parseInt(listuser.get(i).litros);
+                litTotal += Integer.parseInt(mUser.litros);
                 vacTotal++;
             }
             // Type Novilla
@@ -100,6 +102,11 @@ public class SummaryActivity extends AppCompatActivity {
             else if(type == 3){
                 torTotal++;
             }
+            // Para Preñadas
+            if(mUser.sel3.equals("1")){
+                preTotal++;
+            }
+
         }
         mView1.setText("Total Animales: "+ allTotal);
         mView2.setText("Total Litros: "+ litTotal+" L (Diarios)");
@@ -107,6 +114,7 @@ public class SummaryActivity extends AppCompatActivity {
         mView4.setText("Total Novillas: "+ novTotal);
         mView5.setText("Total Becerros: "+ becTotal);
         mView6.setText("Total Toros: "+ torTotal);
+        mView7.setText("Total Preñadas: "+preTotal);
 
     }
 
