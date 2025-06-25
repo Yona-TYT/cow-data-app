@@ -38,8 +38,8 @@
         android:textSize="@dimen/textViewLong"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintStart_toEndOf="@+id/textEditView2"
+        app:layout_constraintTop_toBottomOf="@+id/textEditView2" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
