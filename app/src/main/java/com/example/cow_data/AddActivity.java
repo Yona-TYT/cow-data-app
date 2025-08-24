@@ -16,6 +16,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -166,7 +167,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         mInput5.setEnabled(false);
 
-
         mSw1.setChecked(false);
 
         mBtnAdd = findViewById(R.id.buttAdd);
@@ -182,6 +182,22 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         mInputList.add(mInput4);
 
         setupActivityResultLaunchers();
+
+        //Inicia el input con la fecha actual
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDate currdate = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormES);
+            mInput4.setText(currdate.format(formatter));
+
+            mInput4.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        mInput4.post(() -> mInput4.selectAll());
+                    }
+                }
+            });
+        }
 
         //PAra la lista del selector de edades ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
@@ -334,10 +350,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 String mTxInput = textView.getText().toString();
+                textView.clearFocus();
                 if (currSel1 == 0) {
                     if(CalcCalendar.isDateFormat(mTxInput).isEmpty()){
                         Basic.msg("Formato de FECHA incorrecto!.");
-                        textView.setError("Fecha Incorrecta!.");
+                        textView.setError("Fecha Incorrecta!, Ejm: 20/10/2020");
                         return true;
                     }
                 }

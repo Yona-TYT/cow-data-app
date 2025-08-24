@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -101,6 +102,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private final List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
 
+    //Base de datos
+    public AppDatabase appDatabase = StartVar.appDatabase;
+
     @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,16 +195,16 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         typeList = StartVar.typeList;
 
         List<Usuario> listuser = StartVar.listuser;
-        int userSiz = listuser.size();
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             int i = 0;
             Usuario mUser = listuser.get(currIdx);
-            currSel1 = Integer.parseInt(mUser.sel1);
-            currSel2 = Integer.parseInt(mUser.sel2);
-            if (currIdx < userSiz) {
+            if (mUser != null) {
+                currSel1 = Integer.parseInt(mUser.sel1);
+                currSel2 = Integer.parseInt(mUser.sel2);
+
                 mviewList.get(i).setText(""+ mUser.nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
                 mviewList.get(i).setText("Color:   "+ mUser.color.toUpperCase());
@@ -232,9 +236,12 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
                 i++;
-                setTextView(mviewList.get(i), mUser.more1);
+                setTextList(mviewList.get(i), mUser.more1,"Madre: ");
+                //setTextView(mviewList.get(i), mUser.more1);
                 i++;
-                setTextView(mviewList.get(i), mUser.more2);
+                setTextList(mviewList.get(i), mUser.more2, "Hija: ");
+
+                //setTextView(mviewList.get(i), mUser.more2);
                 i++;
                 setTextView(mviewList.get(i), mUser.more3);
                 i++;
@@ -257,6 +264,31 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             String desc = moreValidate(txValue);
             view.setText( desc +"  "+ txValue.replaceAll(desc, ""));
         }
+    }
+    @SuppressLint("SetTextI18n")
+    private void setTextList(TextView view, String txValue, String TxTag){
+
+        String[] mSplit = txValue.split(",");
+        String textList = "";
+
+            for (String s : mSplit){
+            Usuario mU = appDatabase.daoUser().getUsers(s);
+            if( mU != null){
+                String name = mU.nombre.replaceAll("\\d","");
+                String number = mU.nombre.replaceAll("\\D","");
+                if(number.isEmpty()) {
+                    textList += name.toLowerCase() + ", ";
+                }
+                else {
+                    textList += number + ", ";
+                }
+            }
+        }
+        if(textList.isEmpty()){
+            view.setVisibility(View.INVISIBLE);
+        }
+        textList = textList.replaceAll(",\\s$","");
+        view.setText(TxTag+textList);
     }
 
     // this event will enable the back

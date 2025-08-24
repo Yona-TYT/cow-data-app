@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.google.api.client.util.DateTime;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -29,6 +30,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public class FilesManager extends AppCompatActivity {
@@ -113,12 +115,11 @@ public class FilesManager extends AppCompatActivity {
 
         //Si se crea correctamente entonces procede a escribir
         if(isDiralloway) {
-            LocalDate currdate = null;
+            String myName = "CowData_Save.csv";
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                currdate = LocalDate.now();
+                myName = "CowData_"+LocalDate.now().toString()+"_"+(LocalTime.now().toString().replaceAll("\\D","_"))+".csv";
             }
-            String name = (currdate == null? "CowData_Save.csv" : "CowData_"+currdate.toString()+".csv" );
-            File file = new File(path, name);
+            File file = new File(path, myName);
             write.writeToCsvFile(list, file);
             return file;
         }

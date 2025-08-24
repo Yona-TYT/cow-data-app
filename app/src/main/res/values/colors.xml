@@ -23,10 +23,7 @@
     <color name="days1">#20341e</color>
     <color name="days2">#05a6f1</color>
     <color name="highlight_background">#8C05A6F1</color>
-
-
-
-
+    <color name="text_color1">#C6FF00</color>
 
 
 </resources>

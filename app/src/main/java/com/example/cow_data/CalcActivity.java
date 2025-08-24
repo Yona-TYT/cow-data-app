@@ -3,8 +3,10 @@ package com.example.cow_data;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -32,6 +34,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CalcActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,7 +56,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
     // Para el selector de Fechas--------------------------------------------
     private Spinner mSpin2;
     private int currSel2 = 0;
-    private List<String> mSpinL2 = Arrays.asList("Dias", "Meses", "Años");
+    private List<String> mSpinL2 = Arrays.asList("Dias", "Meses", "Años", "año/mes/dia");
     //-----------------------------------------------------------------------
 
 
@@ -120,9 +124,21 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             }
             @Override
             public void afterTextChanged(Editable s) {
+
+                //Set dinnamy filtre for input text
+                inputDataFiltre( mInput1.getText().toString(), mInput1);
+
                 //Se comprueba el imput de fecha Personalizada-------------------------------------------
                 String mDate =  CalcCalendar.isDateFormat(mInput1.getText().toString());
                 mCustonDate = CalcCalendar.getFormatDateEN(mDate);
+
+                if(!mCustonDate.isEmpty()) {
+                    //Upedate Date Calc
+                    dateCalcPlusMinus(mInput2.getText().toString());
+                }
+                else{
+                    clearViews();
+                }
                 //-----------------------------------------------------------------------------
             }
         });
@@ -138,6 +154,14 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                         return true;
                     }
                 }
+                else if (currSel1 == 3) {
+                    String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                    if (dateList == null || dateList.length < 2) {
+                        Basic.msg("Formato incorrecto!.");
+                        textView.setError("Formato Incorrecta!.");
+                        return true;
+                    }
+                }
                 return false;
             }
         });
@@ -145,9 +169,53 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
         mInput1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if (!b && currSel1 == 1) {
-                    if(CalcCalendar.isDateFormat(mInput1.getText().toString()).isEmpty()){
-                        Basic.msg("Formato de FECHA incorrecto!.");
+                String mTxInput = mInput1.getText().toString();
+                if(!b){
+                    if (currSel1 == 1) {
+                        if (CalcCalendar.isDateFormat(mTxInput).isEmpty()) {
+                            Basic.msg("Formato de FECHA incorrecto!.");
+                            mInput1.setError("Fecha Incorrecta!.");
+                        }
+                    }
+                    else if (currSel1 == 3) {
+                        String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                        if (dateList == null || dateList.length < 2) {
+                            Basic.msg("Formato incorrecto!.");
+                            mInput1.setError("Formato Incorrecta!.");
+                        }
+                    }
+                }
+            }
+        });
+
+
+        mInput2.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                String mTxInput = textView.getText().toString();
+                if (currSel2 == 3) {
+                    String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                    if (dateList == null || dateList.length < 2) {
+                        Basic.msg("Formato incorrecto!.");
+                        textView.setError("Formato Incorrecta!.");
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        mInput2.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                String mTxInput = mInput2.getText().toString();
+                if(!b){
+                    if (currSel2 == 3) {
+                        String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                        if (dateList == null || dateList.length < 2) {
+                            Basic.msg("Formato incorrecto!.");
+                            mInput2.setError("Formato Incorrecta!.");
+                        }
                     }
                 }
             }
@@ -166,42 +234,20 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             }
             @Override
             public void afterTextChanged(Editable s) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    String mText = mInput2.getText().toString();
-                    if (!mText.isEmpty()) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormES);
+                String mText = mInput2.getText().toString();
+                if (!mText.isEmpty()) {
 
-                        long vlresult = Long.parseLong(mText.replaceAll("\\D", ""));
-                        LocalDate currdate = currSel1 == 0 || mCustonDate.isEmpty()? LocalDate.now() : LocalDate.parse(mCustonDate);
+                    //Set dinnamy filtre for input text
+                    inputDataFiltre( mText, mInput2);
 
-                        //Dias
-                        if (currSel2 == 0) {
-                            //Para Sumar
-                            mText1.setText(currdate.plusDays(vlresult).format(formatter));
-                            //Para Restar
-                            mText2.setText(currdate.minusDays(vlresult).format(formatter));
-                        }
-                        //Meses
-                        else if (currSel2 == 1) {
-                            //Para Sumar
-                            mText1.setText(currdate.plusMonths(vlresult).format(formatter));
-                            //Para Restar
-                            mText2.setText(currdate.minusMonths(vlresult).format(formatter));
-                        }
-                        //Años
-                        else {
-                            //Para Sumar
-                            mText1.setText(currdate.plusYears(vlresult).format(formatter));
-                            //Para Restar
-                            mText2.setText(currdate.minusYears(vlresult).format(formatter));
-                        }
-                    }
-                    else{
-                        //Para Sumar
-                        mText1.setText("");
-                        //Para Restar
-                        mText2.setText("");
-                    }
+                    //Upedate Date Calc
+                    dateCalcPlusMinus(mText);
+                }
+                else{
+                    //Para Sumar
+                    mText1.setText("");
+                    //Para Restar
+                    mText2.setText("");
                 }
             }
         });
@@ -242,6 +288,17 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 currSel2 = i;
+                if(currSel2 == 3) {
+                    mInput2.setHint("año/mes/dia");
+                    mInput2.setInputType(InputType.TYPE_CLASS_DATETIME);
+                }
+                else{
+                    mInput2.setHint("Ingrese Valor");
+                    mInput2.setInputType(InputType.TYPE_CLASS_NUMBER);
+                }
+
+                //Upedate Date Calc
+                dateCalcPlusMinus(mInput2.getText().toString());
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -291,6 +348,103 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void dateCalcPlusMinus(String mText){
+        DateTimeFormatter formatter = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormES);
+
+            String myParse = mText.replaceAll("\\D", "");
+            long vlresult = Long.parseLong(myParse.isEmpty()?"0" : myParse);
+
+            LocalDate currdate = currSel1 == 0 || mCustonDate.isEmpty()? LocalDate.now() : LocalDate.parse(mCustonDate);
+
+            //Dias
+            if (currSel2 == 0) {
+                //Para Sumar
+                mText1.setText(currdate.plusDays(vlresult).format(formatter));
+                //Para Restar
+                mText2.setText(currdate.minusDays(vlresult).format(formatter));
+            }
+            //Meses
+            else if (currSel2 == 1) {
+                //Para Sumar
+                mText1.setText(currdate.plusMonths(vlresult).format(formatter));
+                //Para Restar
+                mText2.setText(currdate.minusMonths(vlresult).format(formatter));
+            }
+            //Años
+            else if (currSel2 == 2){
+                //Para Sumar
+                mText1.setText(currdate.plusYears(vlresult).format(formatter));
+                //Para Restar
+                mText2.setText(currdate.minusYears(vlresult).format(formatter));
+            }
+            //Para Formato de fecha
+            else {
+                String[] dateList = CalcCalendar.dataValidate(mText);
+                if (dateList != null && dateList.length > 1) {
+
+                    //Para Sumar
+                    LocalDate fromPlus = currdate.plusYears(Long.parseLong(dateList[0]));
+                    fromPlus = fromPlus.plusMonths(Long.parseLong(dateList[1]));
+                    fromPlus = fromPlus.plusDays(Long.parseLong(dateList[2]));
+                    mText1.setText(fromPlus.format(formatter));
+
+                    //Para Restar
+                    LocalDate fromMinus = currdate.minusYears(Long.parseLong(dateList[0]));
+                    fromMinus = fromMinus.minusMonths(Long.parseLong(dateList[1]));
+                    fromMinus = fromMinus.minusDays(Long.parseLong(dateList[2]));
+                    mText2.setText(fromMinus.format(formatter));
+                }
+                else{
+                    clearViews();
+                }
+            }
+        }
+    }
+
+    public void clearViews(){
+        mText1.setText("");
+        mText2.setText("");
+    }
+
+    public void inputDataFiltre(String mText, EditText mInput){
+        Pattern patt = Pattern.compile("(^\\D+)");
+        Matcher m = patt.matcher(mText);
+        String copyTx = "";
+        if(m.find()) {
+            String gr = m.group(1);
+            //Basic.msg("-> "+gr);
+            assert gr != null;
+            copyTx = mText.replaceFirst(gr, "");
+            mInput.setText(copyTx);
+        }
+
+        patt = Pattern.compile("(\\D{2,})");
+        m = patt.matcher(mText);
+        if(m.find()) {
+            String gr = m.group(1);
+            //Basic.msg("-> "+gr);
+            assert gr != null;
+            //Basic.msg(s.toString().replaceAll(gr, "-"));
+            copyTx = mText.replaceAll(gr, "-");
+            copyTx = copyTx.replaceAll("^\\D", "");
+            mInput.setText(copyTx);
+            mInput.setSelection(copyTx.length());
+        }
+
+        patt = Pattern.compile("(\\d)((\\D)(\\d+|$)){3,}");
+        m = patt.matcher(mText);
+        if(m.find()) {
+            //String gr = m.group(1);
+            //Basic.msg("-> "+gr);
+            //assert gr != null;
+            copyTx = mText.replaceFirst("\\D+$", "");
+            mInput.setText(copyTx);
+            mInput.setSelection(copyTx.length());
+        }
     }
 
 }

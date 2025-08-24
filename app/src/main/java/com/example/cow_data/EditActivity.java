@@ -82,6 +82,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private EditText mInput4;
     private EditText mInput5;
 
+    private TextView mTextV;
+
     private Spinner mSpin1;
     private Spinner mSpin2;
 
@@ -107,6 +109,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private Uri oldFile = null;
     private Uri currUri = null;
     private int currIdx = 0;
+    private Usuario myUser;
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
@@ -169,6 +172,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mInput3 = findViewById(R.id.txEdit3);
         mInput4 = findViewById(R.id.txEdit4);
         mInput5 = findViewById(R.id.txEdit5);
+
+        mTextV = findViewById(R.id.textEditView5);
 
         mSpin1 = findViewById(R.id.spinEdad);
         mSpin2 = findViewById(R.id.spinType);
@@ -246,6 +251,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                     mInput5.setVisibility(View.VISIBLE);
                     mSw1.setVisibility(View.VISIBLE);
+                    mTextV.setVisibility(View.VISIBLE);
                 }
                 else if(i == 1){
                     mInput3.setText("0");
@@ -253,6 +259,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                     mInput5.setVisibility(View.VISIBLE);
                     mSw1.setVisibility(View.VISIBLE);
+                    mTextV.setVisibility(View.VISIBLE);
                 }
 
                 else {
@@ -264,6 +271,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     mSw1.setVisibility(View.INVISIBLE);
                     swPre = false;
                     mSw1.setChecked(false);
+                    mTextV.setVisibility(View.INVISIBLE);
                 }
             }
             @Override
@@ -279,43 +287,46 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             List<Usuario> listuser = StartVar.listuser;
+            myUser = listuser.get(currIdx);
 
             int i = 0;
-            Usuario mList = listuser.get(currIdx);
-            currSel1 = 0;//Integer.parseInt(mList.sel1);
-            currSel2 = Integer.parseInt(mList.sel2);
-            if(currSel1 == 3){
-                mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
-            }
 
-            if(currSel2 != 0){
-                mInput3.setText("0");
-                mInput3.setEnabled(false);
-            }
 
-            if (currIdx < listuser.size()) {
+            if (myUser != null) {
+
+                currSel1 = 0;//Integer.parseInt(mList.sel1);
+                currSel2 = Integer.parseInt(myUser.sel2);
+                if(currSel1 == 3){
+                    mInput4.setInputType(InputType.TYPE_CLASS_DATETIME);
+                }
+
+                if(currSel2 != 0){
+                    mInput3.setText("0");
+                    mInput3.setEnabled(false);
+                }
+
                 //Se obtiene el usuario real
-                mUser = mList.usuario;
+                mUser = myUser.usuario;
 
-                mInputList.get(i).setText(mList.nombre);
+                mInputList.get(i).setText(myUser.nombre);
                 i++;
-                mInputList.get(i).setText(mList.color);
+                mInputList.get(i).setText(myUser.color);
                 i++;
-                mInputList.get(i).setText(mList.litros);
+                mInputList.get(i).setText(myUser.litros);
                 i++;
-                mInputList.get(i).setText(CalcCalendar.dataConverted(mList.edad, currSel1));
+                mInputList.get(i).setText(CalcCalendar.dataConverted(myUser.edad, currSel1));
 
                 //Log.d("Calendar", "Calen1 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getFormatDateES(mList.edad));
                 i++;
 
-                mInput5.setText(CalcCalendar.getFormatDateES(mList.pre));
+                mInput5.setText(CalcCalendar.getFormatDateES(myUser.pre));
 
-                swPre = !mList.sel3.equals("0");
+                swPre = !myUser.sel3.equals("0");
                 mInput5.setEnabled(swPre);
 
                 mSw1.setChecked(swPre);
 
-                saveImage = fmang.getImage(mList.imagen, mImgPrev);
+                saveImage = fmang.getImage(myUser.imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
 
                 //Comentado para futura eliminacion

@@ -6,6 +6,15 @@ android {
     namespace 'com.example.cow_data'
     compileSdk 35
 
+
+    packaging {
+        resources {
+            it.excludes.add("META-INF/INDEX.LIST")
+            it.excludes.add("META-INF/DEPENDENCIES")
+
+        }
+    }
+
     defaultConfig {
         applicationId "com.example.cow_data"
         minSdk 24
@@ -44,6 +53,7 @@ dependencies {
     implementation 'com.airbnb.android:lottie:6.6.6'
     implementation libs.activity
     implementation libs.recyclerview
+    implementation libs.googleid
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
@@ -86,5 +96,31 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.opencsv/opencsv
     implementation 'com.opencsv:opencsv:5.10'
+
+
+    implementation libs.androidx.credentials.v122
+    implementation libs.androidx.credentials.play.services.auth.v122
+
+    //implementation libs.play.services.auth // Para Google Sign-In
+
+    implementation libs.google.api.client
+
+    // https://mvnrepository.com/artifact/com.google.auth/google-auth-library-credentials
+    implementation libs.google.auth.library.credentials
+    implementation libs.google.auth.library.oauth2.http.v1371
+
+    implementation libs.google.api.services.drive
+
+    //implementation libs.google.http.client.jackson2 // Añadir para JacksonFactory
+
+    implementation libs.play.services.auth.v2100  // Para Google Sign-In
+
+    implementation(libs.google.api.client.android.v260) {
+        exclude group: 'org.apache.httpcomponents' // Evita conflictos
+    }
+
+    implementation(libs.google.api.services.drive.vv3rev20240815200)
+
+
 
 }

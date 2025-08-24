@@ -1,9 +1,11 @@
 package com.example.cow_data;
 
 import static android.service.controls.ControlsProviderService.TAG;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
@@ -11,6 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -34,6 +38,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -41,13 +46,11 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-
 import com.example.cow_data.databinding.ActivityMainBinding;
-import com.google.android.material.snackbar.Snackbar;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,7 +58,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.api.services.drive.DriveScopes;
+
+import com.google.android.gms.common.api.Scope;
+
 import io.reactivex.annotations.NonNull;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
@@ -106,9 +120,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox mCheck1;
     private boolean isPre = false;
 
+
+    private Handler mainHandler;
+
+    private GoogleAuthManager authManager;
+    private GoogleDriveManager driveManager;
+    private static final String DATABASE_NAME = StartVar.nameDB;
+
+
+    private static final int REQUEST_CODE_SIGN_IN = 1;
+    private GoogleSignInClient mGoogleSignInClient;
+    private GoogleDriveManager mDriveManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        new Basic(getApplicationContext());
+
+
+        // Inicializar Handler para el hilo principal
+        mainHandler = new Handler(Looper.getMainLooper());
 
         OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -121,6 +153,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
+        String mID1 = "778649314585-l35273q54dc6cbk4cnt7ejc39gi6ju34.apps.googleusercontent.com"; //Debug
+        String mID2 = "778649314585-4mupk148e5ncr3qm1dcotr77qile1dhc.apps.googleusercontent.com";  //Web
+        String mID3 = "778649314585-28102cvr1qbtfaa54eb7ndf583868sr7.apps.googleusercontent.com";  //Realse
+
+        String WEB_CLIENT_ID = mID2; // Replace with Web Client ID
+        String CLIENT_SECRET = "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"; // Replace with Client Secret
+
+        // Inicializar GoogleAuthManager
+        // Configura Google Sign-In
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
+
 
         //Activate ToolBar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -141,10 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mPermiss = checkStoragePermissions();
         }
 
-        new Basic(getApplicationContext());
-
-
-
         mBtnNew = findViewById(R.id.buttNew);
         mLayout = findViewById(R.id.layout);
         gridView = findViewById(R.id.gcImg);
@@ -161,6 +206,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startVar = new StartVar(getApplicationContext());
         startVar.setUserListDB();
         startVar.setmPermiss(mPermiss);
+
+        File dbFile = new File(getApplicationContext().getDatabasePath(StartVar.nameDB).getPath());
+        Log.d(TAG, "Ruta de la base de datos: " + dbFile.getAbsolutePath());
+
+
+        Basic.msg(dbFile.getAbsolutePath());
+
 
         //Instancia de la base de datos
         StartVar.getUserListDB();
@@ -345,7 +397,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                                 else {
                                     mtxList.add(setGalleryArray(i));
-                                }                            }
+                                }
+                            }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == i){
@@ -375,10 +428,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mlv.setVisibility(View.VISIBLE);
                         mAdapter.getFilter().filter(newText);
 
-                        //ArrayList<Integer> idxList = (ArrayList<Integer>)mAdapter.getItem(0);
-                        //Toast.makeText(MainActivity.this, "Siz is "+idxList.size(), Toast.LENGTH_LONG).show();
-
-                        //Log.d("PhotoPicker", "11100------------------------: " + indexList.size());
                     }
                     else {
                         mlv.setVisibility(View.INVISIBLE);
@@ -420,6 +469,134 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //------------------------------------------------------------------------------------------------
     }
 
+
+    //=====================================================================================================
+
+
+    private void signInAndUpload() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account == null) {
+            Log.d(TAG, "Usuario no autenticado, iniciando sign-in...");
+            startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+        } else {
+            Log.d(TAG, "Usuario ya autenticado: " + account.getEmail());
+            uploadExampleFile(account.getEmail());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_SIGN_IN) {
+            String errorMsg;
+            if (resultCode == RESULT_OK) {
+                Log.d(TAG, "Sign-in exitoso, procesando resultado...");
+                handleSignInResult(GoogleSignIn.getSignedInAccountFromIntent(data));
+            } else if (resultCode == RESULT_CANCELED) {
+                errorMsg = "Sign-in cancelado por el usuario (resultCode=0).";
+                Log.e(TAG, errorMsg);
+                copyToClipboard(errorMsg);
+                showToast("Sign-in cancelado. Error copiado al portapapeles.");
+            } else {
+                errorMsg = "Error en sign-in: resultCode=" + resultCode + ", datos=" + (data != null ? data.toString() : "nulo");
+                Log.e(TAG, errorMsg);
+                copyToClipboard(errorMsg);
+                showToast("Error en sign-in. Error copiado al portapapeles.");
+            }
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            String accountName = account.getEmail();
+            Log.d(TAG, "Sign-in exitoso para: " + accountName);
+            mDriveManager = new GoogleDriveManager(this, accountName);
+            uploadExampleFile(accountName);
+        } catch (ApiException e) {
+            String errorMsg = "Error en sign-in: " + e.getMessage() + ", código de estado: " + e.getStatusCode();
+            Log.e(TAG, errorMsg, e);
+            copyToClipboard(errorMsg);
+            showToast("Error en sign-in: " + e.getStatusCode() + ". Copiado al portapapeles.");
+            // Sugerencia: Reintentar sign-in si el código es recuperable
+            if (e.getStatusCode() == 12501) { // Usuario canceló
+                Log.d(TAG, "Usuario canceló el sign-in, reintentando...");
+                startActivityForResult(mGoogleSignInClient.getSignInIntent(), REQUEST_CODE_SIGN_IN);
+            }
+        } catch (Exception e) {
+            String errorMsg = "Error inesperado en sign-in: " + e.getMessage();
+            Log.e(TAG, errorMsg, e);
+            copyToClipboard(errorMsg);
+            showToast("Error inesperado en sign-in. Copiado al portapapeles.");
+        }
+    }
+
+    private void uploadExampleFile(String accountName) {
+        // Crear archivo de prueba si no existe
+        File fileToUpload = new File(getFilesDir(), "test.txt");
+        if (!fileToUpload.exists()) {
+            try {
+                Log.d(TAG, "Creando archivo de prueba: " + fileToUpload.getAbsolutePath());
+                boolean created = fileToUpload.createNewFile();
+                if (created) {
+                    try (FileOutputStream fos = new FileOutputStream(fileToUpload)) {
+                        fos.write("Contenido de prueba para Google Drive".getBytes());
+                        fos.flush();
+                    }
+                    Log.d(TAG, "Archivo de prueba creado, tamaño: " + fileToUpload.length() + " bytes");
+                } else {
+                    String errorMsg = "Error: No se pudo crear el archivo de prueba.";
+                    Log.e(TAG, errorMsg);
+                    copyToClipboard(errorMsg);
+                    showToast("No se pudo crear archivo de prueba. Copiado al portapapeles.");
+                    return;
+                }
+            } catch (IOException e) {
+                String errorMsg = "Error al crear archivo de prueba: " + e.getMessage();
+                Log.e(TAG, errorMsg, e);
+                copyToClipboard(errorMsg);
+                showToast("Error al crear archivo de prueba. Copiado al portapapeles.");
+                return;
+            }
+        }
+
+        if (mDriveManager != null) {
+            Log.d(TAG, "Iniciando subida del archivo para cuenta: " + accountName);
+            boolean success = mDriveManager.uploadFile(fileToUpload);
+            String resultMsg = "Subida " + (success ? "exitosa" : "fallida");
+            Log.d(TAG, resultMsg);
+            showToast(resultMsg);
+        } else {
+            String errorMsg = "Error: GoogleDriveManager no inicializado para cuenta: " + accountName;
+            Log.e(TAG, errorMsg);
+            copyToClipboard(errorMsg);
+            showToast("DriveManager no inicializado. Copiado al portapapeles.");
+        }
+    }
+
+    /**
+     * Copia un mensaje al portapapeles.
+     * @param text Texto a copiar.
+     */
+    private void copyToClipboard(String text) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("MainActivity Error", text);
+        clipboard.setPrimaryClip(clip);
+        Log.d(TAG, "Mensaje copiado al portapapeles: " + text);
+    }
+
+    /**
+     * Muestra un Toast en la UI.
+     * @param message Mensaje a mostrar.
+     */
+    private void showToast(String message) {
+        runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    //=====================================================================================================
+
+
+
     private String[] setGalleryArray(int idx){
         String[] stList = new String[8];
         stList[0] = dirList.get(idx);
@@ -440,6 +617,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getMenuInflater().inflate(R.menu.save, menu);
         getMenuInflater().inflate(R.menu.impor, menu);
         getMenuInflater().inflate(R.menu.merge, menu);
+        getMenuInflater().inflate(R.menu.sync, menu);
 
         for(int i = 0; i < menu.size(); i++){
             MenuItem item = menu.getItem(i);
@@ -476,7 +654,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (itemId == R.id.save) {
             try {
-                File file = fmang.csvExport(totalList);
+                java.io.File file = fmang.csvExport(totalList);
 
                 if(file != null) {
                     Intent intent = new Intent(Intent.ACTION_SEND);
@@ -527,6 +705,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
 
+        }
+        if (itemId == R.id.sync) {
+
+
+            // Iniciar autenticación
+            //authManager.startAuthentication();
+            signInAndUpload();
         }
 
         return true;
@@ -634,11 +819,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(mIntent);
     }
 
-    private void textSnackbar(String text){
-        Snackbar mySnackbar = Snackbar.make(mLayout, text, Snackbar.LENGTH_SHORT);
-        mySnackbar.show();
-    }
-
     private boolean checkStoragePermissions(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
 
@@ -733,8 +913,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
         }
-        Basic.msg(mIdx);
         return mIdx;
         //-------------------------------------------------------------------------------------------
+    }
+
+    // Método auxiliar para mostrar Toast y opcionalmente copiar al portapapeles
+    private void showToastSafely(String message, boolean copyToClipboard) {
+        if (!isFinishing() && !isDestroyed()) {
+            mainHandler.post(() -> {
+                try {
+                    //Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    if (copyToClipboard) {
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        ClipData clipData = ClipData.newPlainText("Clip Data", message);
+                        clipboard.setPrimaryClip(clipData);
+                    }
+                } catch (Exception e) {
+                    Log.e("Toast", "Error al mostrar Toast o copiar al portapapeles: " + e.getMessage(), e);
+                }
+            });
+        } else {
+            Log.w("Toast", "No se puede mostrar Toast ni copiar al portapapeles: actividad finalizada o destruida");
+        }
     }
 }

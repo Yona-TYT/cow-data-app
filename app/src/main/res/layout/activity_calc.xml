@@ -40,7 +40,7 @@
         android:layout_width="@dimen/textViewW"
         android:layout_height="@dimen/textViewAddH"
         android:layout_marginBottom="212dp"
-        android:hint="Ingrese Valor"
+        android:hint="dd/mm/aaaa"
         android:inputType="date"
         android:maxLength="10"
         android:maxLines="1"

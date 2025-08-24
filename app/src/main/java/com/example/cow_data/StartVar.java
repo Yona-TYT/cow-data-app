@@ -5,12 +5,17 @@ import android.content.Context;
 import androidx.room.Room;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class StartVar {
+    //Mapa de arrays
+    public static HashMap<String, ArrayList<String>> arrayMap;
+    public static final String mId1 = "id1";
+    public static final String mId2 = "id2";
 
     //Nombre de data Base
-    private static String nameDB = "Registro2";
+    public static String nameDB = "Registro2";
 
     // Var redundants
     public static List<Usuario> listuser;
@@ -20,18 +25,18 @@ public class StartVar {
     public static String mDateFormEN = "yyyy-MM-dd";
     public static String mDateFormES = "dd-MM-yyyy";
 
-
-
     // DB
     public static AppDatabase appDatabase;
     public static ArrayList<String> textList;
     public static ArrayList<String> dirList;
     public static ArrayList<String> typeList;
     public static ArrayList<String> morlist = new ArrayList<>();
+    public static ArrayList<String> boxlist1 = new ArrayList<>();
+    public static ArrayList<String> boxlist2 = new ArrayList<>();
 
     public static int currSel2 = 4;
 
-    private  Context mContex;
+    public static Context mContex;
     public StartVar(Context mContex){
         this.mContex = mContex;
     }
@@ -64,5 +69,25 @@ public class StartVar {
     public void setMorlist(ArrayList<String> list){
         StartVar.morlist.clear();
         StartVar.morlist = list;
+    }
+
+    public void setBoxlist1(ArrayList<String> list){
+        StartVar.boxlist1 = list;
+    }
+
+    public void clearBoxlist1(){
+        StartVar.boxlist1.clear();
+    }
+
+    public void setBoxlist2(ArrayList<String> list){
+        StartVar.boxlist2 = list;
+    }
+
+    public void clearBoxlist2(){
+        StartVar.boxlist2.clear();
+    }
+
+    public static void setArrayMap(HashMap<String, ArrayList<String>> mMap){
+        StartVar.arrayMap = mMap;
     }
 }
