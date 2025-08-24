@@ -155,12 +155,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(binding.getRoot());
 
 
-        String mID1 = ""; //Debug
-        String mID2 = "";  //Web
-        String mID3 = "";  //Realse
+        String mID1 = "778649314585-l35273q54dc6cbk4cnt7ejc39gi6ju34.apps.googleusercontent.com"; //Debug
+        String mID2 = "778649314585-4mupk148e5ncr3qm1dcotr77qile1dhc.apps.googleusercontent.com";  //Web
+        String mID3 = "778649314585-28102cvr1qbtfaa54eb7ndf583868sr7.apps.googleusercontent.com";  //Realse
 
         String WEB_CLIENT_ID = mID2; // Replace with Web Client ID
-        String CLIENT_SECRET = ""; // Replace with Client Secret
+        String CLIENT_SECRET = "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"; // Replace with Client Secret
 
         // Inicializar GoogleAuthManager
         // Configura Google Sign-In
