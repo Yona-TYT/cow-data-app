@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String mID3 = "778649314585-28102cvr1qbtfaa54eb7ndf583868sr7.apps.googleusercontent.com";  //Realse
 
         String WEB_CLIENT_ID = mID2; // Replace with Web Client ID
-        String CLIENT_SECRET = "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"; // Replace with Client Secret
+        String CLIENT_SECRET = ""; // Replace with Client Secret
 
         // Inicializar GoogleAuthManager
         // Configura Google Sign-In
