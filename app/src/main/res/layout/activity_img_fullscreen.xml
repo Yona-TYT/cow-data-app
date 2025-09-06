@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#000"
     android:theme="@style/ThemeOverlay.CowData.FullscreenContainer"
-    tools:context=".ImgFullscreenActivity">
+    tools:context=".activitys.ImgFullscreenActivity">
 
 
     <!-- The primary full-screen view. This can be replaced with whatever view

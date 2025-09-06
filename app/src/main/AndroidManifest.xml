@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -35,12 +34,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CowData.NoActionBar"
         tools:targetApi="tiramisu">
-
         <activity
-            android:name=".CalcActivity"
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".activitys.CalcActivity"
             android:exported="false" />
         <activity
-            android:name=".SummaryActivity"
+            android:name=".activitys.SummaryActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
 
@@ -55,30 +57,30 @@
         </provider>
 
         <activity
-            android:name=".MoreActivity"
+            android:name=".activitys.MoreActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".ImgFullscreenActivity"
+            android:name=".activitys.ImgFullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
             android:label="@string/title_activity_img_fullscreen"
             android:theme="@style/Theme.CowData.NoActionBar.Fullscreen" />
         <activity
-            android:name=".EditActivity"
+            android:name=".activitys.EditActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".ViewActivity"
+            android:name=".activitys.ViewActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".AddActivity"
+            android:name=".activitys.AddActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".Preloder"
+            android:name=".activitys.Preloader"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
@@ -88,15 +90,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activitys.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/comma-separated-values" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="net.openid.appauth.RedirectUriReceiverActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data android:scheme="com.mendhak.gpslogger"
+                    android:path="/oauth2googledrive"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:host="oauth2openstreetmap" android:scheme="com.mendhak.gpslogger" />
             </intent-filter>
         </activity>
     </application>

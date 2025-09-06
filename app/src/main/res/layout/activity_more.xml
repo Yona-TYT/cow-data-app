@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/back_loing"
-    tools:context=".MoreActivity">
+    tools:context=".activitys.MoreActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
@@ -20,7 +20,7 @@
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp" />
 
-    <com.google.android.material.textfield.TextInputEditText
+    <com.example.cow_data.ClearFocusEditText
         android:id="@+id/txEdit1"
         android:layout_width="320dp"
         android:layout_height="@dimen/textViewAddH"
@@ -47,7 +47,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toBottomOf="@+id/txEdit1" />
 
-    <com.google.android.material.textfield.TextInputEditText
+    <com.example.cow_data.ClearFocusEditText
         android:id="@+id/txEdit2"
         android:layout_width="320dp"
         android:layout_height="@dimen/textViewAddH"

@@ -24,6 +24,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -101,7 +102,7 @@ public class FilesManager extends AppCompatActivity {
         return "";
     }
 
-    public File csvExport(List<String[]> list) throws IOException {
+    public File csvExport(List<String[]> list, String fileName) throws IOException {
         // Definimos la class
         CsvWriterSimple write = new CsvWriterSimple();
 
@@ -119,7 +120,7 @@ public class FilesManager extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 myName = "CowData_"+LocalDate.now().toString()+"_"+(LocalTime.now().toString().replaceAll("\\D","_"))+".csv";
             }
-            File file = new File(path, myName);
+            File file = new File(path, fileName.isEmpty()? myName : fileName);
             write.writeToCsvFile(list, file);
             return file;
         }
@@ -184,8 +185,29 @@ public class FilesManager extends AppCompatActivity {
         return false;
     }
 
-    boolean isBlockedPath(Context ctx, String dir) {
+    public static boolean isBlockedPath(Context ctx, String dir) {
         // Paths that should rarely be exposed
         return dir.startsWith("content://media/" + MediaStore.VOLUME_EXTERNAL_PRIMARY) || dir.startsWith("/storage/emulated/0/Documents/");
+    }
+
+    // Método para copiar el archivo con un nuevo nombre
+    public static File getNewFile(String rutaOriginal, String newName, Context context) throws IOException {
+        File originalFile = new File(rutaOriginal);
+        if (!originalFile.exists()) {
+            return null; // El archivo original no existe
+        }
+
+        // Crear un nuevo archivo en el directorio de caché o almacenamiento interno
+        File newFile = new File(context.getCacheDir(), newName);
+        // Copiar contenido del archivo original al nuevo archivo
+        try (FileInputStream in = new FileInputStream(originalFile);
+             FileOutputStream out = new FileOutputStream(newFile)) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+        }
+        return newFile;
     }
 }

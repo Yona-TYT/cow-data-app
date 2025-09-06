@@ -1,12 +1,23 @@
 package com.example.cow_data;
 
+import android.app.Activity;
 import android.content.Context;
 
 import androidx.room.Room;
 
+import com.example.cow_data.db.AppDatabase;
+import com.example.cow_data.db.ConfigDatabase;
+import com.example.cow_data.db.Configdb;
+import com.example.cow_data.db.Usuario;
+
+import java.nio.ByteBuffer;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
+import java.util.Base64;
 
 public class StartVar {
     //Mapa de arrays
@@ -15,7 +26,14 @@ public class StartVar {
     public static final String mId2 = "id2";
 
     //Nombre de data Base
-    public static String nameDB = "Registro2";
+    public static String nameDBcow = "Registro2";
+    public static String nameDBconf = "Config-COW";
+
+    //Worker tags
+    public static final String WORK_TAG_CONFDB = "DownloadWorkConfigDb"; // Define WORK_TAG para configdb
+    public static final String WORK_TAG_COWDATA = "DownloadWorkCowData"; // Define WORK_TAG para cowdatadb
+
+    public static List<String[]> csvList = new ArrayList<>();
 
     // Var redundants
     public static List<Usuario> listuser;
@@ -25,26 +43,70 @@ public class StartVar {
     public static String mDateFormEN = "yyyy-MM-dd";
     public static String mDateFormES = "dd-MM-yyyy";
 
-    // DB
+    // DB Cow
     public static AppDatabase appDatabase;
-    public static ArrayList<String> textList;
-    public static ArrayList<String> dirList;
-    public static ArrayList<String> typeList;
+    public static ArrayList<Object> textList;
+    public static ArrayList<Object> dirList;
+    public static ArrayList<Object> typeList;
     public static ArrayList<String> morlist = new ArrayList<>();
-    public static ArrayList<String> boxlist1 = new ArrayList<>();
-    public static ArrayList<String> boxlist2 = new ArrayList<>();
+
+    // DB Config
+    public static ConfigDatabase configDatabase;
+    public static Configdb mConfigDB;
+    public static String mConfID = "confID0";
+
+    // DB Config Temp
+    public static ConfigDatabase configDatabaseTemp = null;
+
 
     public static int currSel2 = 4;
 
     public static Context mContex;
+    public static Activity mActivity;
+
+    //Preloder
+    public static boolean mainStart = false;
+
+
     public StartVar(Context mContex){
         this.mContex = mContex;
     }
 
+
     public void setUserListDB(){
         //Instancia de la base de datos
-        StartVar.appDatabase = Room.databaseBuilder( mContex, AppDatabase.class, nameDB).allowMainThreadQueries().build();
+        StartVar.appDatabase = Room.databaseBuilder( mContex, AppDatabase.class, nameDBcow).allowMainThreadQueries().build();
         StartVar.listuser =  appDatabase.daoUser().getUsers();
+
+        //Instancia de la base de datos para Config
+        StartVar.configDatabase = Room.databaseBuilder( mContex, ConfigDatabase.class, nameDBconf).allowMainThreadQueries().build();
+        mConfigDB = configDatabase.daoConf().getUsers(mConfID);
+
+        if(mConfigDB == null){
+            String date = "";
+            String time= "";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                date = LocalDate.now().toString();
+                time = LocalTime.now().toString();
+            }
+
+            // Generar UUID
+            UUID uuid = UUID.randomUUID();
+            // Convertir UUID a bytes (16 bytes)
+            ByteBuffer byteBuffer = ByteBuffer.allocate(16);
+            byteBuffer.putLong(uuid.getMostSignificantBits());
+            byteBuffer.putLong(uuid.getLeastSignificantBits());
+
+            // Codificar en Base64 (sin padding para ahorrar espacio)
+            String textID = "";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                textID = Base64.getUrlEncoder().withoutPadding().encodeToString(byteBuffer.array());
+            }
+
+            //configDatabase.daoConf().insertUser();
+            Configdb obj = new Configdb(mConfID, "3", textID, date, time, "0", "0", "0");
+            configDatabase.daoConf().insetUser(obj);
+        }
     }
 
     public static void getUserListDB(){
@@ -52,11 +114,19 @@ public class StartVar {
         StartVar.listuser =  StartVar.appDatabase.daoUser().getUsers();
     }
 
+    public static void getConfigDB(){
+        //Instancia de la base de datos
+        StartVar.mConfigDB =  StartVar.configDatabase.daoConf().getUsers(mConfID);
+    }
+
     public void setmPermiss(boolean permiss){
         mPermiss = permiss;
     }
 
-    public void setArrayList(ArrayList<String> listA, ArrayList<String> listB, ArrayList<String> listC){
+    public static void setmMainStart(boolean mStart){mainStart = mStart;}
+
+
+    public void setArrayList(ArrayList<Object> listA, ArrayList<Object> listB, ArrayList<Object> listC){
         StartVar.textList = listA;
         StartVar.dirList = listB;
         StartVar.typeList = listC;
@@ -66,28 +136,28 @@ public class StartVar {
         StartVar.currSel2 = value;
     }
 
+    public void setmActivity(Activity activity){
+        StartVar.mActivity = activity;
+    }
+
+
     public void setMorlist(ArrayList<String> list){
         StartVar.morlist.clear();
         StartVar.morlist = list;
     }
 
-    public void setBoxlist1(ArrayList<String> list){
-        StartVar.boxlist1 = list;
+    public static void setCsvList(List<String[]> mList){
+        StartVar.csvList = mList;
     }
 
-    public void clearBoxlist1(){
-        StartVar.boxlist1.clear();
-    }
-
-    public void setBoxlist2(ArrayList<String> list){
-        StartVar.boxlist2 = list;
-    }
-
-    public void clearBoxlist2(){
-        StartVar.boxlist2.clear();
-    }
 
     public static void setArrayMap(HashMap<String, ArrayList<String>> mMap){
         StartVar.arrayMap = mMap;
     }
+
+    public static void setTempDB(ConfigDatabase mTempDB){
+        StartVar.configDatabaseTemp = mTempDB;
+    }
+
+
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="google_drive_enabled"
+        android:title="string/autosend_enabled"
+        app:iconSpaceReserved="false" />
+
+    <Preference android:key="google_drive_resetauth"
+        android:title="string/osm_lbl_authorize"
+        app:iconSpaceReserved="false" />
+
+    <Preference android:key="google_drive_folder_path" android:title="string/google_drive_folder_path"
+        android:defaultValue="GPSLogger for Android"
+        app:iconSpaceReserved="false" />
+
+    <Preference android:key="google_drive_test" android:summary="string/google_drive_test_summary"
+        android:title="Sincronizar Datos en Drive"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="google_drive_sync"
+        android:summary="string/google_drive_get_summary"
+        android:title="Sincronizar Datos Locales"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:key="google_drive_sync_img"
+        android:summary="string/google_drive_get_summary"
+        android:title="Sincronizar Imagenes"
+        app:iconSpaceReserved="false" />
+
+
+</PreferenceScreen>
