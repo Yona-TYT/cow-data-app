@@ -29,6 +29,7 @@ import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.Preloader;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.db.UsuarioQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -110,7 +111,6 @@ public class SetWorkResult {
 
                                 File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
                                 if(mFile.exists()){
-                                    StartVar.sendDate = false;
 
                                     Uri uri = Uri.fromFile(mFile);
 
@@ -188,12 +188,14 @@ public class SetWorkResult {
 
                                                 }
                                                 else{
-                                                    StartVar.sendDate = true;
+                                                    StartVar.sendDate = 1;
                                                     Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
 
+                                                    StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
                                                 }
                                             }
                                             else if (result < 0) {
+
                                                 assert newObj != null;
                                                 String mMsg = "Los datos en línea están más actualizados (" + dateTimeA + " < " + dateTimeB + ")";
 
@@ -201,21 +203,21 @@ public class SetWorkResult {
                                                     mMsg = "Error los cambios no se sincronizaron";
                                                 }
                                                 DBListCreator.cvsToDB(StartVar.mActivity, uri, 1, mMsg);
+
+                                                StartVar.sendDate = 2;
+
+                                                StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
+
                                                 return;
                                             }
                                             else {
-                                                StartVar.sendDate = true;
+                                                StartVar.sendDate = 1;
 
                                                 assert newObj != null;
                                                 if (newObj.equals("1")){
                                                     Basic.msg("Enviando Actualizacion...");
-
-                                                    String currDate = "";
-                                                    String currTime= "";
-                                                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                                        currDate = LocalDate.now().toString();
-                                                        currTime = LocalTime.now().toString();
-                                                    }
+                                                    String currDate = LocalDate.now().toString();
+                                                    String currTime = LocalTime.now().toString();
                                                     StartVar.configDatabase.daoConf().updateDateTime(StartVar.mConfID, currDate, currTime);
                                                     StartVar.getConfigDB();
                                                     manager.uploadDataBase();
@@ -223,6 +225,8 @@ public class SetWorkResult {
                                                 else {
                                                     Basic.msg("La base de datos está actualizada (" + dateTimeA + ")");
                                                 }
+
+                                                StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
                                             }
 
                                             //Si es desde el preloder se reinicia la actividad

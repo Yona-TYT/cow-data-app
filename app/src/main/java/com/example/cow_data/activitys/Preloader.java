@@ -87,7 +87,7 @@ public class Preloader extends AppCompatActivity {
         }
         GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        SetWorkResult mWorkResult = new SetWorkResult(this, executorService, manager);
+        SetWorkResult mWorkResult = new SetWorkResult(StartVar.mLifecycle, executorService, manager);
 
         AuthState authState = new AuthState();
         authState = GoogleDriveManager.getAuthState();

@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,8 +34,11 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 
 public class GoogleDriveManager  {
@@ -43,6 +47,8 @@ public class GoogleDriveManager  {
     private final PreferenceHelper preferenceHelper;
     @SuppressLint("StaticFieldLeak")
     private static Context mContext;
+
+    private java.io.File file;
 
     public static synchronized GoogleDriveManager getInstance() {
         if (instance == null) {
@@ -160,9 +166,30 @@ public class GoogleDriveManager  {
         try {
             FilesManager fMang = new FilesManager();
             String name = "DataSave.csv";
-            java.io.File file = fMang.csvExport(StartVar.csvList, name);
+            //Basic.msg("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
+            file = fMang.csvExport(StartVar.csvList, name);
             if(file != null) {
                 ImportDataToDrive(file);
+
+
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //Ahora se envia tambien un respaldo
+//                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                            LocalDate currDate = LocalDate.now();
+//                            File newFile = null;
+//                            try {
+//                                newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-")+".csv", StartVar.mContex);
+//                            } catch (IOException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                            if(newFile != null) {
+//                                ImportDataToDrive(newFile);
+//                            }
+//                        }
+//                    }
+//                }, 1000);
             }
         }
         catch (Exception e) {

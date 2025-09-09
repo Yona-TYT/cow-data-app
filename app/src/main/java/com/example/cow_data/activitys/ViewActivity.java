@@ -203,11 +203,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
-
-            if(StartVar.mWorkResult != null) {
-                StartVar.mWorkResult.observeWorkResult();
-            }
-
             currIdx = intent.getIntExtra("index", 0);
             int i = 0;
             Usuario mUser = listuser.get(currIdx);

@@ -9,6 +9,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.example.cow_data.Basic;
+import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.MainActivity;
 import com.example.cow_data.ex.GoogleDriveManager;
@@ -18,6 +19,8 @@ import com.google.gson.Gson;
 
 import net.openid.appauth.AuthState;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -42,6 +45,9 @@ public class UsuarioQueue {
 
     // Encolar un usuario individual
     public void enqueue(Usuario usuario) {
+
+        StartVar.sendDate = 0;
+
         // Agregar a la cola en memoria
         queue.add(usuario);
 
@@ -72,6 +78,8 @@ public class UsuarioQueue {
     // Procesar el siguiente elemento de la cola
     private void processNext() {
         if (queue.isEmpty()) {
+            //Basic.msg("tagooooooooooo");
+            StartVar.sendDate = 0;
             return;
         }
 
@@ -99,9 +107,39 @@ public class UsuarioQueue {
                             queue.poll();
                             QueueItem queueItem = queueItemDao.getFirstQueueItem();
                             if (queueItem != null) {
-                                if(StartVar.sendDate) {
-                                    StartVar.sendDate = false;
-                                    //Basic.msg("Aqui hay!! :) : "+gson.fromJson(queueItem.usuarioJson, Usuario.class).nombre);
+                                Usuario mUser = gson.fromJson(queueItem.usuarioJson, Usuario.class);
+                                Basic.msg("sendDate: "+StartVar.sendDate+" "+mUser.nombre);
+
+                                if(StartVar.sendDate == 1) {
+                                    if(mUser != null) {
+                                        DBListCreator.createList(); //Actualiza la lista para exportar csv
+                                        StartVar.sendDate = 0;
+                                        String currDate = "";
+                                        String currTime = "";
+                                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                            currDate = LocalDate.now().toString();
+                                            currTime = LocalTime.now().toString();
+                                        }
+                                        StartVar.configDatabase.daoConf().updateDateTime(StartVar.mConfID, currDate, currTime);
+                                        StartVar.getConfigDB();
+
+                                        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+                                        manager.uploadDataBase();
+                                        //Basic.msg("Aqui hay!! :) : "+gson.fromJson(queueItem.usuarioJson, Usuario.class).nombre);
+                                        clear();
+                                    }
+                                }
+                                else if(StartVar.sendDate == 2) {
+                                    DaoUser mDao = StartVar.appDatabase.daoUser();
+                                    if(mUser != null){
+                                      if(mUser.usuario.equals("@null")){
+                                          mDao.removerUser(mUser.nombre);
+                                          mDao.removerUser(mUser.uid);
+                                      }
+                                      else{
+                                          mDao.updateUser(mUser);
+                                      }
+                                    }
                                     queueItemDao.delete(queueItem);
                                 }
                             }

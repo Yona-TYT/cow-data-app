@@ -729,6 +729,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             Intent mIntent = new Intent(this, MainActivity.class);
             startActivity(mIntent);
 
+            myUser = StartVar.listuser.get(currIdx);
+            Usuario mDelUser = new Usuario("@null", myUser.usuario, "","","",
+                    "","","","","","","","",
+                    "");
+            StartVar.usuarioQueue.enqueue(mDelUser);
+
             finish(); //Finaliza la actividad y ya no se accede mas
 
         }

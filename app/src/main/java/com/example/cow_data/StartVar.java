@@ -67,7 +67,7 @@ public class StartVar {
     public static Context mContex;
     public static Activity mActivity;
     public static UsuarioQueue usuarioQueue;
-    public static boolean sendDate = false;
+    public static int sendDate = 0;
 
     public static SetWorkResult mWorkResult = null;
 
