@@ -1,10 +1,12 @@
 package com.example.cow_data.activitys;
 
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +32,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import androidx.lifecycle.ProcessLifecycleOwner;
+
 public class Preloader extends AppCompatActivity {
 
     @Override
@@ -53,9 +57,9 @@ public class Preloader extends AppCompatActivity {
         StartVar startVar = new StartVar(getApplicationContext());
         startVar.setUserListDB();
         startVar.setmActivity(this);
-        StartVar.mContex = getApplicationContext();
-
         new Basic(getApplicationContext());
+
+        StartVar.mLifecycle = ProcessLifecycleOwner.get();
 
         //Instancia de la base de datos
         StartVar.getUserListDB();

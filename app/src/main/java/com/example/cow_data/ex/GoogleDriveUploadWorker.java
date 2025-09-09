@@ -44,15 +44,15 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class GoogleDriveWorker extends Worker {
-    private static final Logger LOG = Logs.of(GoogleDriveWorker.class);
+public class GoogleDriveUploadWorker extends Worker {
+    private static final Logger LOG = Logs.of(GoogleDriveUploadWorker.class);
 
     private String googleDriveAccessToken;
 
     private final Context mContext;
 
 
-    public GoogleDriveWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public GoogleDriveUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         this.mContext = context;
     }
@@ -387,6 +387,5 @@ public class GoogleDriveWorker extends Worker {
         }
 
         return null;
-
     }
 }

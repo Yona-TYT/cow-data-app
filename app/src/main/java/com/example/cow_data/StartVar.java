@@ -3,12 +3,15 @@ package com.example.cow_data;
 import android.app.Activity;
 import android.content.Context;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.room.Room;
 
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.ConfigDatabase;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.db.UsuarioQueue;
+import com.example.cow_data.ex.SetWorkResult;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
@@ -21,7 +24,7 @@ import java.util.Base64;
 
 public class StartVar {
     //Mapa de arrays
-    public static HashMap<String, ArrayList<String>> arrayMap;
+    public static HashMap<String, ArrayList<String>> arrayMap = new HashMap<>();
     public static final String mId1 = "id1";
     public static final String mId2 = "id2";
 
@@ -30,8 +33,8 @@ public class StartVar {
     public static String nameDBconf = "Config-COW";
 
     //Worker tags
-    public static final String WORK_TAG_CONFDB = "DownloadWorkConfigDb"; // Define WORK_TAG para configdb
-    public static final String WORK_TAG_COWDATA = "DownloadWorkCowData"; // Define WORK_TAG para cowdatadb
+    public static final String WORK_TAG_DOWNLOAD = "DownloadWorkConfigDb"; // Define WORK_TAG para configdb
+    public static final String WORK_TAG_UPLOAD = "UploadWorkCowData"; // Define WORK_TAG para cowdatadb
 
     public static List<String[]> csvList = new ArrayList<>();
 
@@ -45,9 +48,9 @@ public class StartVar {
 
     // DB Cow
     public static AppDatabase appDatabase;
-    public static ArrayList<Object> textList;
-    public static ArrayList<Object> dirList;
-    public static ArrayList<Object> typeList;
+    public static ArrayList<Object> textList = new ArrayList<>();
+    public static ArrayList<Object> dirList = new ArrayList<>();
+    public static ArrayList<Object> typeList = new ArrayList<>();
     public static ArrayList<String> morlist = new ArrayList<>();
 
     // DB Config
@@ -63,9 +66,17 @@ public class StartVar {
 
     public static Context mContex;
     public static Activity mActivity;
+    public static UsuarioQueue usuarioQueue;
+    public static boolean sendDate = false;
+
+    public static SetWorkResult mWorkResult = null;
+
+    public static LifecycleOwner mLifecycle = null;
 
     //Preloder
     public static boolean mainStart = false;
+    //Hacer upload cuando los datos esten disponibles.
+    public static boolean makeUpdate = false;
 
 
     public StartVar(Context mContex){
@@ -111,6 +122,7 @@ public class StartVar {
 
     public static void getUserListDB(){
         //Instancia de la base de datos
+        StartVar.listuser.clear();
         StartVar.listuser =  StartVar.appDatabase.daoUser().getUsers();
     }
 
@@ -127,6 +139,10 @@ public class StartVar {
 
 
     public void setArrayList(ArrayList<Object> listA, ArrayList<Object> listB, ArrayList<Object> listC){
+        StartVar.textList.clear();
+        StartVar.dirList.clear();
+        StartVar.typeList.clear();
+
         StartVar.textList = listA;
         StartVar.dirList = listB;
         StartVar.typeList = listC;
@@ -147,11 +163,13 @@ public class StartVar {
     }
 
     public static void setCsvList(List<String[]> mList){
+        StartVar.csvList.clear();
         StartVar.csvList = mList;
     }
 
 
     public static void setArrayMap(HashMap<String, ArrayList<String>> mMap){
+        StartVar.arrayMap.clear();
         StartVar.arrayMap = mMap;
     }
 

@@ -18,8 +18,12 @@ public interface DaoUser {
     @Insert
     void insetUser(Usuario...usuarios);
 
-    @Query("UPDATE usuario SET nombre= :nombre, color= :color, litros= :litros, edad= :edad, pre= :pre, imagen= :imagen, sel1= :sel1, sel2= :sel2, sel3= :sel3, more1= :more1, more2= :more2, more3= :more3, more4= :more4 WHERE usuario= :user")
-    void updateUser(String user, String nombre, String color, String litros,String edad, String pre, String imagen, String sel1, String sel2, String sel3 , String more1, String more2, String more3, String more4 );
+    @Query("UPDATE usuario SET nombre= :nombre, color= :color, litros= :litros, edad= :edad, pre= :pre, imagen= :imagen, sel1= :sel1, sel2= :sel2, sel3= :sel3 WHERE usuario= :user")
+    void updateUser(String user, String nombre, String color, String litros,String edad, String pre, String imagen, String sel1, String sel2, String sel3 );
+
+    @Query("UPDATE usuario SET more1= :more1, more2= :more2, more3= :more3, more4= :more4 WHERE usuario= :user")
+    void updateMore(String user, String more1, String more2, String more3, String more4 );
+
 
     @Query("UPDATE usuario SET sel3= :sel3 WHERE usuario= :user")
     void updateSelecPre(String user, String sel3);

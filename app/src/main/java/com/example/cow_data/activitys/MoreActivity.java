@@ -61,7 +61,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     private CheckboxAdapter mAdapter1;
     public ListView mlv2;
     private CheckboxAdapter mAdapter2;
-    private HashMap<String, ArrayList<String>> arrayMap = StartVar.arrayMap;
+    private HashMap<String, ArrayList<String>> arrayMap;
 
 
     //Base de datos

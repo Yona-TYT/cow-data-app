@@ -46,6 +46,7 @@ public class GoogleDriveDownloadWorker extends Worker {
     private static final String KEY_FILES_DOWNLOADED = "files_downloaded";
     private static final String KEY_IS_PRELOADER = "preloader";
     private static final String KEY_IS_NEW_OBJ = "newobj";
+    private static final String KEY_IS_FILE_OK = "file";
 
     public GoogleDriveDownloadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -59,11 +60,14 @@ public class GoogleDriveDownloadWorker extends Worker {
         Result mResult = null;
         String failureMessage = "";
         String downloadMessage = "";
+        String isFileOk = "1";
+
         String filePath = getInputData().getString("path");
         String fileName = getInputData().getString("name");
         String fileType = getInputData().getString("type");
         String isPreloader = getInputData().getString("preloader");
         String isNewObj = getInputData().getString("newobj");
+
 
         File fileToDownload = new File(filePath);
 
@@ -136,6 +140,7 @@ public class GoogleDriveDownloadWorker extends Worker {
 
             String gpsLoggerFolderId = latestFolderId;
 
+
             if (isNullOrEmpty(gpsLoggerFolderId)) {
                 failureMessage = "Could not create folder";
                 success = false;
@@ -146,8 +151,12 @@ public class GoogleDriveDownloadWorker extends Worker {
 
                 //Basic.msg(fileName + " : "+gpxFileId);
                 if (isNullOrEmpty(gpxFileId)) {
+                    isFileOk = "0";
                     failureMessage = "Error no se encontraron DATOS.";
-                    return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage).build());
+                    return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
+                            .putString(KEY_IS_PRELOADER, isPreloader)
+                            .putString(KEY_IS_FILE_OK, isFileOk)
+                            .build());
                 }
 
                 // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
@@ -176,7 +185,6 @@ public class GoogleDriveDownloadWorker extends Worker {
                         .putString(KEY_RESULT_MESSAGE, failureMessage)
                         .putString(KEY_IS_PRELOADER, isPreloader)
                         .putString(KEY_IS_NEW_OBJ, isNewObj)
-
                         .putStringArray(KEY_FILES_DOWNLOADED, new String[]{fileToDownload.getAbsolutePath()})
                         .build());
         }
@@ -325,45 +333,6 @@ public class GoogleDriveDownloadWorker extends Worker {
      */
     public static boolean isNullOrEmpty(String text) {
         return text == null ||  text.trim().length() == 0;
-    }
-
-    /**
-     * Gets the GPSLogger-specific MIME type to use for a given filename/extension
-     *
-     * @param fileName
-     * @return
-     */
-    public static String getMimeTypeFromFileName(String fileName) {
-        if (fileName.endsWith("kml")) {
-            return "application/vnd.google-earth.kml+xml";
-        }
-
-        if (fileName.endsWith("gpx")) {
-            return "application/gpx+xml";
-        }
-
-        if (fileName.endsWith("zip")) {
-            return "application/zip";
-        }
-
-        if (fileName.endsWith("xml")) {
-            return "application/xml";
-        }
-
-        if (fileName.endsWith("nmea") || fileName.endsWith("txt")) {
-            return "text/plain";
-        }
-
-        if (fileName.endsWith("geojson")) {
-            return "application/vnd.geo+json";
-        }
-
-        if (fileName.endsWith("csv")){
-            return "application/vnd.google-apps.spreadsheet";
-        }
-
-        return "application/octet-stream";
-
     }
 
     public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId) throws Exception {

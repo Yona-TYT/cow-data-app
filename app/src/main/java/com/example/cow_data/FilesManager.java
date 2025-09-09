@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -210,4 +211,47 @@ public class FilesManager extends AppCompatActivity {
         }
         return newFile;
     }
+
+    public static File getFileFromUri(Context context, Uri uri) throws IOException {
+        // Verificar si la Uri es null
+        if (uri == null) {
+            throw new IOException("Uri es null");
+        }
+
+        // Obtener el ContentResolver
+        String fileName = getFileName(context, uri);
+        File file = new File(context.getCacheDir(), fileName != null ? fileName : "temp_file");
+
+        // Copiar el contenido de la Uri a un archivo temporal
+        try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
+             FileOutputStream outputStream = new FileOutputStream(file)) {
+            if (inputStream != null) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+            }
+        }
+
+        return file;
+    }
+
+    // Método para obtener el nombre del archivo desde la Uri (opcional)
+    private static String getFileName(Context context, Uri uri) {
+        String fileName = null;
+        String[] projection = { android.provider.MediaStore.MediaColumns.DISPLAY_NAME };
+
+        try (android.database.Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndexOrThrow(android.provider.MediaStore.MediaColumns.DISPLAY_NAME);
+                fileName = cursor.getString(nameIndex);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return fileName;
+    }
+
 }

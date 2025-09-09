@@ -45,7 +45,7 @@ public class DBListCreator extends AppCompatActivity {
         arrayMap.put("select", new ArrayList<>());
         arrayMap.put("img",  new ArrayList<>());
 
-        List<String[]> mList = StartVar.csvList;
+        List<String[]> mList = new ArrayList<>();
 
         //Instancia de la base de datos
         List<Usuario> listuser =  StartVar.listuser;
@@ -114,7 +114,6 @@ public class DBListCreator extends AppCompatActivity {
                 //------------------------------------------
             }
             StartVar.setCsvList(mList);
-
         }
         return arrayMap;
 

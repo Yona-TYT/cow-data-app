@@ -200,9 +200,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
-
             return true;
-
         }
 
         if (preference.getKey().equals("google_drive_test")) {

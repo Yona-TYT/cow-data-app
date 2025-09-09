@@ -11,9 +11,17 @@ import androidx.work.WorkManager;
 import com.example.cow_data.Basic;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.MainActivity;
+import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.ex.SetWorkResult;
 import com.google.gson.Gson;
+
+import net.openid.appauth.AuthState;
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class UsuarioQueue {
     private LifecycleOwner lifecycle;
@@ -43,10 +51,22 @@ public class UsuarioQueue {
         QueueItem queueItem = new QueueItem(usuarioJson, order);
         queueItemDao.insert(queueItem);
 
-//        // Iniciar el procesamiento si la cola estaba vacía
-//        if (queue.size() == 1) {
-//            processNext();
-//        }
+        //Sincroniza para asegurar que no hay cambios en los datos en drive -----------------------------------------
+        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        StartVar.mWorkResult = new SetWorkResult( lifecycle, executorService, manager);
+
+        AuthState authState = new AuthState();
+        authState = GoogleDriveManager.getAuthState();
+        if(authState.isAuthorized()){
+            manager.dataSynchronize();
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        // Iniciar el procesamiento si la cola estaba vacía
+        if (queue.size() == 1) {
+            processNext();
+        }
     }
 
     // Procesar el siguiente elemento de la cola
@@ -78,14 +98,12 @@ public class UsuarioQueue {
                             // Eliminar el elemento procesado
                             queue.poll();
                             QueueItem queueItem = queueItemDao.getFirstQueueItem();
-
-
-
-
                             if (queueItem != null) {
-
-                                Basic.msg("Aqui hay!! :) : "+gson.fromJson(queueItem.usuarioJson, Usuario.class).nombre);
-                                queueItemDao.delete(queueItem);
+                                if(StartVar.sendDate) {
+                                    StartVar.sendDate = false;
+                                    //Basic.msg("Aqui hay!! :) : "+gson.fromJson(queueItem.usuarioJson, Usuario.class).nombre);
+                                    queueItemDao.delete(queueItem);
+                                }
                             }
                             // Procesar el siguiente
                             processNext();

@@ -218,6 +218,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         setupActivityResultLaunchers();
 
+        //Inicializa more list
+
         //Para la lista del selector de edades ----------------------------------------------------------------------------------------------
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL1);
         mSpin1.setAdapter(adapter);
@@ -670,16 +672,24 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 //-------------------------------------------------------------------
                 appDatabase.daoUser().updateUser(
                         mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
-                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSel1), Integer.toString(currSel2),(swPre?"1":"0"),
-                        (max>0?morlist.get(0):""),(max>1?morlist.get(1):""),(max>2?morlist.get(2):""),(max>3?morlist.get(3):"")
+                        sImage.isEmpty()? saveImage:sImage, Integer.toString(currSel1),
+                        Integer.toString(currSel2),(swPre?"1":"0")
                 );
+
+                if(morlist != null && !morlist.isEmpty()) {
+                    appDatabase.daoUser().updateMore(
+                            mList.get(0), morlist.get(0),  morlist.get(1), morlist.get(2), morlist.get(3)
+                    );
+                }
 
                 //listuser.add(currIdx, obj);
 
                 //SE Limpia la lista
                 mList.clear();
+                //Se limpia la lista more
+                StartVar.morlist.clear();;
 
-                //Se vacia el archivo viejo
+                        //Se vacia el archivo viejo
                 oldFile = null;
 
                 //Recarga La lista de la DB ----------------------------
@@ -691,6 +701,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 Intent mIntent = new Intent(this, ViewActivity.class);
                 mIntent.putExtras(getAndSetBundle());
                 startActivity(mIntent);
+
+                myUser = StartVar.listuser.get(currIdx);
+                StartVar.usuarioQueue.enqueue(myUser);
 
                 finish(); //Finaliza la actividad y ya no se accede mas
             }

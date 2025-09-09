@@ -27,9 +27,11 @@ import com.example.cow_data.Basic;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.Preloader;
-import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,6 +48,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 public class SetWorkResult {
+    private static final Log log = LogFactory.getLog(SetWorkResult.class);
     private LifecycleOwner lifecycle;
     private ExecutorService executorService;
     private GoogleDriveManager manager;
@@ -57,12 +60,36 @@ public class SetWorkResult {
         this.manager = manager;
     }
 
+    //Debug
+//    public void observeWorkResult() {
+//        android.util.Log.d("QueueManager", "Iniciando observador para WORK_TAG_CONFDB: " + StartVar.WORK_TAG_CONFDB);
+//        WorkManager.getInstance(StartVar.mContex)
+//                .getWorkInfosForUniqueWorkLiveData(StartVar.WORK_TAG_CONFDB)
+//                .observe(lifecycle, workInfos -> {
+//                    android.util.Log.d("WorkerStatus", "Recibidos " + workInfos.size() + " WorkInfos");
+//                    for (WorkInfo workInfo : workInfos) {
+//                        android.util.Log.d("WorkerStatus", "Estado: " + workInfo.getState() + ", ID: " + workInfo.getId());
+//                        if (workInfo.getState().isFinished()) {
+//                            if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+//                                String result = workInfo.getOutputData().getString("result");
+//                                android.util.Log.d("WorkerResult", "Éxito: " + result);
+//                            } else if (workInfo.getState() == WorkInfo.State.FAILED) {
+//                                android.util.Log.d("WorkerResult", "Fallo en Worker");
+//                            } else if (workInfo.getState() == WorkInfo.State.CANCELLED) {
+//                                android.util.Log.d("WorkerResult", "Worker cancelado");
+//                            }
+//                        } else {
+//                            android.util.Log.d("WorkerStatus", "Worker en curso: " + workInfo.getState());
+//                        }
+//                    }
+//                });
+//    }
+//
     // Observar los resultados del Worker
     public void observeWorkResult() {
         WorkManager.getInstance(StartVar.mContex)
-                .getWorkInfosForUniqueWorkLiveData(StartVar.WORK_TAG_CONFDB)
+                .getWorkInfosForUniqueWorkLiveData(StartVar.WORK_TAG_DOWNLOAD)
                 .observe(lifecycle, workInfos -> {
-
                     for (WorkInfo workInfo : workInfos) {
                         if (workInfo.getState().isFinished()) {
                             StartVar.setmMainStart(true);
@@ -71,6 +98,7 @@ public class SetWorkResult {
                             String message = outputData.getString("result_message");
                             String preloader = outputData.getString("preloader");
                             String newObj = outputData.getString("newobj");
+                            String isFileOk = outputData.getString("file");
 
                             String[] filesDownloaded = outputData.getStringArray("files_downloaded");
 
@@ -82,6 +110,8 @@ public class SetWorkResult {
 
                                 File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
                                 if(mFile.exists()){
+                                    StartVar.sendDate = false;
+
                                     Uri uri = Uri.fromFile(mFile);
 
                                     // call this to persist permission across decice reboots
@@ -151,12 +181,14 @@ public class SetWorkResult {
                                             int result = dateTimeA.compareTo(dateTimeB);
                                             if (result > 0) {
                                                 //uploadDataBase();
+                                                assert newObj != null;
                                                 if (newObj.equals("1")) {
                                                     Basic.msg("Enviando Actualizacion...");
                                                     manager.uploadDataBase();
 
                                                 }
                                                 else{
+                                                    StartVar.sendDate = true;
                                                     Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
 
                                                 }
@@ -172,6 +204,8 @@ public class SetWorkResult {
                                                 return;
                                             }
                                             else {
+                                                StartVar.sendDate = true;
+
                                                 assert newObj != null;
                                                 if (newObj.equals("1")){
                                                     Basic.msg("Enviando Actualizacion...");
@@ -209,7 +243,18 @@ public class SetWorkResult {
                             }
                             else if (workInfo.getState() == WorkInfo.State.FAILED) {
                                 String displayMessage = message != null ? message : "Error en la descarga";
-                                Basic.msg(displayMessage);
+
+                                assert isFileOk != null;
+                                if (isFileOk.equals("0")) {
+                                    if(preloader.equals("1")){
+                                        resetPreloader("1");
+                                        StartVar.makeUpdate = true;
+                                    }
+                                    else {
+                                        Basic.msg("Subiendo Datos...");
+                                        manager.uploadDataBase();
+                                    }
+                                }
                             }
                         }
                     }

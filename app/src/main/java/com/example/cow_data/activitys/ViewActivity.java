@@ -152,6 +152,8 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             return insets;
         });
 
+        StartVar.mContex = getApplicationContext();
+
         mView1 = findViewById(R.id.txView1);
         mView2 = findViewById(R.id.txView2);
         mView3 = findViewById(R.id.txView3);
@@ -201,6 +203,11 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
+
+            if(StartVar.mWorkResult != null) {
+                StartVar.mWorkResult.observeWorkResult();
+            }
+
             currIdx = intent.getIntExtra("index", 0);
             int i = 0;
             Usuario mUser = listuser.get(currIdx);

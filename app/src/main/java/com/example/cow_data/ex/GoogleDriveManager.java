@@ -4,23 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 //import com.mendhak.gpslogger.common.AppSettings;    //Necesaria para el context
 //import com.mendhak.gpslogger.common.PreferenceHelper;   //Necesaria
@@ -47,7 +35,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 
 public class GoogleDriveManager  {
@@ -119,19 +106,20 @@ public class GoogleDriveManager  {
         return authState;
     }
 
-    public void uploadFile(List<File> files) {
+    public void ImportDataToDrive(List<File> files) {
         for (File f : files) {
             LOG.debug(f.getName());
-            uploadFile(f);
+            ImportDataToDrive(f);
         }
     }
 
-    public void uploadFile(File fileToUpload) {
-        String tag = String.valueOf(Objects.hashCode(fileToUpload));
+    public void ImportDataToDrive(File fileToUpload) {
+        String tag = StartVar.WORK_TAG_UPLOAD;
+
         HashMap<String, Object> dataMap = new HashMap<String, Object>() {{
            put("filePath", fileToUpload.getAbsolutePath());
         }};
-        SetWorkResult.startWorkManagerRequest(GoogleDriveWorker.class, dataMap, tag);
+        SetWorkResult.startWorkManagerRequest(GoogleDriveUploadWorker.class, dataMap, tag);
     }
 
     // Metodo para sincronizar desde el preloder
@@ -150,7 +138,7 @@ public class GoogleDriveManager  {
     public void internalDataSynchronize(boolean preLoader, boolean newObj){
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
         // Crear un tag único para la tarea de descarga
-        String tag = StartVar.WORK_TAG_CONFDB;
+        String tag = StartVar.WORK_TAG_DOWNLOAD;
 
         // Preparar datos de entrada
         HashMap<String, Object> dataMap = new HashMap<>();
@@ -166,24 +154,6 @@ public class GoogleDriveManager  {
         SetWorkResult.startWorkManagerRequest(GoogleDriveDownloadWorker.class, dataMap, tag);
     }
 
-    // Descarga la db de cowdat
-    public void downloadCowDataDB(String driveFileName) {
-
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/"+StartVar.nameDBcow+".db");
-        // Crear un tag único para la tarea de descarga
-        String tag = StartVar.WORK_TAG_COWDATA;
-
-        //Preparer datos de entrada
-        HashMap<String, Object> dataMap = new HashMap<>();
-        if (path != null) {
-            dataMap.put("path", path.getAbsolutePath());
-        }
-        dataMap.put("name", driveFileName);
-        dataMap.put("type", "/export?mimeType=text/csv");
-        // Encolar el GoogleDriveDownloadWorker
-        SetWorkResult.startWorkManagerRequest(GoogleDriveDownloadWorker.class, dataMap, tag);
-    }
-
     public void uploadDataBase() {
         //Dialogs.progress((FragmentActivity) getActivity(), "getString(R.string.please_wait)");
 
@@ -192,7 +162,7 @@ public class GoogleDriveManager  {
             String name = "DataSave.csv";
             java.io.File file = fMang.csvExport(StartVar.csvList, name);
             if(file != null) {
-                uploadFile(file);
+                ImportDataToDrive(file);
             }
         }
         catch (Exception e) {

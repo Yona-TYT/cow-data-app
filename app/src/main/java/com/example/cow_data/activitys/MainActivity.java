@@ -51,7 +51,6 @@ import com.example.cow_data.DBListCreator;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.SettingsActivity;
 import com.example.cow_data.adapters.GalleryAdapter;
-import com.example.cow_data.GoogleAuthManager;
 import com.example.cow_data.R;
 import com.example.cow_data.adapters.SearchAdapter;
 import com.example.cow_data.StartVar;
@@ -67,6 +66,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Configdb;
@@ -74,6 +75,9 @@ import com.example.cow_data.db.DaoConf;
 import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.UsuarioQueue;
+import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.ex.SetWorkResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -136,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Handler mainHandler;
 
-    private UsuarioQueue usuarioQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         File dbFile = new File(getApplicationContext().getDatabasePath(StartVar.nameDBconf).getPath());
         Log.d(TAG, "Ruta de la base de datos: " + dbFile.getAbsolutePath());
 
-
        // Basic.msg(dbFile.getAbsolutePath());
 
 //        Configdb mConfig = StartVar.configDatabase.daoConf().getUsers(StartVar.mConfID);
@@ -216,24 +218,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dirList.clear();
 
         // Inicializar la cola
-        usuarioQueue = new UsuarioQueue(this, getApplicationContext());
+        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, getApplicationContext());
 
+        if(StartVar.mWorkResult != null) {
+            StartVar.mWorkResult.observeWorkResult();
+        }
 
         // Obtener usuarios de Room y encolarlos
         List<Usuario> testusuarios = StartVar.appDatabase.usuarioDao().getAllUsuarios();
         // Crear y encolar un usuario individual
         //Usuario mUser = new Usuario("fileId123", "Azul", "2025-09-03", "extra");
 //        usuarioQueue.enqueue( testusuarios.get(0));
-//        usuarioQueue.enqueue( testusuarios.get(1));
-
-
 
 
         //Basic.msg("Aquuuuuuuuiiiiii Hayyyyyyyy !: "+listuser.size());
 
-
         //Test
         HashMap<String, ArrayList<Object>> arrayMap = DBListCreator.createList();
+
+        if(StartVar.makeUpdate){
+            GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+            manager.uploadDataBase();
+            StartVar.makeUpdate = false;
+        }
 
         //--------------------------------------------------------
         // Se obtine la direccion de la image,  el nombre, la listSelec etc.
@@ -247,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dirList = arrayMap.get("img");
 
         startVar.setArrayList(dirList, dirList, typeList);
+
         if(mPermiss) {
             int mainSelec = StartVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
@@ -265,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mAdapter = new SearchAdapter(MainActivity.this, mtxList);
             mlv.setAdapter(mAdapter);
             mlv.setVisibility(View.INVISIBLE);
+
 
             //PAra la lista del selector Tipo ganado ----------------------------------------------------------------------------------------------
             ArrayAdapter<String> adapt2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mSpinL2);
@@ -517,8 +526,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (itemId == R.id.save) {
+
             try {
                 //Si el nombre esta en blanco sera renombrado internamente
+
                 java.io.File file = fmang.csvExport(StartVar.csvList, "");
 
                 if(file != null) {
@@ -583,12 +594,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             uri -> {
                 if (uri != null) {
 
-
                     // call this to persist permission across decice reboots
                     getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                     DBListCreator.cvsToDB(this, uri, importType, "Datos importados correctamente!");
 
+                    GoogleDriveManager  manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+                    //ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    //SetWorkResult mWorkResult = new SetWorkResult(this, executorService, manager);
+
+                    AuthState authState = new AuthState();
+                    authState = GoogleDriveManager.getAuthState();
+                    if(authState.isAuthorized()) {
+                        File mFile = null;
+                        try {
+                            mFile = FilesManager.getFileFromUri(StartVar.mContex, uri);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        try {
+                            mFile = FilesManager.getNewFile(mFile.getAbsolutePath(), "DataSave.csv", StartVar.mContex);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if(mFile != null){
+                            Basic.msg("" + mFile.exists() + "" + mFile.getName());
+                            manager.ImportDataToDrive(mFile);
+                        }
+                    }
 //                    Intent mIntent = new Intent(this, MainActivity.class);
 //                    startActivity(mIntent);
 //                    this.finish();
@@ -708,25 +741,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             );
         }
 
-    }
-
-    // Método auxiliar para mostrar Toast y opcionalmente copiar al portapapeles
-    private void showToastSafely(String message, boolean copyToClipboard) {
-        if (!isFinishing() && !isDestroyed()) {
-            mainHandler.post(() -> {
-                try {
-                    //Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-                    if (copyToClipboard) {
-                        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        ClipData clipData = ClipData.newPlainText("Clip Data", message);
-                        clipboard.setPrimaryClip(clipData);
-                    }
-                } catch (Exception e) {
-                    Log.e("Toast", "Error al mostrar Toast o copiar al portapapeles: " + e.getMessage(), e);
-                }
-            });
-        } else {
-            Log.w("Toast", "No se puede mostrar Toast ni copiar al portapapeles: actividad finalizada o destruida");
-        }
     }
 }
