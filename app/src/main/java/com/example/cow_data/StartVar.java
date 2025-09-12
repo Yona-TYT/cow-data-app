@@ -34,7 +34,7 @@ public class StartVar {
 
     //Worker tags
     public static final String WORK_TAG_DOWNLOAD = "DownloadWorkConfigDb"; // Define WORK_TAG para configdb
-    public static final String WORK_TAG_UPLOAD = "UploadWorkCowData"; // Define WORK_TAG para cowdatadb
+    //public static final String WORK_TAG_UPLOAD = "UploadWorkCowData"; // Define WORK_TAG para cowdatadb
 
     public static List<String[]> csvList = new ArrayList<>();
 

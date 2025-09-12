@@ -217,9 +217,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listuser =  StartVar.listuser;
         dirList.clear();
 
-        // Inicializar la cola
-        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, getApplicationContext());
-
         // Obtener usuarios de Room y encolarlos
         List<Usuario> testusuarios = StartVar.appDatabase.usuarioDao().getAllUsuarios();
         // Crear y encolar un usuario individual

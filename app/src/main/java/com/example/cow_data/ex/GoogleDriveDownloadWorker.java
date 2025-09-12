@@ -47,6 +47,7 @@ public class GoogleDriveDownloadWorker extends Worker {
     private static final String KEY_IS_PRELOADER = "preloader";
     private static final String KEY_IS_NEW_OBJ = "newobj";
     private static final String KEY_IS_FILE_OK = "file";
+    private static final String KEY_IS_CHECK = "check";
 
     public GoogleDriveDownloadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -67,7 +68,7 @@ public class GoogleDriveDownloadWorker extends Worker {
         String fileType = getInputData().getString("type");
         String isPreloader = getInputData().getString("preloader");
         String isNewObj = getInputData().getString("newobj");
-
+        String isCheck = getInputData().getString("check");
 
         File fileToDownload = new File(filePath);
 
@@ -185,6 +186,7 @@ public class GoogleDriveDownloadWorker extends Worker {
                         .putString(KEY_RESULT_MESSAGE, failureMessage)
                         .putString(KEY_IS_PRELOADER, isPreloader)
                         .putString(KEY_IS_NEW_OBJ, isNewObj)
+                        .putString(KEY_IS_CHECK, isCheck)
                         .putStringArray(KEY_FILES_DOWNLOADED, new String[]{fileToDownload.getAbsolutePath()})
                         .build());
         }

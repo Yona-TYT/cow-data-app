@@ -20,6 +20,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 
+import com.example.cow_data.Basic;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 
@@ -214,8 +215,8 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         }
 
         if (preference.getKey().equals("google_drive_sync")) {
-            mWorkResult.observeWorkResult();
             manager.dataSynchronize();
+            mWorkResult.observeWorkResult();
             return true;
         }
 
@@ -252,6 +253,10 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
                                     saveGoogleDriveAuthState();
                                     setPreferencesState();
 
+                                    //Inicia la sincronizacion
+                                    Basic.msg("Sincronizando Datos...");
+                                    manager.dataSynchronize();
+                                    mWorkResult.observeWorkResult();
                                 }
                             });
                         }

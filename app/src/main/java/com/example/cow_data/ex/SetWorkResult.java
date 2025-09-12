@@ -100,6 +100,10 @@ public class SetWorkResult {
                             String preloader = outputData.getString("preloader");
                             String newObj = outputData.getString("newobj");
                             String isFileOk = outputData.getString("file");
+                            String isCheck = outputData.getString("check");
+
+                            //Basic.msg("!!!!---0 !: "+ isCheck);
+
 
                             String[] filesDownloaded = outputData.getStringArray("files_downloaded");
 
@@ -183,15 +187,17 @@ public class SetWorkResult {
                                                 //uploadDataBase();
                                                 assert newObj != null;
                                                 if (newObj.equals("1")) {
-                                                    Basic.msg("Enviando Actualizacion...");
+                                                    //Basic.msg("Enviando Actualizacion...");
                                                     manager.uploadDataBase();
 
                                                 }
                                                 else{
-                                                    StartVar.sendDate = 1;
-                                                    Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
+                                                    //Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
 
-                                                    StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
+                                                    assert isCheck != null;
+                                                    if(isCheck.equals("1")) {
+                                                        StartVar.usuarioQueue.startUsuarioQueue(1);
+                                                    }
                                                 }
                                             }
                                             else if (result < 0) {
@@ -202,20 +208,21 @@ public class SetWorkResult {
                                                 if (newObj.equals("1")){
                                                     mMsg = "Error los cambios no se sincronizaron";
                                                 }
-                                                DBListCreator.cvsToDB(StartVar.mActivity, uri, 1, mMsg);
+                                                assert isCheck != null;
+                                                if(isCheck.equals("1")) {
+                                                    DBListCreator.cvsToDbNotFinish(StartVar.mActivity, uri, 1, "");
+                                                    StartVar.usuarioQueue.startUsuarioQueue(2);
+                                                }
+                                                else {
+                                                    DBListCreator.cvsToDB(StartVar.mActivity, uri, 1, "");
 
-                                                StartVar.sendDate = 2;
-
-                                                StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
-
+                                                }
                                                 return;
                                             }
                                             else {
-                                                StartVar.sendDate = 1;
-
                                                 assert newObj != null;
                                                 if (newObj.equals("1")){
-                                                    Basic.msg("Enviando Actualizacion...");
+                                                    //Basic.msg("Enviando Actualizacion...");
                                                     String currDate = LocalDate.now().toString();
                                                     String currTime = LocalTime.now().toString();
                                                     StartVar.configDatabase.daoConf().updateDateTime(StartVar.mConfID, currDate, currTime);
@@ -223,11 +230,15 @@ public class SetWorkResult {
                                                     manager.uploadDataBase();
                                                 }
                                                 else {
-                                                    Basic.msg("La base de datos está actualizada (" + dateTimeA + ")");
+                                                    assert isCheck != null;
+                                                    if(isCheck.equals("0")) {
+                                                        Basic.msg("La base de datos está actualizada (" + dateTimeA + ")");
+                                                    }
                                                 }
-
-                                                StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, StartVar.mContex);
-                                            }
+                                                assert isCheck != null;
+                                                if(isCheck.equals("1")) {
+                                                    StartVar.usuarioQueue.startUsuarioQueue(1);
+                                                }                                            }
 
                                             //Si es desde el preloder se reinicia la actividad
                                             assert preloader != null;
@@ -241,12 +252,13 @@ public class SetWorkResult {
                                         throw new RuntimeException(e);
                                     }
                                 }
-//                                else {
-//                                    Basic.msg("CVS no Existe!: "+displayMessage);
-//                                }
+                                else {
+                                    Basic.msg("CVS no Existe 1 !: "+displayMessage);
+                                }
                             }
                             else if (workInfo.getState() == WorkInfo.State.FAILED) {
                                 String displayMessage = message != null ? message : "Error en la descarga";
+                                Basic.msg("CVS no Existe 2 !: "+displayMessage);
 
                                 assert isFileOk != null;
                                 if (isFileOk.equals("0")) {

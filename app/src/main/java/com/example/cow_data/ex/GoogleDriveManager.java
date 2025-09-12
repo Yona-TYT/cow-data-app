@@ -7,6 +7,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -120,7 +121,7 @@ public class GoogleDriveManager  {
     }
 
     public void ImportDataToDrive(File fileToUpload) {
-        String tag = StartVar.WORK_TAG_UPLOAD;
+        String tag = String.valueOf(Objects.hashCode(fileToUpload));
 
         HashMap<String, Object> dataMap = new HashMap<String, Object>() {{
            put("filePath", fileToUpload.getAbsolutePath());
@@ -130,18 +131,21 @@ public class GoogleDriveManager  {
 
     // Metodo para sincronizar desde el preloder
     public void dataSynchronizeStarting(){
-        internalDataSynchronize(true, false);
+        internalDataSynchronize(true, false, false);
     }
 
-    // Metodo para sincronizar nuevo objeto
-    public void dataSynchronizeObj(){internalDataSynchronize(false, true);}
+    // Metodo para sincronizar y enviar objetos
+    public void dataSynchronizeObj(){internalDataSynchronize(false, false, false);}
+
+    // Metodo para chequear estado sincronizacio
+    public void dataSynchronizeCheck(){internalDataSynchronize(false, false, true);}
 
     // Metodo para sincronizar
     public void dataSynchronize(){
-        internalDataSynchronize(false, false);
+        internalDataSynchronize(false, false, false);
     }
 
-    public void internalDataSynchronize(boolean preLoader, boolean newObj){
+    public void internalDataSynchronize(boolean preLoader, boolean newObj, boolean check){
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
         // Crear un tag único para la tarea de descarga
         String tag = StartVar.WORK_TAG_DOWNLOAD;
@@ -155,6 +159,7 @@ public class GoogleDriveManager  {
         dataMap.put("type", "/export?mimeType=text/csv");
         dataMap.put("preloader", (preLoader?"1":"0"));
         dataMap.put("newobj", (newObj?"1":"0"));
+        dataMap.put("check", (check?"1":"0"));
 
         // Encolar el GoogleDriveDownloadWorker
         SetWorkResult.startWorkManagerRequest(GoogleDriveDownloadWorker.class, dataMap, tag);
@@ -162,53 +167,44 @@ public class GoogleDriveManager  {
 
     public void uploadDataBase() {
         //Dialogs.progress((FragmentActivity) getActivity(), "getString(R.string.please_wait)");
+        //Basic.msg("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
 
         try {
-            FilesManager fMang = new FilesManager();
-            String name = "DataSave.csv";
-            //Basic.msg("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
-            file = fMang.csvExport(StartVar.csvList, name);
-            if(file != null) {
-                ImportDataToDrive(file);
+            // Ejecutar ImportDataToDrive en el hilo principal
+            new Handler(Looper.getMainLooper()).post(() -> {
+                FilesManager fMang = new FilesManager();
+                String name = "DataSave.csv";
+                try {
+                    file = fMang.csvExport(StartVar.csvList, name);
+                } catch (IOException e) {
+                    Basic.msg("Error Archivo no creado: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
 
+                if (file != null) {
+                    ImportDataToDrive(file);
 
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        //Ahora se envia tambien un respaldo
-//                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                            LocalDate currDate = LocalDate.now();
-//                            File newFile = null;
-//                            try {
-//                                newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-")+".csv", StartVar.mContex);
-//                            } catch (IOException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                            if(newFile != null) {
-//                                ImportDataToDrive(newFile);
-//                            }
-//                        }
-//                    }
-//                }, 1000);
-            }
-        }
-        catch (Exception e) {
-            Basic.msg("Error Archivo no creado: "+ e.getMessage());
+                    // Ahora se envía también un respaldo
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        LocalDate currDate = LocalDate.now();
+                        File newFile = null;
+                        try {
+                            newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-") + ".csv", StartVar.mContex);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        if (newFile != null) {
+                            // Ejecutar ImportDataToDrive en el hilo principal
+                            ImportDataToDrive(newFile);
+                        }
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            Basic.msg("Error Archivo no creado: " + e.getMessage());
             e.printStackTrace();
         }
-
-//        try {
-//            File dbFileA = new File(StartVar.mContex.getDatabasePath(StartVar.nameDBconf).getPath());
-//            manager.uploadFile(dbFileA);
-//
-//            Configdb mConf = StartVar.configDatabase.daoConf().getUsers(StartVar.mConfID);
-//            String fileName = (mConf.date+mConf.time).replaceAll("\\D","")+"_"+mConf.hexid+".db";
-//            manager.uploadFile(FilesManager.getNewFile(StartVar.mContex.getDatabasePath(StartVar.nameDBcow).getPath(), fileName, StartVar.mContex));
-//        }
-//        catch (Exception ex) {
-//            LOG.error("Could not create local test file", ex);
-//            //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed("Could not create local test file", ex));
-//        }
     }
 
 

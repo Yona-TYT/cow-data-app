@@ -48,7 +48,7 @@ public class DBListCreator extends AppCompatActivity {
         List<String[]> mList = new ArrayList<>();
 
         //Instancia de la base de datos
-        List<Usuario> listuser =  StartVar.listuser;
+        List<Usuario> listuser =  StartVar.appDatabase.daoUser().getUsers();
 
         //Se agrega una fila con las configuraciones de la db y versoion
         StartVar.getConfigDB();
@@ -130,8 +130,15 @@ public class DBListCreator extends AppCompatActivity {
 //        }
 
     }
+    public static void cvsToDB(Activity myThis, Uri uri, int importType, String mMsg) {
+        cvsToDBInternal(myThis, uri, importType, mMsg, true);
+    }
 
-    public static void cvsToDB(Activity myThis, Uri uri, int importType, String mMsg){
+    public static void cvsToDbNotFinish(Activity myThis, Uri uri, int importType, String mMsg) {
+        cvsToDBInternal(myThis, uri, importType, mMsg,false);
+    }
+
+    public static void cvsToDBInternal(Activity myThis, Uri uri, int importType, String mMsg, boolean finish){
         StartVar mStartVar = new StartVar(StartVar.mContex);
         mStartVar.setUserListDB();
 
@@ -148,7 +155,6 @@ public class DBListCreator extends AppCompatActivity {
             for (Usuario mUser : mDao.getUsers()){
                 mDao.removerUser(mUser.usuario);
             }
-
 
             while ((line = reader.readLine()) != null) {
                 line = line.replaceAll("\"", "");
@@ -203,18 +209,20 @@ public class DBListCreator extends AppCompatActivity {
 
         }
         catch (FileNotFoundException e) {
-            Basic.msg("Error: "+ e.getMessage());
+            Basic.msg("ErrorA: "+ e.getMessage());
             throw new RuntimeException(e);
         }
         catch (IOException e) {
-            Basic.msg("Error: "+ e.getMessage());
+            Basic.msg("ErrorB: "+ e.getMessage());
             throw new RuntimeException(e);
         }
 
-        Intent mIntent = new Intent(StartVar.mContex, myThis.getClass());
-        myThis.startActivity(mIntent);
-        Basic.msg(mMsg);
-        myThis.finish();
+        if(finish) {
+            Intent mIntent = new Intent(StartVar.mContex, myThis.getClass());
+            myThis.startActivity(mIntent);
+            Basic.msg(mMsg);
+            myThis.finish();
+        }
     }
 
     private static String getUserId(DaoUser mDao){

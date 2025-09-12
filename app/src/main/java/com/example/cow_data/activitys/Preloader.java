@@ -19,6 +19,7 @@ import com.example.cow_data.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.db.UsuarioQueue;
 import com.example.cow_data.ex.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.ex.SetWorkResult;
@@ -61,9 +62,15 @@ public class Preloader extends AppCompatActivity {
 
         StartVar.mLifecycle = ProcessLifecycleOwner.get();
 
+        //Se crea el directorio de .cowdate
+        FilesManager.directoryCreate();
+
         //Instancia de la base de datos
         StartVar.getUserListDB();
         List<Usuario> listuser =  StartVar.listuser;
+
+        // Inicializar la variable para las colas
+        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, getApplicationContext());
 
         for(Usuario mUser : listuser){
             String selecTx = mUser.sel3;
@@ -92,7 +99,7 @@ public class Preloader extends AppCompatActivity {
         AuthState authState = new AuthState();
         authState = GoogleDriveManager.getAuthState();
 
-        //En caso de estacar se forza el inicio de mainActivity
+        //En caso de estancar se forza el inicio de mainActivity
         startMainDelayErr(30000);
 
         if(authState.isAuthorized()) {

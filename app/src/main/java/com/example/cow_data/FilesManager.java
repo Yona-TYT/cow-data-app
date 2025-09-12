@@ -39,7 +39,7 @@ public class FilesManager extends AppCompatActivity {
     Context context2;
 
     @SuppressLint("NotConstructor")
-    public void FilesManager(){
+    public void FilesManager() {
     }
 
     public String getImage(String sImage, ImageView mImgPrev) {
@@ -48,9 +48,8 @@ public class FilesManager extends AppCompatActivity {
             try {
                 if (isBlockedPath(this, sImage)) {
                     mImgPrev.setImageURI(mUri);
-                    return  sImage;
-                }
-                else {
+                    return sImage;
+                } else {
                     Log.d("PhotoPicker", "noooooo hayyyyyyyyyy: " + sImage);
                 }
             } catch (Exception e) {
@@ -60,18 +59,18 @@ public class FilesManager extends AppCompatActivity {
         return sImage;
     }
 
-    public String SavePhoto(Bitmap bmp, String fName, Uri oldFile, Context contex, ContentResolver resolver){
+    public String SavePhoto(Bitmap bmp, String fName, Uri oldFile, Context contex, ContentResolver resolver) {
 
         //Creamos el directorio para los archivos
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/.cowdata/");
         boolean isDiralloway = true;
-        if(!path.exists()){
+        if (!path.exists()) {
             isDiralloway = path.mkdir();
         }
         //------------------------------------------
 
         //Si se crea correctamente entonces procede a escribir
-        if(isDiralloway) {
+        if (isDiralloway) {
             File file = new File(path, fName);
             FileOutputStream stream = null;
 
@@ -81,21 +80,17 @@ public class FilesManager extends AppCompatActivity {
                 stream = new FileOutputStream(file);
 
                 // Use the compress method on the BitMap object to write image to the OutputStream
-                if(!bmp.compress(Bitmap.CompressFormat.JPEG, 95, stream)){
+                if (!bmp.compress(Bitmap.CompressFormat.JPEG, 95, stream)) {
                     throw new RuntimeException("Could Save Bit map");
-                }
-                else {
+                } else {
                     return file.getAbsolutePath();
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            }
-            finally {
+            } finally {
                 try {
                     stream.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -107,27 +102,37 @@ public class FilesManager extends AppCompatActivity {
         // Definimos la class
         CsvWriterSimple write = new CsvWriterSimple();
 
-        //Creamos el directorio para los archivos
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
-        boolean isDiralloway = true;
-        if(!path.exists()){
-            isDiralloway = path.mkdir();
-        }
-        //------------------------------------------
+        File path = directoryCreate();
 
         //Si se crea correctamente entonces procede a escribir
-        if(isDiralloway) {
+        if (path != null) {
             String myName = "CowData_Save.csv";
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                myName = "CowData_"+LocalDate.now().toString()+"_"+(LocalTime.now().toString().replaceAll("\\D","_"))+".csv";
+                myName = "CowData_" + LocalDate.now().toString() + "_" + (LocalTime.now().toString().replaceAll("\\D", "_")) + ".csv";
             }
-            File file = new File(path, fileName.isEmpty()? myName : fileName);
+            File file = new File(path, fileName.isEmpty() ? myName : fileName);
             write.writeToCsvFile(list, file);
             return file;
         }
         //-----------------------------------------------------------
         return null;
     }
+
+    public static File directoryCreate() {
+        //Creamos el directorio para los archivos
+
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/.cowdata/");
+        boolean isDiralloway = true;
+        if (!path.exists()) {
+            isDiralloway = path.mkdir();
+        }
+
+        if(!isDiralloway){
+            return null;
+        }
+        return path;
+    }
+
 
     public boolean csvImport(String dir) throws IOException, CsvValidationException {
         Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ dir );
