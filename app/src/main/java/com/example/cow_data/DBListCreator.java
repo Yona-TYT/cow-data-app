@@ -106,7 +106,7 @@ public class DBListCreator extends AppCompatActivity {
                 typeL.add(txsel2);
                 selL.add(Integer.parseInt(txsel2));
 
-                if (FilesManager.isBlockedPath(StartVar.mContex, tximg)) {
+                if (FilesManager.isBlockedPath(tximg)) {
                     imgL.add(tximg);
                 } else {
                     imgL.add("null");

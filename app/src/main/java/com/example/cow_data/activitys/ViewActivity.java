@@ -1,5 +1,6 @@
 package com.example.cow_data.activitys;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,6 +109,9 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     //Base de datos
     public AppDatabase appDatabase = StartVar.appDatabase;
 
+    //Usuario
+    private Usuario mUser;
+
     @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,7 +209,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             int i = 0;
-            Usuario mUser = listuser.get(currIdx);
+            mUser = listuser.get(currIdx);
             if (mUser != null) {
                 currSel1 = Integer.parseInt(mUser.sel1);
                 currSel2 = Integer.parseInt(mUser.sel2);
@@ -350,12 +354,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             this.finish();
         }
         if(itemId == R.id.imageView){
-            Intent mIntent = new Intent(this, ImgFullscreenActivity.class);
-            Bundle mBundle = new Bundle();
-            mBundle.putString("dir", currDir);
-            mBundle.putInt("index", currIdx);
-            mIntent.putExtras(mBundle);
-            startActivity(mIntent);
+            File f = new File(mUser.imagen);
+            if(f.exists()) {
+                Intent mIntent = new Intent(this, ImgFullscreenActivity.class);
+                Bundle mBundle = new Bundle();
+                mBundle.putString("dir", currDir);
+                mBundle.putInt("index", currIdx);
+                mIntent.putExtras(mBundle);
+                startActivity(mIntent);
+            }
         }
         if(itemId == R.id.buttNext){
             Intent mIntent = new Intent(this, ViewActivity.class);

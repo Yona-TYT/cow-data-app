@@ -46,7 +46,7 @@ public class FilesManager extends AppCompatActivity {
         if (!sImage.isEmpty()) {
             Uri mUri = Uri.fromFile(new File(sImage));
             try {
-                if (isBlockedPath(this, sImage)) {
+                if (isBlockedPath( sImage)) {
                     mImgPrev.setImageURI(mUri);
                     return sImage;
                 } else {
@@ -191,7 +191,7 @@ public class FilesManager extends AppCompatActivity {
         return false;
     }
 
-    public static boolean isBlockedPath(Context ctx, String dir) {
+    public static boolean isBlockedPath(String dir) {
         // Paths that should rarely be exposed
         return dir.startsWith("content://media/" + MediaStore.VOLUME_EXTERNAL_PRIMARY) || dir.startsWith("/storage/emulated/0/Documents/");
     }
