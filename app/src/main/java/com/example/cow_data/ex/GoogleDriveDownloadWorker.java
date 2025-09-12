@@ -69,6 +69,8 @@ public class GoogleDriveDownloadWorker extends Worker {
         String isPreloader = getInputData().getString("preloader");
         String isNewObj = getInputData().getString("newobj");
         String isCheck = getInputData().getString("check");
+        String isImg = getInputData().getString("img");
+
 
         File fileToDownload = new File(filePath);
 

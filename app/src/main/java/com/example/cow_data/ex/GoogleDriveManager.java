@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.example.cow_data.Basic;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.db.Usuario;
 
 
 import net.openid.appauth.AppAuthConfiguration;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -131,32 +133,52 @@ public class GoogleDriveManager  {
 
     // Metodo para sincronizar desde el preloder
     public void dataSynchronizeStarting(){
-        internalDataSynchronize(true, false, false);
+        internalDataSynchronize(false,true, false, false);
     }
 
     // Metodo para sincronizar y enviar objetos
-    public void dataSynchronizeObj(){internalDataSynchronize(false, false, false);}
+    public void dataSynchronizeObj(){
+        internalDataSynchronize(false,false, false, false);
+    }
+
+    // Metodo para sincronizar y enviar imagenes
+    public void dataSynchronizeImg(){
+        internalDataSynchronize(true,false, false, false);
+    }
 
     // Metodo para chequear estado sincronizacio
-    public void dataSynchronizeCheck(){internalDataSynchronize(false, false, true);}
+    public void dataSynchronizeCheck(){
+        internalDataSynchronize(false, false, false, true);
+    }
 
     // Metodo para sincronizar
     public void dataSynchronize(){
-        internalDataSynchronize(false, false, false);
+        internalDataSynchronize( false,false, false, false);
     }
 
-    public void internalDataSynchronize(boolean preLoader, boolean newObj, boolean check){
+    public void internalDataSynchronize(boolean img, boolean preLoader, boolean newObj, boolean check){
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
         // Crear un tag único para la tarea de descarga
         String tag = StartVar.WORK_TAG_DOWNLOAD;
 
         // Preparar datos de entrada
         HashMap<String, Object> dataMap = new HashMap<>();
+
+        if(img){
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
+            dataMap.put("img", "1");
+            dataMap.put("type", "?alt=media");
+
+        }
+        else {
+            dataMap.put("img", "0");
+            dataMap.put("type", "/export?mimeType=text/csv");
+        }
+
         if (path != null) {
             dataMap.put("path", path.getAbsolutePath());
         }
         dataMap.put("name", "DataSave.csv");
-        dataMap.put("type", "/export?mimeType=text/csv");
         dataMap.put("preloader", (preLoader?"1":"0"));
         dataMap.put("newobj", (newObj?"1":"0"));
         dataMap.put("check", (check?"1":"0"));
@@ -206,6 +228,33 @@ public class GoogleDriveManager  {
             e.printStackTrace();
         }
     }
+
+    public void uploadDataImg() {
+        //Dialogs.progress((FragmentActivity) getActivity(), "getString(R.string.please_wait)");
+        //Basic.msg("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
+
+        try {
+            // Ejecutar ImportDataToDrive en el hilo principal
+            new Handler(Looper.getMainLooper()).post(() -> {
+
+                List<File> mFileList = new ArrayList<>();
+                for (Usuario mUser : StartVar.listuser){
+                   if(mUser != null && !mUser.imagen.isEmpty()){
+                       File mFile = new File(mUser.imagen);
+                       if(mFile.exists()){
+                           mFileList.add(mFile);
+                       }
+                   }
+                }
+                ImportDataToDrive(mFileList);
+            });
+
+        } catch (Exception e) {
+            Basic.msg("Error Archivo no creado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
 
 

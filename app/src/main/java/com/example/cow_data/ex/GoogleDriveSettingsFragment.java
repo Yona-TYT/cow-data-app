@@ -88,6 +88,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setOnPreferenceClickListener(this);
         findPreference("google_drive_test").setOnPreferenceClickListener(this);
         findPreference("google_drive_sync").setOnPreferenceClickListener(this);
+        findPreference("google_drive_sync_img").setOnPreferenceClickListener(this);
 
         setPreferencesState();
 
@@ -162,15 +163,12 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         }
 
         if (preference.getKey().equals(PreferenceNames.GOOGLE_DRIVE_RESETAUTH)) {
-
-
             if (authState.isAuthorized()) {
                 authState = new AuthState();
                 saveGoogleDriveAuthState();
                 setPreferencesState();
                 return true;
             }
-
             authorizationService = GoogleDriveManager.getAuthorizationService(getActivity());
 
             SecureRandom sr = new SecureRandom();
@@ -217,6 +215,11 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         if (preference.getKey().equals("google_drive_sync")) {
             manager.dataSynchronize();
             mWorkResult.observeWorkResult();
+            return true;
+        }
+
+        if (preference.getKey().equals("google_drive_sync_img")) {
+            manager.uploadDataImg();
             return true;
         }
 
