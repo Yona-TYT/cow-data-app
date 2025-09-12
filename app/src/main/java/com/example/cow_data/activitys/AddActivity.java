@@ -277,7 +277,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         //--------------------------------------------------------------------------------------------
 
         mPermiss = StartVar.mPermiss;
-        mIndex = getUserId(appDatabase.daoUser());
+        mIndex = Usuario.getUserId(appDatabase.daoUser());
     }
 
     private void setupActivityResultLaunchers() {
@@ -597,7 +597,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 Usuario obj =
                         new Usuario(
                                 mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
-                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), (swPre?"1":"0") ,"" ,"" ,"" ,""
+                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), (swPre?"1":"0"),
+                                "@null" ,"@null" ,"@null" ,"@null"
                             );
                 appDatabase.daoUser().insetUser(obj);
 
@@ -614,6 +615,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
                 //Esto inicia las actividad Main despues de tiempo de espera del preloder
                 startActivity(new Intent(AddActivity.this,MainActivity.class));
+
+                StartVar.usuarioQueue.enqueue(obj);
+
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
@@ -780,22 +784,5 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
             }
         }
-    }
-
-    private String getUserId(DaoUser mDao){
-        //Configura el nuevo index-------------------------------------------------------------------
-        int mSiz = mDao.getUsers().size();
-        String mIdx = "userID0";
-        if(mSiz > 0) {
-            mIdx = "userID" + mSiz;
-        }
-        for(int i = 0; i < mSiz; i++){
-            Usuario mUser = mDao.getUsers("userID"+i);
-            if(mUser == null){
-                return  "userID"+i;
-            }
-        }
-        return mIdx;
-        //-------------------------------------------------------------------------------------------
     }
 }

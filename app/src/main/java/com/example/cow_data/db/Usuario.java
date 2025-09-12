@@ -41,4 +41,21 @@ public class Usuario {
 
 
     }
+
+    public static String getUserId(DaoUser mDao){
+        //Configura el nuevo index-------------------------------------------------------------------
+        int mSiz = mDao.getUsers().size();
+        String mIdx = "userID0";
+        if(mSiz > 0) {
+            mIdx = "userID" + mSiz;
+        }
+        for(int i = 0; i < mSiz; i++){
+            Usuario mUser = mDao.getUsers("userID"+i);
+            if(mUser == null){
+                return  "userID"+i;
+            }
+        }
+        return mIdx;
+        //-------------------------------------------------------------------------------------------
+    }
 }

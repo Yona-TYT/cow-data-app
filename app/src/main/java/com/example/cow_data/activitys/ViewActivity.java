@@ -278,7 +278,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressLint("SetTextI18n")
     private void setTextList(TextView view, String txValue, String TxTag){
 
-        String[] mSplit = txValue.split(",");
+        String[] mSplit = txValue.split("\\|");
         String textList = "";
 
             for (String s : mSplit){

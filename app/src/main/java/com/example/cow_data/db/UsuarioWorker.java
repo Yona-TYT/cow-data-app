@@ -55,7 +55,19 @@ public class UsuarioWorker extends Worker {
                 if (mUser.usuario.equals("@null")) {
                     mDao.removerUser(mUser.nombre);
                     mDao.removerUser(mUser.uid);
-                } else {
+                }
+                else if (mDao.getUsers(mUser.usuario) == null) {
+                    String mNewID = Usuario.getUserId(mDao);
+                    Usuario obj =
+                            new Usuario(
+                                    mNewID, mUser.nombre, mUser.color, mUser.color, mUser.edad, mUser.pre,
+                                    mUser.imagen, mUser.sel1, mUser.sel2, mUser.sel3,
+                                    "@null" ,"@null" ,"@null" ,"@null"
+                            );
+                    mDao.insetUser(obj);
+                }
+
+                else {
                     mDao.updateUser(mUser.usuario, mUser.nombre, mUser.color,mUser.litros,
                             mUser.edad, mUser.pre, mUser.imagen,mUser.sel1,mUser.sel2,mUser.sel3);
 

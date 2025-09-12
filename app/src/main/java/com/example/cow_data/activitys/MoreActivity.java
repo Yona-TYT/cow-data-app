@@ -155,7 +155,6 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                     if(!mU.usuario.equals(myUser.usuario)) {
                         mtxList.add(setDbList(mU));
                     }
-
                 }
                 // Madre de: -------------------------------------------------------------------
                 boolean oneValue = false;
@@ -193,7 +192,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
 
     @SuppressLint("SetTextI18n")
     private void checkIdsList(String text, String mapID, EditText input){
-        String[] mSplit = text.split(",");
+        String[] mSplit = text.split("\\|");
         String textList = "";
 
         for (String s : mSplit){
@@ -259,6 +258,8 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         String mText = mInput.getText().toString();
         mText = mText.replaceAll("\"", "");
         mText = mText.replaceAll(",", "");
+        mText = mText.replaceAll("\\|", "");
+        mText = mText.replaceAll("(^\\s+)|(\\s+$)", "");
         morlist.add(mText.isEmpty()?"@null":mText);
     }
 
@@ -267,7 +268,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         if (mArray != null) {
             String mText = "";
             for (String s : mArray) {
-                mText += (s+",");
+                mText += (s+"|");
             }
             morlist.add(mText.isEmpty()?"@null":mText);
         }
