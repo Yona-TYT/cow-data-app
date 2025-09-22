@@ -64,7 +64,7 @@ public class StartVar {
 
     public static int currSel2 = 4;
 
-    public static Context mContex;
+    public static Context mContex ;
     public static Activity mActivity;
     public static UsuarioQueue usuarioQueue;
     public static int sendDate = 0;
@@ -80,7 +80,7 @@ public class StartVar {
 
 
     public StartVar(Context mContex){
-        this.mContex = mContex;
+        StartVar.mContex = AppContextProvider.getAppContext();
     }
 
 

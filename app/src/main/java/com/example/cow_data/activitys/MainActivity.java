@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Handler mainHandler;
 
-    private PreferenceHelper myPrefernce  = PreferenceHelper.getInstance();
+    private PreferenceHelper myPrefernce;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,6 +179,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startVar.setUserListDB();
         startVar.setmPermiss(mPermiss);
         startVar.setmActivity(this);
+
+        myPrefernce  = PreferenceHelper.getInstance();
 
         File dbFile = new File(getApplicationContext().getDatabasePath(StartVar.nameDBconf).getPath());
         Log.d(TAG, "Ruta de la base de datos: " + dbFile.getAbsolutePath());

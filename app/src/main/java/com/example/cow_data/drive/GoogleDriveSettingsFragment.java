@@ -104,6 +104,8 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         findPreference("google_drive_sync").setOnPreferenceClickListener(this);
         findPreference("google_drive_sync_img").setOnPreferenceClickListener(this);
 
+        registerEventBus();
+
         setPreferencesState();
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -112,12 +114,6 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
 
     }
 
-
-    @Override
-    public void onStart() {
-        registerEventBus();
-        super.onStart();
-    }
 
     @Override
     public void onDestroy() {

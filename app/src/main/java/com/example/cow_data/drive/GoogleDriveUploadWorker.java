@@ -59,6 +59,8 @@ public class GoogleDriveUploadWorker extends Worker {
 
         String filePath = getInputData().getString("filePath");
         boolean isList = getInputData().getBoolean("list", false);
+        boolean isImg = getInputData().getBoolean("img", false);
+
 
         String[] filePaths = getInputData().getStringArray("filePaths");
 
@@ -166,8 +168,30 @@ public class GoogleDriveUploadWorker extends Worker {
                     }
                 }
                 else {
-                    if(!filesSet(fileToUpload, gpsLoggerFolderId)){
-                        failureMessage = "Could not create file";
+                    if(isImg){
+                        String imgFolderName = PreferenceHelper.getInstance().getGoogleDriveImgPath();
+                        String imgFolderId = getFileIdFromFileName(googleDriveAccessToken, imgFolderName, gpsLoggerFolderId, "application/vnd.google-apps.folder");
+                        if (!isNullOrEmpty(imgFolderId)) {
+                            LOG.debug("Folder " + imgFolderName + " found, folder ID is " + gpsLoggerFolderId);
+                        } else {
+                            LOG.debug("Folder " + imgFolderName + " not found, creating.");
+                            imgFolderId = createEmptyFile(googleDriveAccessToken, imgFolderName,
+                                    "application/vnd.google-apps.folder", gpsLoggerFolderId);
+                        }
+                        if (isNullOrEmpty(imgFolderId)) {
+                            failureMessage = "Could not create folder";
+                            success = false;
+                        }
+                        else {
+                            if (!filesSet(fileToUpload, imgFolderId)) {
+                                failureMessage = "Could not create file";
+                            }
+                        }
+                    }
+                    else {
+                        if (!filesSet(fileToUpload, gpsLoggerFolderId)) {
+                            failureMessage = "Could not create file";
+                        }
                     }
                 }
 

@@ -116,6 +116,10 @@ public class GoogleDriveManager  {
         InternalImportDataToDrive(fileToUpload, false);
     }
 
+    public void ImportImgToDrive(File fileToUpload) {
+        InternalImportDataToDrive(fileToUpload, true);
+    }
+
     public void InternalImportDataToDrive(List<File> files, boolean img) {
         String tag = String.valueOf(Objects.hashCode(files));
 

@@ -54,6 +54,8 @@ import com.example.cow_data.databinding.ActivityMainBinding;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.ex.PreferenceHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -613,12 +615,21 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 mVars.getUserListDB();
                 //-------------------------------------------------------
 
-                //Esto inicia las actividad Main despues de tiempo de espera del preloder
+                //Esto inicia las actividad Main y cierra la actual
                 startActivity(new Intent(AddActivity.this,MainActivity.class));
 
+                //Encola al usuario para sincronizar
                 StartVar.usuarioQueue.enqueue(obj);
 
-                finish(); //Finaliza la actividad y ya no se accede mas
+                if(!sImage.isEmpty()) {
+                    File mFile = new File(sImage);
+                    if(mFile.exists()) {
+                        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+                        manager.ImportImgToDrive(mFile);
+                    }
+                }
+
+                finish(); //Finaliza la actividad y ya no se acceder mas
             }
             else {
                 Basic.msg(getTextMessage(msgIdx));

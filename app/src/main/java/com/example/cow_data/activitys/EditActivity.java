@@ -54,6 +54,8 @@ import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.ex.PreferenceHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -694,8 +696,17 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mIntent.putExtras(getAndSetBundle());
                 startActivity(mIntent);
 
+                //Encola al usuario para sincronizar
                 myUser = StartVar.listuser.get(currIdx);
                 StartVar.usuarioQueue.enqueue(myUser);
+
+                if(!sImage.isEmpty()) {
+                    File mFile = new File(sImage);
+                    if(mFile.exists()) {
+                        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+                        manager.ImportImgToDrive(mFile);
+                    }
+                }
 
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
