@@ -5,6 +5,7 @@ import static android.widget.GridLayout.spec;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Handler;
@@ -39,6 +40,11 @@ public class Basic {
     public static boolean isDow = true;
     public static boolean isUp = false;
 
+    private static final String ACTION_APP_EVENT = "com.example.cow_data.EVENT";
+    private static final String EXTRA_EVENT_TYPE = "cow_data_event";
+    private static final String EXTRA_FILE_PATHS = "file_paths";
+    private static final String EXTRA_SENDER_TYPE = "sender_type";
+    private static final String EVENT_FILE_UPLOADED = "file_uploaded";
 
     public Basic(Context mContex) {
         this.mContex = mContex;
@@ -53,61 +59,6 @@ public class Basic {
         float scaledDensity = mContex.getResources().getDisplayMetrics().scaledDensity;
         return getPixelSiz(id) / scaledDensity;
     }
-
-//    public void keyboardEvent(ConstraintLayout mConstrain, View elm,  List<View> mViewList, int opt) {
-//        // Para eventos al mostrar o ocultar el teclado
-//        mConstrain.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                // on below line we are creating a variable for rect
-//                Rect rect = new Rect();
-//                View contain = StartVar.mRootView;
-//                // on below line getting frame for our relative layout.
-//                contain.getWindowVisibleDisplayFrame(rect);
-//                // on below line getting screen height for relative layout.
-//                int screenHeight = contain.getRootView().getHeight();
-//                // on below line getting keypad height.
-//                int keypadHeight = screenHeight - rect.bottom;
-//                if (keypadHeight > screenHeight * 0.15) {
-//                    isDow = false;
-//                    isUp = true;
-//
-//                    for (View mView : mViewList) {
-//                        if(mView != null) {
-//                            mView.setVisibility(View.INVISIBLE);
-//                        }
-//                    }
-//                    //Toast.makeText(MainActivity.this, "Keyboard is +", Toast.LENGTH_LONG).show();
-//                }
-//                else {
-//                    isDow = true;
-//                    isUp = false;
-//                    //Toast.makeText(mContex, "Keyboard is -", Toast.LENGTH_LONG).show();
-//
-//                    if (elm != null) {
-//                        //Toast.makeText(mContex, "Aqui hayyyyyyyy?  " , Toast.LENGTH_LONG).show();
-//                        elm.clearFocus();
-//                    }
-//
-//                    for (View mView : mViewList) {
-//                        if(mView != null) {
-//                            mView.setVisibility(View.VISIBLE);
-//                        }
-//                    }
-//                    mConstrain.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//
-//                }
-//            }
-//        });
-//    }
-
-//    public void steAllKeyEvent(ConstraintLayout mConstrain, List<EditText> mInputList) {
-//        for (int i = 0; i < mInputList.size(); i++) {
-//            // Para eventos al mostrar o ocultar el teclado
-//            keyboardEvent(mConstrain, mInputList.get(i), new ArrayList<>(), 0); //opt = 0 is clear elm focus
-//            //-------------------------------------------------------------------------------------
-//        }
-//    }
 
 
     public static void hideKeyboard(Activity activity) {
@@ -281,8 +232,24 @@ public class Basic {
         });
 
     }
-    public static void checkClt(){
 
+    public static void sendFileUploadedBroadcast(Context context, String[] filePaths, String senderType) {
+        //LOG.debug("Sending file uploaded broadcast para: " + senderType);
+        Intent intent = new Intent(ACTION_APP_EVENT);
+        intent.putExtra(EXTRA_EVENT_TYPE, EVENT_FILE_UPLOADED);
+        intent.putExtra(EXTRA_FILE_PATHS, filePaths);
+        intent.putExtra(EXTRA_SENDER_TYPE, senderType);
+        context.sendBroadcast(intent);
+    }
+
+    // También para errores
+    public static void sendUploadErrorBroadcast(Context context, String errorMessage, String senderType) {
+        //LOG.debug("Sending upload error broadcast: " + errorMessage);
+        Intent intent = new Intent(ACTION_APP_EVENT);
+        intent.putExtra(EXTRA_EVENT_TYPE, "upload_error");
+        intent.putExtra("error_message", errorMessage);
+        intent.putExtra(EXTRA_SENDER_TYPE, senderType);
+        context.sendBroadcast(intent);
     }
 
     public static int bitL(int val, int rota) {
@@ -348,9 +315,5 @@ public class Basic {
 
     public static String parseMoneyValue(String value, String groupingSeparator, String currencySymbol) {
         return value.replace(groupingSeparator, "").replace(currencySymbol, "");
-    }
-
-    public static boolean isLollipopAndAbove() {
-        return true;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.cow_data.ex;
+package com.example.cow_data.drive;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -12,19 +12,12 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-//import com.mendhak.gpslogger.common.AppSettings;    //Necesaria para el context
-//import com.mendhak.gpslogger.common.PreferenceHelper;   //Necesaria
-//import com.mendhak.gpslogger.common.Strings;
-//import com.mendhak.gpslogger.common.Systems;
-//import com.mendhak.gpslogger.common.slf4j.Logs;     //solo debug
-//import com.mendhak.gpslogger.senders.FileSender;
-
-//import com.mendhak.gpslogger.common.AppSettings;
-
 import com.example.cow_data.Basic;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.ex.Logs;
+import com.example.cow_data.ex.PreferenceHelper;
 
 
 import net.openid.appauth.AppAuthConfiguration;
@@ -115,19 +108,42 @@ public class GoogleDriveManager  {
         return authState;
     }
 
-    public void ImportDataToDrive(List<File> files) {
-        for (File f : files) {
-            LOG.debug(f.getName());
-            ImportDataToDrive(f);
-        }
+    public void ImportDataToDrive(List<File> files, boolean img) {
+        InternalImportDataToDrive(files, img);
     }
 
     public void ImportDataToDrive(File fileToUpload) {
-        String tag = String.valueOf(Objects.hashCode(fileToUpload));
+        InternalImportDataToDrive(fileToUpload, false);
+    }
 
-        HashMap<String, Object> dataMap = new HashMap<String, Object>() {{
-           put("filePath", fileToUpload.getAbsolutePath());
-        }};
+    public void InternalImportDataToDrive(List<File> files, boolean img) {
+        String tag = String.valueOf(Objects.hashCode(files));
+
+
+        HashMap<String, Object> dataMap = new HashMap<>();
+        dataMap.put("filePaths", files.stream().map(File::getAbsolutePath).toArray(String[]::new));
+
+        dataMap.put("filePath", "");
+
+        dataMap.put("img", img);
+
+        dataMap.put("list", true);
+
+        SetWorkResult.startWorkManagerRequest(GoogleDriveUploadWorker.class, dataMap, tag);
+    }
+
+    public void InternalImportDataToDrive(File fileToUpload, boolean img) {
+        String tag = String.valueOf(Objects.hashCode(fileToUpload));
+        HashMap<String, Object> dataMap = new HashMap<>();
+
+        dataMap.put("filePaths", new String[0]);
+
+        dataMap.put("filePath", fileToUpload.getAbsolutePath());
+
+        dataMap.put("img", img);
+
+        dataMap.put("list", false);
+
         SetWorkResult.startWorkManagerRequest(GoogleDriveUploadWorker.class, dataMap, tag);
     }
 
@@ -166,12 +182,12 @@ public class GoogleDriveManager  {
 
         if(img){
             path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
-            dataMap.put("img", "1");
+            dataMap.put("img", true);
             dataMap.put("type", "?alt=media");
 
         }
         else {
-            dataMap.put("img", "0");
+            dataMap.put("img", false);
             dataMap.put("type", "/export?mimeType=text/csv");
         }
 
@@ -179,9 +195,9 @@ public class GoogleDriveManager  {
             dataMap.put("path", path.getAbsolutePath());
         }
         dataMap.put("name", "DataSave.csv");
-        dataMap.put("preloader", (preLoader?"1":"0"));
-        dataMap.put("newobj", (newObj?"1":"0"));
-        dataMap.put("check", (check?"1":"0"));
+        dataMap.put("preloader", preLoader);
+        dataMap.put("newobj", newObj);
+        dataMap.put("check", check);
 
         // Encolar el GoogleDriveDownloadWorker
         SetWorkResult.startWorkManagerRequest(GoogleDriveDownloadWorker.class, dataMap, tag);
@@ -246,7 +262,7 @@ public class GoogleDriveManager  {
                        }
                    }
                 }
-                ImportDataToDrive(mFileList);
+                ImportDataToDrive(mFileList, true);
             });
 
         } catch (Exception e) {

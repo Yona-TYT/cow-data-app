@@ -46,7 +46,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.example.cow_data.Basic;
 import com.example.cow_data.CalcCalendar;
@@ -55,14 +54,8 @@ import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.db.UsuarioQueue;
-import com.example.cow_data.ex.GoogleDriveManager;
-import com.example.cow_data.ex.PreferenceHelper;
-import com.example.cow_data.ex.SetWorkResult;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-
-import net.openid.appauth.AuthState;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,8 +66,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
     //Base de datos

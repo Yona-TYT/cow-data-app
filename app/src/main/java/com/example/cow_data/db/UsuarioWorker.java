@@ -6,12 +6,11 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import androidx.work.Data;
 
 import com.example.cow_data.Basic;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.drive.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.google.gson.Gson;
 
@@ -88,11 +87,11 @@ public class UsuarioWorker extends Worker {
                 GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
                 manager.uploadDataBase();
                 //Basic.msg("Aqui hay!! :) : "+gson.fromJson(queueItem.usuarioJson, Usuario.class).nombre);
-                StartVar.usuarioQueue.clear();
-
-                Intent mIntent = new Intent(StartVar.mContex, StartVar.mActivity.getClass());
-                StartVar.mActivity.startActivity(mIntent);
-                StartVar.mActivity.finish();
+//                StartVar.usuarioQueue.clear();
+//
+//                Intent mIntent = new Intent(StartVar.mContex, StartVar.mActivity.getClass());
+//                StartVar.mActivity.startActivity(mIntent);
+//                StartVar.mActivity.finish();
             }
             return Result.success();
         } catch (Exception e) {

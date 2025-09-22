@@ -10,9 +10,9 @@ import androidx.work.WorkManager;
 
 import com.example.cow_data.Basic;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.drive.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
-import com.example.cow_data.ex.SetWorkResult;
+import com.example.cow_data.drive.SetWorkResult;
 import com.google.gson.Gson;
 
 import net.openid.appauth.AuthState;
@@ -82,6 +82,7 @@ public class UsuarioQueue {
     private void processNext(int sendOpt) {
 
         if (queue.isEmpty()) {
+            //Basic.msg("Empty: "+sendOpt);
             return;
         }
 
@@ -89,6 +90,8 @@ public class UsuarioQueue {
         Usuario usuario = queue.peek();
 
         if (usuario == null) {
+            //Basic.msg("Usr null");
+
             queue.poll();
             return;
         }

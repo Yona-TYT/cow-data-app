@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,9 +19,9 @@ import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.UsuarioQueue;
-import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.drive.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
-import com.example.cow_data.ex.SetWorkResult;
+import com.example.cow_data.drive.SetWorkResult;
 
 import net.openid.appauth.AuthState;
 
@@ -61,6 +60,9 @@ public class Preloader extends AppCompatActivity {
         new Basic(getApplicationContext());
 
         StartVar.mLifecycle = ProcessLifecycleOwner.get();
+
+        //Se reinicia el cursor para el gallery adapter
+        PreferenceHelper.getInstance().setGalleryPosition(0, 0);
 
         //Se crea el directorio de .cowdate
         FilesManager.directoryCreate();

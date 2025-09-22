@@ -139,7 +139,9 @@ dependencies {
 
 
     //OKHTTP client
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    //implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    //implementation('com.squareup.okhttp3:okhttp:5.1.0')   Da problemas de compatibilidad
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.16")
 
     //Event bus
     implementation 'de.greenrobot:eventbus:2.4.0'

@@ -25,7 +25,10 @@ public  class PreferenceNames {
     public static final String GOOGLE_DRIVE_RESETAUTH = "google_drive_resetauth";
     public static final String GOOGLE_DRIVE_AUTH_STATE = "google_drive_auth_state";
     public static final String GOOGLE_DRIVE_FOLDER_PATH = "google_drive_folder_path";
+    public static final String GOOGLE_DRIVE_IMG_PATH = "google_drive_img_path";
     public static final String GOOGLE_DRIVE_FOLDER_ID = "google_drive_folder_id";
+    public static final String GOOGLE_DRIVE_FOLDER_IMG_ID = "google_drive_folder_img_id";
+
 
     public static final String AUTOSEND_GOOGLE_DRIVE_ENABLED = "google_drive_enabled";
 
@@ -33,4 +36,8 @@ public  class PreferenceNames {
 
 
     public static final String AUTOSEND_WIFI_ONLY = "autosend_wifionly";
+
+    public static final String GALLERY_POSITION = "selected_position";
+    public static final String GALLERY_OFFSET = "selected_offset";
+
 }

@@ -3,11 +3,7 @@ package com.example.cow_data;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import androidx.annotation.NonNull;
 
-import com.example.cow_data.ex.GoogleDriveManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

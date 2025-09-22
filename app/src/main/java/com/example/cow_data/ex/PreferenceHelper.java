@@ -85,6 +85,15 @@ public class PreferenceHelper {
         prefs.edit().putString(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH, folderPath).apply();
     }
 
+    @ProfilePreference(name=PreferenceNames.GOOGLE_DRIVE_IMG_PATH)
+    public String getGoogleDriveImgPath() {
+        return prefs.getString(PreferenceNames.GOOGLE_DRIVE_IMG_PATH, "Img");
+    }
+
+    public void setGoogleDriveImgPath(String folderPath){
+        prefs.edit().putString(PreferenceNames.GOOGLE_DRIVE_IMG_PATH, folderPath).apply();
+    }
+
 
     @ProfilePreference(name=PreferenceNames.GOOGLE_DRIVE_FOLDER_ID)
     public String getGoogleDriveFolderId() {
@@ -93,6 +102,15 @@ public class PreferenceHelper {
 
     public void setGoogleDriveFolderId(String folderId){
         prefs.edit().putString(PreferenceNames.GOOGLE_DRIVE_FOLDER_ID, folderId).apply();
+    }
+
+    @ProfilePreference(name=PreferenceNames.GOOGLE_DRIVE_FOLDER_IMG_ID)
+    public String getGoogleDriveFolderImgId() {
+        return prefs.getString(PreferenceNames.GOOGLE_DRIVE_FOLDER_IMG_ID, null);
+    }
+
+    public void setGoogleDriveFolderImgId(String folderId){
+        prefs.edit().putString(PreferenceNames.GOOGLE_DRIVE_FOLDER_IMG_ID, folderId).apply();
     }
 
     /**
@@ -117,5 +135,20 @@ public class PreferenceHelper {
     @ProfilePreference(name= PreferenceNames.AUTOSEND_WIFI_ONLY)
     public boolean shouldAutoSendOnWifiOnly() {
         return prefs.getBoolean(PreferenceNames.AUTOSEND_WIFI_ONLY, false);
+    }
+
+    @ProfilePreference(name=PreferenceNames.GALLERY_POSITION)
+    public int getGalleryPosition() {
+        return prefs.getInt(PreferenceNames.GALLERY_POSITION, 0);
+    }
+
+    @ProfilePreference(name=PreferenceNames.GALLERY_OFFSET)
+    public int getGalleryOffset() {
+        return prefs.getInt(PreferenceNames.GALLERY_OFFSET, 0);
+    }
+
+    public void setGalleryPosition(int position, int offset){
+        prefs.edit().putInt(PreferenceNames.GALLERY_POSITION, position).apply();
+        prefs.edit().putInt(PreferenceNames.GALLERY_OFFSET, offset).apply();
     }
 }

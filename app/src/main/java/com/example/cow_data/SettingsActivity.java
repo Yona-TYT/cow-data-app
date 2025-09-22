@@ -6,7 +6,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.example.cow_data.ex.GoogleDriveSettingsFragment;
+import com.example.cow_data.drive.GoogleDriveSettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 

@@ -29,6 +29,7 @@ public class UploadEvents {
         public boolean success;
         public String message;
         public Throwable throwable;
+        public int count = 0;
 
 
         /**
@@ -45,6 +46,16 @@ public class UploadEvents {
         public <T extends BaseUploadEvent> T succeeded(String message){
             this.success = true;
             this.message = message;
+            return (T) this;
+        }
+
+        /**
+         * Convenience function, returns a success event with a message and count
+         */
+        public <T extends BaseUploadEvent> T succeeded(String message, int count){
+            this.success = true;
+            this.message = message;
+            this.count = count;
             return (T) this;
         }
 

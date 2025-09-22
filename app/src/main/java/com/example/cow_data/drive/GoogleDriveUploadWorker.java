@@ -1,4 +1,4 @@
-package com.example.cow_data.ex;
+package com.example.cow_data.drive;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -10,21 +10,16 @@ import androidx.annotation.Nullable;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-//import com.mendhak.gpslogger.common.AppSettings;
-//import com.mendhak.gpslogger.common.PreferenceHelper;
-//import com.mendhak.gpslogger.common.Strings; //Necesario
-//import com.mendhak.gpslogger.common.Systems;
-//import com.mendhak.gpslogger.common.events.UploadEvents; //Confirmaciones y mensajes
-//import com.mendhak.gpslogger.common.slf4j.Logs; //Este esta bien
-//import com.mendhak.gpslogger.loggers.Files;
-//import com.mendhak.gpslogger.loggers.Streams;
-
 import com.example.cow_data.Basic;
+import com.example.cow_data.ex.Logs;
+import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.ex.UploadEvents;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationService;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
@@ -35,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.greenrobot.event.EventBus;
@@ -62,6 +58,12 @@ public class GoogleDriveUploadWorker extends Worker {
     public Result doWork() {
 
         String filePath = getInputData().getString("filePath");
+        boolean isList = getInputData().getBoolean("list", false);
+
+        String[] filePaths = getInputData().getStringArray("filePaths");
+
+
+
         File fileToUpload = new File(filePath);
         boolean success = true;
         String failureMessage = "";
@@ -70,7 +72,7 @@ public class GoogleDriveUploadWorker extends Worker {
 
         AuthState authState = GoogleDriveManager.getAuthState();
         if (!authState.isAuthorized()) {
-            //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed("Could not upload to Google Drive. Not Authorized."));
+            EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed("Could not upload to Google Drive. Not Authorized."));
         }
 
         final AtomicBoolean taskDone = new AtomicBoolean(false);
@@ -87,7 +89,7 @@ public class GoogleDriveUploadWorker extends Worker {
                 @Override
                 public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
                     if (ex != null) {
-                        //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(ex.toJsonString(), ex));
+                        EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(ex.toJsonString(), ex));
                         taskDone.set(true);
                         LOG.error(ex.toJsonString(), ex);
                         return;
@@ -107,15 +109,17 @@ public class GoogleDriveUploadWorker extends Worker {
                 LOG.error("Failed to fetch Access Token for Google Drive. Stopping this job.");
                 return Result.failure();
             }
-
             // Figure out the Folder ID to upload to, from the path; recursively create if it doesn't exist.
             String folderPath = PreferenceHelper.getInstance().getGoogleDriveFolderPath();
             String[] pathParts = folderPath.split("/");
-            String parentFolderId = null;//Se obtiene el id desde google driver
+            String parentFolderId = PreferenceHelper.getInstance().getGoogleDriveFolderId();
             String latestFolderId = null;
+
             for (String part : pathParts) {
+
                 latestFolderId = getFileIdFromFileName(googleDriveAccessToken, part, parentFolderId);
                 if (!isNullOrEmpty(latestFolderId)) {
+
                     LOG.debug("Folder " + part + " found, folder ID is " + latestFolderId);
                 } else {
                     LOG.debug("Folder " + part + " not found, creating.");
@@ -133,26 +137,38 @@ public class GoogleDriveUploadWorker extends Worker {
                 failureMessage = "Could not create folder";
                 success = false;
             }
-            else {
-                //Basic.msg("Hay ?: :(i");
-
-                // Now search for the file
-                String gpxFileId = getFileIdFromFileName(googleDriveAccessToken, fileToUpload.getName(), gpsLoggerFolderId);
-
-                if (isNullOrEmpty(gpxFileId)) {
-                    LOG.debug("Creating an empty file first.");
-                    gpxFileId = createEmptyFile(googleDriveAccessToken, fileToUpload.getName(), getMimeTypeFromFileName(fileToUpload.getName()), gpsLoggerFolderId);
-
-                    if (isNullOrEmpty(gpxFileId)) {
-                        failureMessage = "Could not create file";
+            else{
+                if (isList){
+                    String imgFolderName = PreferenceHelper.getInstance().getGoogleDriveImgPath();
+                    String imgFolderId = getFileIdFromFileName(googleDriveAccessToken, imgFolderName, gpsLoggerFolderId, "application/vnd.google-apps.folder");
+                    if (!isNullOrEmpty(imgFolderId)) {
+                        LOG.debug("Folder " + imgFolderName + " found, folder ID is " + gpsLoggerFolderId);
+                    } else {
+                        LOG.debug("Folder " + imgFolderName + " not found, creating.");
+                        imgFolderId = createEmptyFile(googleDriveAccessToken, imgFolderName,
+                                "application/vnd.google-apps.folder", gpsLoggerFolderId);
+                    }
+                    if (isNullOrEmpty(imgFolderId)) {
+                        failureMessage = "Could not create folder";
                         success = false;
                     }
+                    else {
+                        for(String path : filePaths){
+                            File mFile = new File(path);
+                            if(mFile.exists()){
+                                fileToUpload = mFile;
+                                if(!filesSet(mFile, imgFolderId)){
+                                    failureMessage = "Could not create file";
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
-
-                // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
-                if (!isNullOrEmpty(gpxFileId)) {
-                    LOG.debug("Uploading file contents");
-                    updateFileContents(googleDriveAccessToken, gpxFileId, fileToUpload);
+                else {
+                    if(!filesSet(fileToUpload, gpsLoggerFolderId)){
+                        failureMessage = "Could not create file";
+                    }
                 }
 
             }
@@ -166,9 +182,14 @@ public class GoogleDriveUploadWorker extends Worker {
 
         if(success){
             // Notify internal listeners
-            EventBus.getDefault().post(new UploadEvents.GoogleDrive().succeeded());
+            if (isList) {
+                EventBus.getDefault().post(new UploadEvents.GoogleDrive().succeeded("Archivos Subidos: ", filePaths.length));
+            }
+            else {
+                EventBus.getDefault().post(new UploadEvents.GoogleDrive().succeeded());
+            }
             // Notify external listeners
-            //Systems.sendFileUploadedBroadcast(getApplicationContext(), new String[]{fileToUpload.getAbsolutePath()}, "googledrive");
+            Basic.sendFileUploadedBroadcast(getApplicationContext(), new String[]{fileToUpload.getAbsolutePath()}, "googledrive");
             return Result.success();
         }
 
@@ -181,9 +202,31 @@ public class GoogleDriveUploadWorker extends Worker {
             failureThrowable = new Exception(failureMessage);
         }
 
-        //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(failureMessage, failureThrowable));
+        EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(failureMessage, failureThrowable));
         return Result.failure();
 
+    }
+
+    private boolean filesSet(File fileToUpload, String folderId) throws Exception {
+        // Now search for the file
+        String gpxFileId = getFileIdFromFileName(googleDriveAccessToken, fileToUpload.getName(), folderId);
+
+        if (isNullOrEmpty(gpxFileId)) {
+            LOG.debug("Creating an empty file first.");
+            gpxFileId = createEmptyFile(googleDriveAccessToken, fileToUpload.getName(), getMimeTypeFromFileName(fileToUpload.getName()), folderId);
+
+            if (isNullOrEmpty(gpxFileId)) {
+                return false;
+            }
+        }
+
+        // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
+        if (!isNullOrEmpty(gpxFileId)) {
+            LOG.debug("Uploading file contents");
+            updateFileContents(googleDriveAccessToken, gpxFileId, fileToUpload);
+        }
+
+        return true;
     }
 
     private String createEmptyFile(String accessToken, String fileName, String mimeType, String parentFolderId) throws Exception {
@@ -217,6 +260,62 @@ public class GoogleDriveUploadWorker extends Worker {
 
         return fileId;
     }
+
+//    private String createEmptyFile(String accessToken, String fileName, String mimeType, String parentFolderId) throws Exception {
+//        if (isNullOrEmpty(fileName)) {
+//            return "";
+//        }
+//
+//        // Construir JSON de forma segura con JSONObject
+//        JSONObject fileMetadataJson = new JSONObject();
+//        fileMetadataJson.put("name", fileName);
+//        fileMetadataJson.put("mimeType", mimeType);
+//
+//        // Manejar parents: OMITIR si es root (nulo o vacío) para visibilidad en UI
+//        // Solo agregar si es un ID real de carpeta padre
+//        if (!isNullOrEmpty(parentFolderId)) {
+//            JSONArray parentsArray = new JSONArray();
+//            parentsArray.put(parentFolderId);  // Single parent
+//            fileMetadataJson.put("parents", parentsArray);
+//        }
+//        // Si parentFolderId es nulo/vacío, NO agregar "parents" -> crea en root de My Drive
+//
+//        String createFileUrl = "https://www.googleapis.com/drive/v3/files";
+//        String payload = fileMetadataJson.toString();  // JSON válido (minificado)
+//
+//        OkHttpClient client = new OkHttpClient();
+//        // Coincide con el viejo: sin charset
+//        MediaType mediaType = MediaType.parse("application/json");
+//        RequestBody body = RequestBody.create(payload, mediaType);
+//        Request.Builder requestBuilder = new Request.Builder()
+//                .url(createFileUrl)
+//                .addHeader("Authorization", "Bearer " + accessToken)
+//                .post(body);
+//
+//        Request request = requestBuilder.build();
+//
+//        try (Response response = client.newCall(request).execute()) {
+//            if (!response.isSuccessful()) {
+//                String errorBody = response.body() != null ? response.body().string() : "No body";
+//                LOG.error("Error al crear carpeta: Código " + response.code() + " - " + response.message() + ". Body: " + errorBody);
+//                throw new Exception("Fallo al crear carpeta '" + fileName + "': " + response.code() + " - " + errorBody);
+//            }
+//
+//            String fileMetadata = response.body().string();
+//            LOG.debug("Respuesta de creación: " + fileMetadata);
+//
+//            JSONObject responseJson = new JSONObject(fileMetadata);
+//            String fileId = responseJson.optString("id", null);
+//
+//            if (isNullOrEmpty(fileId)) {
+//                throw new Exception("No se devolvió ID en la respuesta: " + fileMetadata);
+//            }
+//
+//            LOG.info("Carpeta creada exitosamente: " + fileName + " con ID: " + fileId);
+//            return fileId;
+//        }
+//    }
+
 
     private String updateFileContents(String accessToken, String gpxFileId, File fileToUpload) throws Exception {
         FileInputStream fis = new FileInputStream(fileToUpload);
@@ -285,7 +384,11 @@ public class GoogleDriveUploadWorker extends Worker {
      * @return
      */
     public static boolean isNullOrEmpty(String text) {
-        return text == null ||  text.trim().length() == 0;
+        return text == null || text.trim().isEmpty();
+    }
+    public static boolean isNullOrEmpty2(String text) {
+        Basic.msg(text);
+        return text == null || text.trim().isEmpty();
     }
 
     /**
@@ -329,6 +432,9 @@ public class GoogleDriveUploadWorker extends Worker {
 
     public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId) throws Exception {
         String fileId = "";
+        if (isNullOrEmpty(fileName)) {
+            return fileId;
+        }
         fileName = URLEncoder.encode(fileName, "UTF-8");
 
         String inFolderParam = "";
@@ -353,6 +459,60 @@ public class GoogleDriveUploadWorker extends Worker {
         }
 
         return fileId;
+    }
+
+
+    public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId, String mimeType) throws Exception {
+        if (isNullOrEmpty(fileName)) {
+            return "";
+        }
+
+        // Build plain query string (escape specials like ' with \ if in fileName)
+        String escapedFileName = fileName.replace("\\", "\\\\").replace("'", "\\'");  // Escape for query syntax
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("name = '").append(escapedFileName).append("'");
+        queryBuilder.append(" and trashed = false");
+
+        if (!isNullOrEmpty(inFolderId)) {
+            queryBuilder.append(" and '").append(inFolderId).append("' in parents");
+        }
+
+        if (!isNullOrEmpty(mimeType)) {
+            queryBuilder.append(" and mimeType = '").append(mimeType).append("'");
+        }
+
+        String fullQuery = queryBuilder.toString();
+        String encodedQuery = URLEncoder.encode(fullQuery, StandardCharsets.UTF_8.toString());
+
+        String searchUrl = "https://www.googleapis.com/drive/v3/files?q=" + encodedQuery;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(searchUrl)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
+                LOG.error("API error: " + response.code() + " - " + errorBody);
+                throw new Exception("Search failed: " + errorBody);  // e.g., "Invalid query"
+            }
+
+            String fileMetadata = response.body().string();
+            LOG.debug(fileMetadata);
+
+            JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+            JSONArray filesArray = fileMetadataJson.optJSONArray("files");
+            if (filesArray != null && filesArray.length() > 0) {
+                if (filesArray.length() > 1) {
+                    LOG.warn("Multiple matches for '" + fileName + "'. Returning first.");
+                }
+                return filesArray.getJSONObject(0).getString("id");
+            }
+        }
+
+        return "";  // Not found
     }
 
     public static byte[] getByteArrayFromInputStream(InputStream is) {

@@ -1,4 +1,4 @@
-package com.example.cow_data.ex;
+package com.example.cow_data.drive;
 
 
 
@@ -26,10 +26,11 @@ import androidx.work.WorkManager;
 import com.example.cow_data.Basic;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.activitys.MainActivity;
 import com.example.cow_data.activitys.Preloader;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.db.UsuarioQueue;
+import com.example.cow_data.ex.PreferenceHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,10 +98,12 @@ public class SetWorkResult {
 
                             Data outputData = workInfo.getOutputData();
                             String message = outputData.getString("result_message");
-                            String preloader = outputData.getString("preloader");
-                            String newObj = outputData.getString("newobj");
-                            String isFileOk = outputData.getString("file");
-                            String isCheck = outputData.getString("check");
+                            boolean preloader = outputData.getBoolean("preloader", false);
+                            boolean newObj = outputData.getBoolean("newobj", false);
+                            boolean isFileOk = outputData.getBoolean("file", false);
+                            boolean isCheck = outputData.getBoolean("check", false);
+                            boolean isImg = outputData.getBoolean("img", false);
+
 
                             //Basic.msg("!!!!---0 !: "+ isCheck);
 
@@ -111,6 +114,10 @@ public class SetWorkResult {
                                 String displayMessage = message != null ? message : "Descarga completada";
                                 if (filesDownloaded != null && filesDownloaded.length > 0) {
                                     displayMessage += ": " + String.join(", ", filesDownloaded);
+                                }
+
+                                if(isImg){
+                                    return;
                                 }
 
                                 File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
@@ -160,7 +167,6 @@ public class SetWorkResult {
                                                 Basic.msg("Error: Los IDs de las DB no coinciden:");
 
                                                 //Si es desde el preloder se reinicia la actividad
-                                                assert preloader != null;
                                                 resetPreloader(preloader);
                                                 return;
                                             }
@@ -185,8 +191,7 @@ public class SetWorkResult {
                                             int result = dateTimeA.compareTo(dateTimeB);
                                             if (result > 0) {
                                                 //uploadDataBase();
-                                                assert newObj != null;
-                                                if (newObj.equals("1")) {
+                                                if (newObj) {
                                                     //Basic.msg("Enviando Actualizacion...");
                                                     manager.uploadDataBase();
 
@@ -194,22 +199,19 @@ public class SetWorkResult {
                                                 else{
                                                     //Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
 
-                                                    assert isCheck != null;
-                                                    if(isCheck.equals("1")) {
+                                                    if(isCheck) {
                                                         StartVar.usuarioQueue.startUsuarioQueue(1);
                                                     }
                                                 }
                                             }
                                             else if (result < 0) {
 
-                                                assert newObj != null;
                                                 String mMsg = "Los datos en línea están más actualizados (" + dateTimeA + " < " + dateTimeB + ")";
 
-                                                if (newObj.equals("1")){
+                                                if (newObj){
                                                     mMsg = "Error los cambios no se sincronizaron";
                                                 }
-                                                assert isCheck != null;
-                                                if(isCheck.equals("1")) {
+                                                if(isCheck) {
                                                     DBListCreator.cvsToDbNotFinish(StartVar.mActivity, uri, 1, "");
                                                     StartVar.usuarioQueue.startUsuarioQueue(2);
                                                 }
@@ -220,8 +222,7 @@ public class SetWorkResult {
                                                 return;
                                             }
                                             else {
-                                                assert newObj != null;
-                                                if (newObj.equals("1")){
+                                                if (newObj){
                                                     //Basic.msg("Enviando Actualizacion...");
                                                     String currDate = LocalDate.now().toString();
                                                     String currTime = LocalTime.now().toString();
@@ -230,18 +231,15 @@ public class SetWorkResult {
                                                     manager.uploadDataBase();
                                                 }
                                                 else {
-                                                    assert isCheck != null;
-                                                    if(isCheck.equals("0")) {
+                                                    if(!isCheck) {
                                                         Basic.msg("La base de datos está actualizada (" + dateTimeA + ")");
                                                     }
                                                 }
-                                                assert isCheck != null;
-                                                if(isCheck.equals("1")) {
+                                                if(isCheck) {
                                                     StartVar.usuarioQueue.startUsuarioQueue(1);
                                                 }                                            }
 
                                             //Si es desde el preloder se reinicia la actividad
-                                            assert preloader != null;
                                             resetPreloader(preloader);
                                         }
                                     }
@@ -260,10 +258,9 @@ public class SetWorkResult {
                                 String displayMessage = message != null ? message : "Error en la descarga";
                                 Basic.msg("CVS no Existe 2 !: "+displayMessage);
 
-                                assert isFileOk != null;
-                                if (isFileOk.equals("0")) {
-                                    if(preloader.equals("1")){
-                                        resetPreloader("1");
+                                if (!isFileOk) {
+                                    if(preloader){
+                                        resetPreloader(true);
                                         StartVar.makeUpdate = true;
                                     }
                                     else {
@@ -308,7 +305,7 @@ public class SetWorkResult {
         //En caso de error de conexion se forza para cerrar el preloader
         if(!isNetworkAvailable(StartVar.mContex) && !StartVar.mainStart){
             StartVar.setmMainStart(true);
-            resetPreloader("1");
+            resetPreloader(true);
         }
 
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest
@@ -337,8 +334,8 @@ public class SetWorkResult {
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
     }
 
-    private static void resetPreloader(String preloader){
-        if(preloader.equals("1")){
+    private static void resetPreloader(boolean preloader){
+        if(preloader){
             Intent mIntent = new Intent(StartVar.mContex, Preloader.class);
             StartVar.mActivity.startActivity(mIntent);
             StartVar.mActivity.finish();

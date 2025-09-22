@@ -1,7 +1,9 @@
-package com.example.cow_data.ex;
+package com.example.cow_data.drive;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +17,7 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
@@ -23,6 +26,13 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.example.cow_data.Basic;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.ex.Dialogs;
+import com.example.cow_data.ex.DownloadEvents;
+import com.example.cow_data.ex.EventBusHook;
+import com.example.cow_data.ex.Logs;
+import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.ex.PreferenceNames;
+import com.example.cow_data.ex.UploadEvents;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
@@ -42,6 +52,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,6 +60,9 @@ import de.greenrobot.event.EventBus;
 import eltos.simpledialogfragment.SimpleDialog;
 import eltos.simpledialogfragment.form.Input;
 import eltos.simpledialogfragment.form.SimpleFormDialog;
+
+import com.example.cow_data.activitys.MainActivity;
+
 
 public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implements
         SimpleDialog.OnDialogResultListener,
@@ -92,12 +106,17 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
 
         setPreferencesState();
 
-        registerEventBus();
-
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         mWorkResult = new SetWorkResult(this, executorService, manager);
 
+    }
+
+
+    @Override
+    public void onStart() {
+        registerEventBus();
+        super.onStart();
     }
 
     @Override
@@ -219,6 +238,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
         }
 
         if (preference.getKey().equals("google_drive_sync_img")) {
+            Dialogs.progress((FragmentActivity) getActivity(), "Sincronizado Imagenes...");
             manager.uploadDataImg();
             return true;
         }
@@ -295,14 +315,73 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
     }
 
     @EventBusHook
-    public void onEventMainThread(UploadEvents.GoogleDrive d) {
-        LOG.debug("Google Drive Event completed, success: " + d.success);
-//        Dialogs.hideProgress();
-//        if (!d.success) {
-//            Dialogs.showError("getString(R.string.sorry)", "Could not upload to Google Drive", d.message, d.throwable, (FragmentActivity) getActivity());
-//        } else {
-//            Dialogs.alert("getString(R.string.success)", "getString(R.string.google_drive_testupload_success)", getActivity());
-//        }
+    public void onEventMainThread(UploadEvents.GoogleDrive event) {
+        LOG.debug("Evento Google Drive recibido, éxito: " + event.success);
+        Dialogs.hideProgress();  // Oculta loading
+
+        if (!event.success) {
+            Dialogs.showError(getContext(),
+                    "Error",  // Título
+                    "No se pudo Sincronizar desde Google Drive",  // Mensaje amigable
+                    event.message,
+                    event.throwable);
+        } else {
+            // Detalles opcionales
+            @SuppressLint("DefaultLocale") String detailMsg = String.format("✅ %s %d",
+                    event.message,
+                    event.count);
+
+            DialogInterface.OnClickListener successListener = (dialog, which) -> {
+                LOG.debug("Botón [Aceptar] en éxito pulsado");
+                dialog.dismiss();  // Opcional
+
+                Intent mIntent = new Intent(StartVar.mContex, MainActivity.class);
+                StartVar.mActivity.startActivity(mIntent);
+                StartVar.mActivity.finish();
+            };
+
+            if(event.count > 0) {
+                Dialogs.progress((FragmentActivity) getActivity(), "Subidos " + event.count + " Archivos...");
+            }
+            else{
+                Dialogs.progress((FragmentActivity) getActivity(), "Sincronizado Imagenes...");
+            }
+
+            manager.dataSynchronizeImg();
+
+        }
+    }
+
+    @EventBusHook
+    public void onEventMainThread(DownloadEvents.GoogleDrive event) {
+        LOG.debug("Evento Google Drive recibido, éxito: " + event.success);
+        Dialogs.hideProgress();  // Oculta loading
+
+        if (!event.success) {
+            Dialogs.showError(getContext(),
+                    "Error",  // Título
+                    "No se pudo Sincronizar desde Google Drive",  // Mensaje amigable
+                    event.message,
+                    event.throwable);
+        } else {
+            // Detalles opcionales
+            @SuppressLint("DefaultLocale") String detailMsg = String.format("✅ %s %d",
+                    event.message,
+                    event.count);
+
+            DialogInterface.OnClickListener successListener = (dialog, which) -> {
+                LOG.debug("Botón [Aceptar] en éxito pulsado");
+                dialog.dismiss();  // Opcional
+
+                Intent mIntent = new Intent(StartVar.mContex, MainActivity.class);
+                StartVar.mActivity.startActivity(mIntent);
+                StartVar.mActivity.finish();
+            };
+            Dialogs.alert(getContext(),
+                    "Completado",
+                    detailMsg,
+                    successListener);
+        }
     }
 
     public static File createTestFile() throws IOException {

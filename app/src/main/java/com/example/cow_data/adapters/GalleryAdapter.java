@@ -52,6 +52,9 @@ public class GalleryAdapter extends BaseAdapter {
     @Override
     public View getView(int pos, View convertView, ViewGroup parent){
         LinearLayout layoutH = new LinearLayout(mContex);
+        if(pos < 0){
+            return layoutH;
+        }
         // Se ajustan los parametros del layout ---------------------------------------
         layoutH.setOrientation(LinearLayout.HORIZONTAL);
         if(textList.get(pos)[6].equals("1")) {

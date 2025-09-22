@@ -1,9 +1,8 @@
-package com.example.cow_data.ex;
+package com.example.cow_data.drive;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,13 +12,28 @@ import androidx.work.WorkerParameters;
 
 import com.example.cow_data.Basic;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.ex.DownloadEvents;
+import com.example.cow_data.ex.Logs;
+import com.example.cow_data.ex.PreferenceHelper;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationService;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.greenrobot.event.EventBus;
 import okhttp3.MediaType;
@@ -27,14 +41,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GoogleDriveDownloadWorker extends Worker {
     private static final Logger LOG = Logs.of(GoogleDriveDownloadWorker.class);
@@ -48,6 +54,8 @@ public class GoogleDriveDownloadWorker extends Worker {
     private static final String KEY_IS_NEW_OBJ = "newobj";
     private static final String KEY_IS_FILE_OK = "file";
     private static final String KEY_IS_CHECK = "check";
+    private static final String KEY_IS_IMG = "img";
+
 
     public GoogleDriveDownloadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -61,24 +69,21 @@ public class GoogleDriveDownloadWorker extends Worker {
         Result mResult = null;
         String failureMessage = "";
         String downloadMessage = "";
-        String isFileOk = "1";
+        boolean isFileOk = true;
+
+        int count = 0;
 
         String filePath = getInputData().getString("path");
         String fileName = getInputData().getString("name");
         String fileType = getInputData().getString("type");
-        String isPreloader = getInputData().getString("preloader");
-        String isNewObj = getInputData().getString("newobj");
-        String isCheck = getInputData().getString("check");
-        String isImg = getInputData().getString("img");
-
+        boolean isPreloader = getInputData().getBoolean("preloader", false);
+        boolean isNewObj = getInputData().getBoolean("newobj", false);
+        boolean isCheck = getInputData().getBoolean("check", false);
+        boolean isImg = getInputData().getBoolean("img", false);
 
         File fileToDownload = new File(filePath);
-
         boolean success = true;
-
         Throwable failureThrowable = null;
-
-
         AuthState authState = GoogleDriveManager.getAuthState();
 
         if (!authState.isAuthorized()) {
@@ -100,7 +105,7 @@ public class GoogleDriveDownloadWorker extends Worker {
                 @Override
                 public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
                     if (ex != null) {
-                        EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(ex.toJsonString(), ex));
+                        EventBus.getDefault().post(new DownloadEvents.GoogleDrive().failed(ex.toJsonString(), ex));
                         taskDone.set(true);
                         LOG.error(ex.toJsonString(), ex);
                         return;
@@ -141,33 +146,77 @@ public class GoogleDriveDownloadWorker extends Worker {
 
             //copyToClipboard(mContext, folderPath+" id: "+parentFolderId, "tago");
 
-            String gpsLoggerFolderId = latestFolderId;
+            String mFolderId = latestFolderId;
 
-
-            if (isNullOrEmpty(gpsLoggerFolderId)) {
+            if (isNullOrEmpty(mFolderId)) {
                 failureMessage = "Could not create folder";
                 success = false;
             }
             else {
-                // Now search for the file
-                String gpxFileId = getFileIdFromFileName(googleDriveAccessToken, fileName, gpsLoggerFolderId);
+                if(isImg) {
+                    String imgFolderName = PreferenceHelper.getInstance().getGoogleDriveImgPath();
+                    String imgFolderId = getFileIdFromFileName(googleDriveAccessToken, imgFolderName, mFolderId, "application/vnd.google-apps.folder");
+                    if (!isNullOrEmpty(imgFolderId)) {
+                        LOG.debug("Folder " + imgFolderName + " found, folder ID is " + mFolderId);
+                    } else {
+                        LOG.debug("Folder " + imgFolderName + " not found, creating.");
+                        imgFolderId = createEmptyFile(googleDriveAccessToken, imgFolderName,
+                                "application/vnd.google-apps.folder", mFolderId);
+                    }
 
-                //Basic.msg(fileName + " : "+gpxFileId);
-                if (isNullOrEmpty(gpxFileId)) {
-                    isFileOk = "0";
-                    failureMessage = "Error no se encontraron DATOS.";
-                    return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
-                            .putString(KEY_IS_PRELOADER, isPreloader)
-                            .putString(KEY_IS_FILE_OK, isFileOk)
-                            .build());
+                    if (isNullOrEmpty(imgFolderId)) {
+                        failureMessage = "Could not create folder";
+                        success = false;
+                    }
+                    else {
+
+                        List<String[]> mList = getDriveIdAndNameList(googleDriveAccessToken, imgFolderId);
+                        count = mList.size();
+                        for (String[] dataFile : mList){
+                            String fId = dataFile[0];
+                            String fName = dataFile[1];
+
+                            if (isNullOrEmpty(fId)) {
+                                isFileOk = false;
+                                failureMessage = "Error no se encontraron DATOS.";
+                                return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
+                                        .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                                        .putBoolean(KEY_IS_FILE_OK, isFileOk)
+                                        .build());
+                            }
+                            // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
+                            if (!isNullOrEmpty(fId)) {
+                                File currFile = new File(filePath+"/"+fName);
+
+                                LOG.debug("Uploading file contents");
+                                //File destinationFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/cueblo.db");
+                                failureMessage = "" + downloadFileContents(googleDriveAccessToken, fId, currFile, fileType);
+                                //Basic.msg("Fail: "+failureMessage);
+                            }
+                        }
+                    }
                 }
+                else {
+                    // Now search for the file
+                    String gpxFileId = getFileIdFromFileName(googleDriveAccessToken, fileName, mFolderId);
 
-                // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
-                if (!isNullOrEmpty(gpxFileId)) {
-                    LOG.debug("Uploading file contents");
-                    //File destinationFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/cueblo.db");
-                    failureMessage = ""+ downloadFileContents(googleDriveAccessToken, gpxFileId, fileToDownload, fileType);
-                    //Basic.msg("Fail: "+failureMessage);
+                    //Basic.msg(fileName + " : "+gpxFileId);
+                    if (isNullOrEmpty(gpxFileId)) {
+                        isFileOk = false;
+                        failureMessage = "Error no se encontraron DATOS.";
+                        return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
+                                .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                                .putBoolean(KEY_IS_FILE_OK, isFileOk)
+                                .build());
+                    }
+
+                    // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
+                    if (!isNullOrEmpty(gpxFileId)) {
+                        LOG.debug("Uploading file contents");
+                        //File destinationFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/cueblo.db");
+                        failureMessage = "" + downloadFileContents(googleDriveAccessToken, gpxFileId, fileToDownload, fileType);
+                        //Basic.msg("Fail: "+failureMessage);
+                    }
                 }
             }
         }
@@ -179,16 +228,19 @@ public class GoogleDriveDownloadWorker extends Worker {
         }
 
         if(success){
-            // Notify internal listeners
-            //EventBus.getDefault().post(new UploadEvents.GoogleDrive().succeeded());
-            // Notify external listeners
-            //Systems.sendFileUploadedBroadcast(getApplicationContext(), new String[]{fileToUpload.getAbsolutePath()}, "googledrive");
+            if(isImg) {
+                // Notify internal listeners
+                EventBus.getDefault().post(new DownloadEvents.GoogleDrive().succeeded("Archivos Descargados: ", count));
+                // Notify external listeners
+                //Basic.sendFileUploadedBroadcast(getApplicationContext(), new String[]{fileToUpload.getAbsolutePath()}, "googledrive");
+            }
             failureMessage = "";
             return Result.success(new Data.Builder()
                         .putString(KEY_RESULT_MESSAGE, failureMessage)
-                        .putString(KEY_IS_PRELOADER, isPreloader)
-                        .putString(KEY_IS_NEW_OBJ, isNewObj)
-                        .putString(KEY_IS_CHECK, isCheck)
+                        .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                        .putBoolean(KEY_IS_NEW_OBJ, isNewObj)
+                        .putBoolean(KEY_IS_CHECK, isCheck)
+                        .putBoolean(KEY_IS_IMG, isImg)
                         .putStringArray(KEY_FILES_DOWNLOADED, new String[]{fileToDownload.getAbsolutePath()})
                         .build());
         }
@@ -243,10 +295,10 @@ public class GoogleDriveDownloadWorker extends Worker {
     }
 
     // Método para descargar un archivo desde Google Drive
-    public int downloadFileContents(String accessToken, String gpxFileId, File destinationFile, String mType) throws Exception {
+    public int downloadFileContents(String accessToken, String mFileId, File destinationFile, String mType) throws Exception {
         String failureMessage = "";
         // Cambiar a endpoint de exportación para archivos de Google Sheets
-        String fileDownloadUrl = "https://www.googleapis.com/drive/v3/files/" + gpxFileId + mType;
+        String fileDownloadUrl = "https://www.googleapis.com/drive/v3/files/" + mFileId + mType;
 
         OkHttpClient client = new OkHttpClient();
         Request.Builder requestBuilder = new Request.Builder().url(fileDownloadUrl);
@@ -291,10 +343,9 @@ public class GoogleDriveDownloadWorker extends Worker {
                     bytesCopy = "Error de Conexion.";
                 }
             }
-            copyToClipboard(mContext, bytesCopy, "tago");
+            //copyToClipboard(mContext, bytesCopy, "tago");
 
-
-            LOG.debug("Archivo descargado exitosamente: {} en {}", gpxFileId, destinationFile.getAbsolutePath());
+            LOG.debug("Archivo descargado exitosamente: {} en {}", mFileId, destinationFile.getAbsolutePath());
             return 0 ; // Retornar el ID del archivo descargado
         } catch (Exception e) {
             LOG.error("Error al descargar archivo: {}", e.getMessage(), e);
@@ -336,7 +387,7 @@ public class GoogleDriveDownloadWorker extends Worker {
      * @return
      */
     public static boolean isNullOrEmpty(String text) {
-        return text == null ||  text.trim().length() == 0;
+        return text == null || text.trim().isEmpty();
     }
 
     public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId) throws Exception {
@@ -364,5 +415,131 @@ public class GoogleDriveDownloadWorker extends Worker {
             LOG.debug("Found file with ID " + fileId);
         }
         return fileId;
+    }
+
+    public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId, String mimeType) throws Exception {
+        if (isNullOrEmpty(fileName)) {
+            return "";
+        }
+
+        // Build plain query string (escape specials like ' with \ if in fileName)
+        String escapedFileName = fileName.replace("\\", "\\\\").replace("'", "\\'");  // Escape for query syntax
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("name = '").append(escapedFileName).append("'");
+        queryBuilder.append(" and trashed = false");
+
+        if (!isNullOrEmpty(inFolderId)) {
+            queryBuilder.append(" and '").append(inFolderId).append("' in parents");
+        }
+
+        if (!isNullOrEmpty(mimeType)) {
+            queryBuilder.append(" and mimeType = '").append(mimeType).append("'");
+        }
+
+        String fullQuery = queryBuilder.toString();
+        String encodedQuery = URLEncoder.encode(fullQuery, StandardCharsets.UTF_8.toString());
+
+        String searchUrl = "https://www.googleapis.com/drive/v3/files?q=" + encodedQuery;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(searchUrl)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
+                LOG.error("API error: " + response.code() + " - " + errorBody);
+                throw new Exception("Search failed: " + errorBody);  // e.g., "Invalid query"
+            }
+
+            String fileMetadata = response.body().string();
+            LOG.debug(fileMetadata);
+
+            JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+            JSONArray filesArray = fileMetadataJson.optJSONArray("files");
+            if (filesArray != null && filesArray.length() > 0) {
+                if (filesArray.length() > 1) {
+                    LOG.warn("Multiple matches for '" + fileName + "'. Returning first.");
+                }
+                return filesArray.getJSONObject(0).getString("id");
+            }
+        }
+
+        return "";  // Not found
+    }
+    public static List<String[]> getDriveIdAndNameList(String accessToken, String folderId) throws Exception {
+        List<String[]> fileList = new ArrayList<>();
+        if (isNullOrEmpty(folderId)) {
+            throw new IllegalArgumentException("folderId requerido");
+        }
+
+        // Consulta: todos los archivos en la carpeta, no en papelera
+        String query = "'" + folderId + "' in parents and trashed = false";
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8.toString());
+
+        // FIX: Separa files y nextPageToken con coma (nivel superior)
+        String baseUrl = "https://www.googleapis.com/drive/v3/files?q=" + encodedQuery + "&fields=files(id,name),nextPageToken";
+
+        OkHttpClient client = new OkHttpClient();
+        String url = baseUrl;
+        String nextPageToken = null;
+
+        do {
+            if (!isNullOrEmpty(nextPageToken)) {
+                url = baseUrl + "&pageToken=" + URLEncoder.encode(nextPageToken, StandardCharsets.UTF_8.toString());
+            }
+
+            LOG.debug("Consultando URL: " + url);
+
+            Request.Builder requestBuilder = new Request.Builder().url(url);
+            requestBuilder.addHeader("Authorization", "Bearer " + accessToken);
+            Request request = requestBuilder.build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    int code = response.code();
+                    String errorMsg = response.message();
+                    String errorBody = "";
+                    try {
+                        if (response.body() != null) {
+                            errorBody = response.body().string();
+                        }
+                    } catch (Exception bodyEx) {
+                        LOG.error("Error al leer body: " + bodyEx.getMessage());
+                    }
+
+                    LOG.error("Error API: Código " + code + " - " + errorMsg + ". Body: " + errorBody);
+                    Basic.msg("Error API: " + code + " - " + errorMsg + ". Body: " + errorBody);
+
+                    throw new Exception("Error API " + code + ": " + errorMsg + ". Detalles: " + errorBody);
+                }
+
+                String fileMetadata = response.body().string();
+                LOG.debug("Respuesta: " + fileMetadata);  // Log para debug
+
+                JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+                JSONArray filesArray = fileMetadataJson.optJSONArray("files");
+
+                if (filesArray != null && filesArray.length() > 0) {
+                    for (int i = 0; i < filesArray.length(); i++) {
+                        JSONObject fileObj = filesArray.getJSONObject(i);
+                        String id = fileObj.optString("id", "");
+                        String name = fileObj.optString("name", "");
+                        if (!isNullOrEmpty(id) && !isNullOrEmpty(name)) {
+                            fileList.add(new String[]{id, name});
+                            LOG.debug("Archivo encontrado: " + name + " (ID: " + id + ")");
+                        }
+                    }
+                }
+
+                nextPageToken = fileMetadataJson.optString("nextPageToken", null);
+
+            }
+        } while (!isNullOrEmpty(nextPageToken));
+
+        LOG.info("Total archivos en carpeta " + folderId + ": " + fileList.size());
+        return fileList;
     }
 }

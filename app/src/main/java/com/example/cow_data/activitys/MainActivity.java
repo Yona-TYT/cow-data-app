@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -55,40 +56,19 @@ import com.example.cow_data.R;
 import com.example.cow_data.adapters.SearchAdapter;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.databinding.ActivityMainBinding;
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import com.example.cow_data.db.AppDatabase;
-import com.example.cow_data.db.Configdb;
-import com.example.cow_data.db.DaoConf;
-import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.db.UsuarioQueue;
-import com.example.cow_data.ex.GoogleDriveManager;
+import com.example.cow_data.drive.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
-import com.example.cow_data.ex.SetWorkResult;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.api.services.drive.DriveScopes;
 
-import com.google.android.gms.common.api.Scope;
-
-import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthState;
 import io.reactivex.annotations.NonNull;
 
@@ -140,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Handler mainHandler;
 
+    private PreferenceHelper myPrefernce  = PreferenceHelper.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,8 +198,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         listuser =  StartVar.listuser;
         dirList.clear();
 
+        //Basic.msg(""+myPrefernce.getGoogleDriveImgPath());
+
         // Obtener usuarios de Room y encolarlos
-        List<Usuario> testusuarios = StartVar.appDatabase.usuarioDao().getAllUsuarios();
+        //List<Usuario> testusuarios = StartVar.appDatabase.usuarioDao().getAllUsuarios();
         // Crear y encolar un usuario individual
         //Usuario mUser = new Usuario("fileId123", "Azul", "2025-09-03", "extra");
 //        usuarioQueue.enqueue( testusuarios.get(0));
@@ -275,7 +258,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mSpin2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    currSel2 = i;
+                    if(currSel2 != i) {
+                        currSel2 = i;
+                        myPrefernce.setGalleryPosition(0, 0);
+                    }
                     startVar.setCurrSel2(i);
                     CharSequence newText = null;
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -318,12 +304,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         }
                                         else {
                                             mtxList.add(setGalleryArray(ii));
-                                        }                                    }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                     gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
+
+                    gridView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int savedPosition = myPrefernce.getGalleryPosition();
+                            int savedOffset = myPrefernce.getGalleryOffset();
+                            //Basic.msg("Recuperado: Pos=" + savedPosition + ", Offset=" + savedOffset);
+                            // Valida como antes (para evitar crashes)
+                            int count = (gridView.getAdapter() != null) ? gridView.getAdapter().getCount() : 0;
+                            if (savedPosition < 0 || savedPosition >= count) {
+                                savedPosition = 0;
+                                savedOffset = 0;
+                                myPrefernce.setGalleryPosition(0, 0);
+                            }
+
+                            // ¡AQUÍ: Genera el valor combinado (posición ajustada)!
+                            int itemHeight = 200;  // Altura aproximada de un ítem en píxeles (mídelo o hardcodea)
+                            int adjustedPosition = savedPosition;  // Valor por defecto
+
+                            if (savedOffset < 0) {
+                                // Retrocede la posición para compensar el offset negativo
+                                int itemsToBack = Math.abs(savedOffset) / itemHeight;  // Cuántos ítems "subir"
+                                adjustedPosition = Math.max(0, savedPosition - itemsToBack);
+                                //Basic.msg("Offset negativo: Ajustando posición de " + savedPosition + " a " + adjustedPosition);
+                            } else if (savedOffset > 0) {
+                                // Opcional: Si offset positivo, podrías avanzar, pero suele ser raro
+                                int itemsToAdvance = savedOffset / itemHeight;
+                                adjustedPosition = Math.min(count - 1, savedPosition + itemsToAdvance);
+                            }
+                            // Aplica el valor combinado con setSelection
+                            gridView.setSelection(adjustedPosition);
+                            //Basic.msg("Valor combinado aplicado: " + adjustedPosition);
+                        }
+                    });
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
@@ -389,7 +410,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                     gridView.setAdapter(new GalleryAdapter(MainActivity.this, mtxList));
-
                     return false;
                 }
 
@@ -611,7 +631,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             throw new RuntimeException(e);
                         }
                         if(mFile != null){
-                            Basic.msg("" + mFile.exists() + "" + mFile.getName());
                             manager.ImportDataToDrive(mFile);
                         }
                     }
@@ -652,6 +671,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Log.d("PhotoPicker", "11100------------------------: " + dirList.size());
         mBundle.putInt("index", pos);
         mIntent.putExtras(mBundle);
+        //Save gallery petition
+        Basic.msg(""+pos);
+        int firstVisiblePosition = gridView.getFirstVisiblePosition();
+        Basic.msg("Primera posición visible: " + firstVisiblePosition);
+
+        // Opcional: Para más precisión, obtén el offset (píxeles desde el top del primer ítem)
+        if (gridView.getChildCount() > 0) {
+            int offset = gridView.getChildAt(0).getTop();
+            Basic.msg("Offset: " + offset);
+            // Guarda ambos: posición + offset
+            myPrefernce.setGalleryPosition(firstVisiblePosition, offset);
+        }
+        else {
+            myPrefernce.setGalleryPosition(firstVisiblePosition, 0);
+        }
         startActivity(mIntent);
     }
 

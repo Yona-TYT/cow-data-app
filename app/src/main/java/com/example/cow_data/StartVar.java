@@ -11,7 +11,7 @@ import com.example.cow_data.db.ConfigDatabase;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.UsuarioQueue;
-import com.example.cow_data.ex.SetWorkResult;
+import com.example.cow_data.drive.SetWorkResult;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDate;
