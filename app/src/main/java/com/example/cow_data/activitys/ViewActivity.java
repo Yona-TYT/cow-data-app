@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -33,13 +34,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.cow_data.CalcCalendar;
+import com.example.cow_data.CalendUtls;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
@@ -48,7 +50,9 @@ import com.example.cow_data.db.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 
 
-public class ViewActivity extends AppCompatActivity implements View.OnClickListener {
+public class ViewActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private ConstraintLayout mConst;
 
     private TextView mView1;
     private TextView mView2;
@@ -67,7 +71,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private Button mButtEdit;
     private ImageButton buttNext;
     private ImageButton buttPrev;
-
 
     private CalendarView mCalen1;
     private Calendar mCalend;
@@ -112,7 +115,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     //Usuario
     private Usuario mUser;
 
-    @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n"})
+    @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,13 +153,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
         myToolbar.setTitleTextColor(ContextCompat.getColor(myToolbar.getContext(), R.color.inner_button));
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.viewContainer), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
         StartVar.mContex = getApplicationContext();
+
+        mConst = findViewById(R.id.viewContainer);
 
         mView1 = findViewById(R.id.txView1);
         mView2 = findViewById(R.id.txView2);
@@ -187,6 +192,57 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mButtCale.setOnClickListener(this);
         mButtCanc.setOnClickListener(this);
 
+
+        // Listener de toque para detectar swipes en toda la pantalla
+        mConst.setOnTouchListener(new View.OnTouchListener() {
+                private float startX = 0;  // Posición X inicial del toque
+                private float startY = 0;  // Posición Y inicial (para filtrar swipes horizontales)
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            // Inicio del toque: guarda posición inicial
+                            startX = event.getX();
+                            startY = event.getY();
+                            return true;  // Consume el evento
+
+                        case MotionEvent.ACTION_MOVE:
+                            // Durante el movimiento: calcula delta (no necesitas previousX continuo aquí)
+                            float currentX = event.getX();
+                            float deltaX = currentX - startX;
+                            float deltaY = Math.abs(event.getY() - startY);
+
+                            // Filtra para swipes horizontales: |deltaX| > |deltaY| y umbral mínimo
+                            if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > deltaY) {  // Umbral de 50px para evitar toques accidentales
+                                if (deltaX > 0) {
+                                    //Log.d("Swipe", "Arrastre a la DERECHA");
+                                    // Lógica para derecha
+                                    //v.setBackgroundColor(Color.GREEN);
+                                    prevPage();
+                                }
+                                else {
+                                    //Log.d("Swipe", "Arrastre a la IZQUIERDA");
+                                    // Lógica para izquierda
+                                    //v.setBackgroundColor(Color.RED);
+                                    nextPage();
+                                }
+                            }
+                            return true;
+
+                        case MotionEvent.ACTION_UP:
+                            // Fin del toque: resetea color y limpia
+                            //v.setBackgroundColor(Color.TRANSPARENT);
+                            startX = 0;
+                            startY = 0;
+                            return true;
+
+                        default:
+                            return false;
+                    }
+                }
+            });
+
         mviewList.add(mView1);
         mviewList.add(mView2);
         mviewList.add(mView3);
@@ -211,8 +267,8 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             int i = 0;
             mUser = listuser.get(currIdx);
             if (mUser != null) {
-                currSel1 = Integer.parseInt(mUser.sel1);
-                currSel2 = Integer.parseInt(mUser.sel2);
+                currSel1 = mUser.sel1;
+                currSel2 = mUser.sel2;
 
                 mviewList.get(i).setText(""+ mUser.nombre.toUpperCase()+" ("+mSpinL2.get(currSel2)+")");
                 i++;
@@ -225,15 +281,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                     mviewList.get(i).setVisibility(View.INVISIBLE);
                 }
                 i++;
-                mviewList.get(i).setText("Edad: "+ CalcCalendar.getBrithDateText(mUser.edad));
+                mviewList.get(i).setText("Edad: "+ CalendUtls.getBrithDateText(mUser.edad));
                 currDir = fmang.getImage(mUser.imagen, mImageView);
                 i++;
-                if(mUser.sel3.equals("1")) {
+                if(mUser.sel3 == 1) {
                     mviewList.get(i).setText("Fecha de Parto: (" + mUser.pre + ")");
 
-                    mCalen1.setDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA-1));
-                    mCalen1.setMinDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA));
-                    mCalen1.setMaxDate(CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayB));
+                    mCalen1.setDate(CalendUtls.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA-1));
+                    mCalen1.setMinDate(CalendUtls.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA));
+                    mCalen1.setMaxDate(CalendUtls.getDateFromDays(mCalend, mUser.pre, StartVar.mDayB));
 
                     //Log.d("Calendar", "-->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getDateFromDays(mCalend, mUser.pre, StartVar.mDayA));
 
@@ -255,7 +311,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                 setTextView(mviewList.get(i), mUser.more3);
                 i++;
                 setTextView(mviewList.get(i), mUser.more4);
-
             }
         }
         else {
@@ -365,69 +420,77 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         if(itemId == R.id.buttNext){
-            Intent mIntent = new Intent(this, ViewActivity.class);
-            int newidx = currIdx;
-            newidx++;
-            int siz = typeList.size();
-            newidx = (newidx < siz? newidx : 0 );
-            if(mainSel == 4){
-                mIntent.putExtras(getAndSetBundle(newidx));
-                startActivity(mIntent);
-                this.finish();
-            }
-            else {
-                for (int i = newidx; i < siz; i++) {
-                    if (Integer.parseInt((String)typeList.get(i)) == mainSel) {
-                        mIntent.putExtras(getAndSetBundle(i));
-                        startActivity(mIntent);
-                        this.finish();
-                        break;
-                    } else if (i == (siz - 1)) {
-                        for (int j = 0; j < siz && j != currIdx; j++) {
-                            if (Integer.parseInt((String)typeList.get(j)) == mainSel) {
-                                mIntent.putExtras(getAndSetBundle(j));
-                                startActivity(mIntent);
-                                this.finish();
-                                break;
-                            }
+            nextPage();
+        }
+
+        if(itemId == R.id.buttPrev){
+            prevPage();
+        }
+    }
+
+    private void nextPage(){
+        Intent mIntent = new Intent(this, ViewActivity.class);
+        int newidx = currIdx;
+        newidx++;
+        int siz = typeList.size();
+        newidx = (newidx < siz? newidx : 0 );
+        if(mainSel == 4){
+            mIntent.putExtras(getAndSetBundle(newidx));
+            startActivity(mIntent);
+            this.finish();
+        }
+        else {
+            for (int i = newidx; i < siz; i++) {
+                if ((Integer)typeList.get(i) == mainSel) {
+                    mIntent.putExtras(getAndSetBundle(i));
+                    startActivity(mIntent);
+                    this.finish();
+                    break;
+                } else if (i == (siz - 1)) {
+                    for (int j = 0; j < siz && j != currIdx; j++) {
+                        if ((Integer)typeList.get(j) == mainSel) {
+                            mIntent.putExtras(getAndSetBundle(j));
+                            startActivity(mIntent);
+                            this.finish();
+                            break;
                         }
                     }
                 }
             }
         }
+    }
 
-        if(itemId == R.id.buttPrev){
-            Intent mIntent = new Intent(this, ViewActivity.class);
-            int newidx = currIdx;
-            newidx--;
-            int siz = typeList.size();
-            if(siz != 0) {
-                newidx = (newidx < 0 ? (siz - 1) : newidx);
-            }
-            else{
-                newidx = 0;
-            }
-            if(mainSel == 4){
-                mIntent.putExtras(getAndSetBundle(newidx));
-                startActivity(mIntent);
-                this.finish();
-            }
-            else {
-                for(int i = newidx; i >=0 ; i-- ){
-                    if(Integer.parseInt((String)typeList.get(i)) == mainSel){
-                        mIntent.putExtras(getAndSetBundle(i));
-                        startActivity(mIntent);
-                        this.finish();
-                        break;
-                    }
-                    else if (i == 0) {
-                        for (int j = (siz - 1); j >= 0 && j != currIdx; j--) {
-                            if(Integer.parseInt((String)typeList.get(j)) == mainSel){
-                                mIntent.putExtras(getAndSetBundle(j));
-                                startActivity(mIntent);
-                                this.finish();
-                                break;
-                            }
+    private void prevPage(){
+        Intent mIntent = new Intent(this, ViewActivity.class);
+        int newidx = currIdx;
+        newidx--;
+        int siz = typeList.size();
+        if(siz != 0) {
+            newidx = (newidx < 0 ? (siz - 1) : newidx);
+        }
+        else{
+            newidx = 0;
+        }
+        if(mainSel == 4){
+            mIntent.putExtras(getAndSetBundle(newidx));
+            startActivity(mIntent);
+            this.finish();
+        }
+        else {
+            for(int i = newidx; i >=0 ; i-- ){
+                if((Integer)typeList.get(i) == mainSel){
+                    mIntent.putExtras(getAndSetBundle(i));
+                    startActivity(mIntent);
+                    this.finish();
+                    break;
+                }
+                else if (i == 0) {
+                    for (int j = (siz - 1); j >= 0 && j != currIdx; j--) {
+                        if((Integer)typeList.get(j) == mainSel){
+                            mIntent.putExtras(getAndSetBundle(j));
+                            startActivity(mIntent);
+                            this.finish();
+                            break;
                         }
                     }
                 }

@@ -20,7 +20,14 @@ android {
         minSdk 24
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+
+        // =============================================
+        // Versión automática basada en fecha
+        // =============================================
+        def date = new Date()
+
+        // versionName: Formato visible (año.mes.día)
+        versionName = date.format('yyyy.MM.dd')
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -29,6 +36,19 @@ android {
                 appAuthRedirectScheme: "com.example.cow_datap"
         ]
 
+    }
+
+    // =============================================
+    // NOMBRE PERSONALIZADO DEL APK (AQUÍ VA)
+    // =============================================
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def date = new Date()
+            def version = date.format('yyyy.MM.dd')
+
+            // Nombre final del APK
+            output.outputFileName = "Cow-Date-V${version}.apk"
+        }
     }
 
     buildTypes {

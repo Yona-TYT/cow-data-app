@@ -60,8 +60,8 @@ public class UsuarioWorker extends Worker {
                     Usuario obj =
                             new Usuario(
                                     mNewID, mUser.nombre, mUser.color, mUser.color, mUser.edad, mUser.pre,
-                                    mUser.imagen, mUser.sel1, mUser.sel2, mUser.sel3,
-                                    "@null" ,"@null" ,"@null" ,"@null"
+                                    mUser.imagen, mUser.sel1, mUser.sel2, mUser.sel3, 0,
+                                    "@null" ,"@null" ,"@null", "@null"
                             );
                     mDao.insetUser(obj);
                 }

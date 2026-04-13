@@ -58,7 +58,7 @@
     <Spinner
         android:id="@+id/spinFecha"
         android:layout_width="@dimen/textViewW"
-        android:layout_height="38dp"
+        android:layout_height="@dimen/textViewAddH"
         android:singleLine="true"
         android:textSize="@dimen/textViewLong"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
@@ -106,7 +106,7 @@
     <Spinner
         android:id="@+id/spinCalc"
         android:layout_width="@dimen/textViewW"
-        android:layout_height="38dp"
+        android:layout_height="@dimen/textViewAddH"
         android:singleLine="true"
         android:textSize="@dimen/textViewLong"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
@@ -149,8 +149,8 @@
 
     <Button
         android:id="@+id/buttCopy1"
-        android:layout_width="148dp"
-        android:layout_height="38dp"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="@dimen/textViewAddH"
         android:backgroundTint="@color/button"
         android:text="Copiar"
         android:textColor="@color/inner_button"
@@ -193,8 +193,8 @@
 
     <Button
         android:id="@+id/buttCopy2"
-        android:layout_width="148dp"
-        android:layout_height="38dp"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="@dimen/textViewAddH"
         android:backgroundTint="@color/button"
         android:text="Copiar"
         android:textColor="@color/inner_button"

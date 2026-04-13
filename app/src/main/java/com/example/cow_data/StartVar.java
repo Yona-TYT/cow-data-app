@@ -115,7 +115,7 @@ public class StartVar {
             }
 
             //configDatabase.daoConf().insertUser();
-            Configdb obj = new Configdb(mConfID, "3", textID, date, time, "0", "0", "0");
+            Configdb obj = new Configdb(mConfID, "4", textID, date, time, "0", "0", "0");
             configDatabase.daoConf().insetUser(obj);
         }
     }

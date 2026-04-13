@@ -102,6 +102,23 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/textSumm6"
+        android:layout_width="@dimen/textViewSummW"
+        android:layout_height="@dimen/textViewSummH"
+        android:layout_marginBottom="128dp"
+        android:text="Vacio"
+        android:textSize="@dimen/textViewSummLong"
+        android:textStyle="bold"
+        android:background="@color/text_background"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline15"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline16"
+        app:layout_constraintTop_toBottomOf="@+id/textSumm5"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
         android:id="@+id/textSumm7"
         android:layout_width="@dimen/textViewSummW"
         android:layout_height="@dimen/textViewSummH"
@@ -118,22 +135,20 @@
         app:layout_constraintTop_toBottomOf="@+id/textSumm6"
         app:layout_constraintVertical_bias="0.0" />
 
-    <TextView
-        android:id="@+id/textSumm6"
-        android:layout_width="@dimen/textViewSummW"
-        android:layout_height="@dimen/textViewSummH"
-        android:layout_marginBottom="128dp"
-        android:text="Vacio"
-        android:textSize="@dimen/textViewSummLong"
-        android:textStyle="bold"
-        android:background="@color/text_background"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline15"
-        app:layout_constraintHorizontal_bias="0.0"
+
+    <Button
+        android:id="@+id/buttRet"
+        android:layout_width="@dimen/textViewW"
+        android:layout_height="@dimen/textViewAddH"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/button"
+
+        android:text="Ver retiradas"
+        android:textColor="@color/inner_button"
+
         app:layout_constraintStart_toStartOf="@+id/guideline16"
-        app:layout_constraintTop_toBottomOf="@+id/textSumm5"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/textSumm7"
+        tools:ignore="MissingConstraints" />
 
 
     <androidx.constraintlayout.widget.Guideline

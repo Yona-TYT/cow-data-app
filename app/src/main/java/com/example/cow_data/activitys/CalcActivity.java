@@ -29,7 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cow_data.Basic;
-import com.example.cow_data.CalcCalendar;
+import com.example.cow_data.CalendUtls;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 
@@ -132,8 +132,8 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 inputDataFiltre( mInput1.getText().toString(), mInput1);
 
                 //Se comprueba el imput de fecha Personalizada-------------------------------------------
-                String mDate =  CalcCalendar.isDateFormat(mInput1.getText().toString());
-                mCustonDate = CalcCalendar.getFormatDateEN(mDate);
+                String mDate =  CalendUtls.isDateFormat(mInput1.getText().toString());
+                mCustonDate = CalendUtls.getFormatDateEN(mDate);
 
                 if(!mCustonDate.isEmpty()) {
                     //Upedate Date Calc
@@ -151,14 +151,14 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 String mTxInput = textView.getText().toString();
                 if (currSel1 == 1) {
-                    if(CalcCalendar.isDateFormat(mTxInput).isEmpty()){
+                    if(CalendUtls.isDateFormat(mTxInput).isEmpty()){
                         Basic.msg("Formato de FECHA incorrecto!.");
                         textView.setError("Fecha Incorrecta!.");
                         return true;
                     }
                 }
                 else if (currSel1 == 3) {
-                    String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                    String[] dateList = CalendUtls.dataValidate(mTxInput);
                     if (dateList == null || dateList.length < 2) {
                         Basic.msg("Formato incorrecto!.");
                         textView.setError("Formato Incorrecta!.");
@@ -175,13 +175,13 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 String mTxInput = mInput1.getText().toString();
                 if(!b){
                     if (currSel1 == 1) {
-                        if (CalcCalendar.isDateFormat(mTxInput).isEmpty()) {
+                        if (CalendUtls.isDateFormat(mTxInput).isEmpty()) {
                             Basic.msg("Formato de FECHA incorrecto!.");
                             mInput1.setError("Fecha Incorrecta!.");
                         }
                     }
                     else if (currSel1 == 3) {
-                        String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                        String[] dateList = CalendUtls.dataValidate(mTxInput);
                         if (dateList == null || dateList.length < 2) {
                             Basic.msg("Formato incorrecto!.");
                             mInput1.setError("Formato Incorrecta!.");
@@ -197,7 +197,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 String mTxInput = textView.getText().toString();
                 if (currSel2 == 3) {
-                    String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                    String[] dateList = CalendUtls.dataValidate(mTxInput);
                     if (dateList == null || dateList.length < 2) {
                         Basic.msg("Formato incorrecto!.");
                         textView.setError("Formato Incorrecta!.");
@@ -214,7 +214,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 String mTxInput = mInput2.getText().toString();
                 if(!b){
                     if (currSel2 == 3) {
-                        String[] dateList = CalcCalendar.dataValidate(mTxInput);
+                        String[] dateList = CalendUtls.dataValidate(mTxInput);
                         if (dateList == null || dateList.length < 2) {
                             Basic.msg("Formato incorrecto!.");
                             mInput2.setError("Formato Incorrecta!.");
@@ -386,7 +386,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             }
             //Para Formato de fecha
             else {
-                String[] dateList = CalcCalendar.dataValidate(mText);
+                String[] dateList = CalendUtls.dataValidate(mText);
                 if (dateList != null && dateList.length > 1) {
 
                     //Para Sumar

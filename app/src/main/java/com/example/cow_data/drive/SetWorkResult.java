@@ -24,10 +24,10 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.example.cow_data.Basic;
+import com.example.cow_data.CalendUtls;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.MainActivity;
-import com.example.cow_data.activitys.Preloader;
 import com.example.cow_data.db.Configdb;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.ex.PreferenceHelper;
@@ -182,10 +182,15 @@ public class SetWorkResult {
                                                 Basic.msg("Error: Datos de fecha/hora incompletos");
                                                 return;
                                             }
+//                                            if (true) {
+//                                                LocalDateTime test = LocalDateTime.now();
+//                                                Basic.msg(test.toString()+" "+mConf.date + "T" + mConf.time+" "+date + "T" + time, true);
+//                                                return;
+//                                            }
 
                                             // Combinar fecha y hora en LocalDateTime
-                                            LocalDateTime dateTimeA = LocalDateTime.parse(mConf.date + "T" + mConf.time);
-                                            LocalDateTime dateTimeB = LocalDateTime.parse(date + "T" + time);
+                                            LocalDateTime dateTimeA = CalendUtls.DTformat(mConf.date + "T" + mConf.time);
+                                            LocalDateTime dateTimeB = CalendUtls.DTformat(date + "T" + time);
 
                                             // Comparar fechas y horas
                                             int result = dateTimeA.compareTo(dateTimeB);
@@ -336,9 +341,11 @@ public class SetWorkResult {
 
     private static void resetPreloader(boolean preloader){
         if(preloader){
-            Intent mIntent = new Intent(StartVar.mContex, Preloader.class);
-            StartVar.mActivity.startActivity(mIntent);
-            StartVar.mActivity.finish();
+            if(StartVar.mActivity != null){
+                Intent mIntent = new Intent(StartVar.mContex,  MainActivity.class);
+                StartVar.mActivity.startActivity(mIntent);
+                StartVar.mActivity.finish();
+            }
         }
     }
 }

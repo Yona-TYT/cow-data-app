@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".AppContextProvider"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
@@ -33,9 +34,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CowData.NoActionBar"
-        tools:targetApi="tiramisu"
-        android:name=".AppContextProvider"
-        >
+        tools:targetApi="tiramisu">
+        <activity
+            android:name=".activitys.ExcludedActivity"
+            android:exported="false" />
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
@@ -105,22 +107,28 @@
                 <data android:mimeType="text/comma-separated-values" />
             </intent-filter>
         </activity>
-
-        <activity android:name="net.openid.appauth.RedirectUriReceiverActivity"
+        <activity
+            android:name="net.openid.appauth.RedirectUriReceiverActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <data android:scheme="com.mendhak.gpslogger"
-                    android:path="/oauth2googledrive"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:path="/oauth2googledrive"
+                    android:scheme="com.mendhak.gpslogger" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="oauth2openstreetmap" android:scheme="com.mendhak.gpslogger" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="oauth2openstreetmap"
+                    android:scheme="com.mendhak.gpslogger" />
             </intent-filter>
         </activity>
     </application>

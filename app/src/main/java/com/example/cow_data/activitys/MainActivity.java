@@ -7,7 +7,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -96,9 +95,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Object> datePreList = new ArrayList<>();
     private ArrayList<Object> dateBrithList = new ArrayList<>();
     private ArrayList<Object> swPreList = new ArrayList<>();
-    private ArrayList<Object> typeList = new ArrayList<>();
+    private ArrayList<Object> formatList = new ArrayList<>();
     private ArrayList<Object> selList = new ArrayList<>();
+    private ArrayList<Object> retirList = new ArrayList<>();
     private ArrayList<Object> dirList = new ArrayList<>();
+
     //---------------------------------------------------------------------
 
     // Para el selector de tipo gando--------------------------------------------
@@ -227,22 +228,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         datePreList = arrayMap.get("datePre");
         dateBrithList = arrayMap.get("dateBrith");
         swPreList = arrayMap.get("swPre");
-        typeList = arrayMap.get("type");
+        formatList = arrayMap.get("format");
         selList = arrayMap.get("select");
+        retirList = arrayMap.get("retire");
         dirList = arrayMap.get("img");
 
-        startVar.setArrayList(dirList, dirList, typeList);
+        startVar.setArrayList(dirList, dirList, formatList);
 
         if(mPermiss) {
             int mainSelec = StartVar.currSel2;
             List<String[]> mtxList = new ArrayList<>();
-            for(int j = 0; j < nameList.size(); j++){
-                if(isPre){
-                    if(swPreList.get(j).equals("1")){
+            for(int j = 0; j < nameList.size(); j++) {
+                if ((Integer) retirList.get(j) > 0) {
+                    continue;
+                }
+                if (isPre) {
+                    if ((Integer) swPreList.get(j) == 1) {
                         mtxList.add(setGalleryArray(j));
                     }
-                }
-                else {
+                } else {
                     mtxList.add(setGalleryArray(j));
                 }
             }
@@ -287,20 +291,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     List<String[]> mtxList = new ArrayList<>();
                     for(int ii = 0; ii < nameList.size(); ii++){
                         if(currSel2 == 4 || currSel2 == (Integer)selList.get(ii)){
+                            if ((Integer) retirList.get(ii) > 0) {
+                                continue;
+                            }
                             if(idxList.isEmpty()) {
                                 if(isPre){
-                                    if(swPreList.get(ii).equals("1")){
+                                    if((Integer)swPreList.get(ii) == 1){
                                         mtxList.add(setGalleryArray(ii));
                                     }
                                 }
                                 else {
                                     mtxList.add(setGalleryArray(ii));
-                                }                            }
+                                }
+                            }
                             else {
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == ii){
                                         if(isPre){
-                                            if(swPreList.get(ii).equals("1")){
+                                            if((Integer)swPreList.get(ii) == 1){
                                                 mtxList.add(setGalleryArray(ii));
                                             }
                                         }
@@ -362,8 +370,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         isPre = !isPre;
                         List<String[]> mtxList = new ArrayList<>();
                         for(int j = 0; j < nameList.size(); j++){
+                            if ((Integer)retirList.get(j) > 0) {
+                                continue;
+                            }
                             if(isPre){
-                                if(swPreList.get(j).equals("1")){
+                                if((Integer)swPreList.get(j) == 1){
                                     mtxList.add(setGalleryArray(j));
                                 }
                             }
@@ -385,9 +396,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     List<String[]> mtxList = new ArrayList<>();
                     for(int i = 0; i < nameList.size(); i++){
                         if(currSel2 == 4 || currSel2 == (Integer)selList.get(i)){
+                            if ((Integer)retirList.get(i) > 0) {
+                                continue;
+                            }
                             if(idxList.isEmpty()) {
                                 if(isPre){
-                                    if(swPreList.get(i).equals("1")){
+                                    if((Integer)swPreList.get(i) == 1){
                                         mtxList.add(setGalleryArray(i));
                                     }
                                 }
@@ -399,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 for(int j =0; j < idxList.size(); j++){
                                     if(idxList.get(j) == i){
                                         if(isPre){
-                                            if(swPreList.get(i).equals("1")){
+                                            if((Integer)swPreList.get(i) == 1){
                                                 mtxList.add(setGalleryArray(i));
                                             }
                                         }
@@ -492,8 +506,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stList[2] = (String)ltrosList.get(idx);
         stList[3] = (String)datePreList.get(idx);
         stList[4] = (String)dateBrithList.get(idx);
-        stList[5] = (String)typeList.get(idx);
-        stList[6] = (String)swPreList.get(idx);
+        stList[5] = selList.get(idx).toString();
+        stList[6] = swPreList.get(idx).toString();
         stList[7] = Integer.toString(idx);
         return stList;
     }

@@ -4,6 +4,8 @@ import static android.widget.GridLayout.spec;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -37,8 +39,8 @@ import java.util.Objects;
 
 public class Basic {
     private static Context mContex;
-    public static boolean isDow = true;
-    public static boolean isUp = false;
+    private static String oldMsg = "";
+    private static long lastShowTime = 0;
 
     private static final String ACTION_APP_EVENT = "com.example.cow_data.EVENT";
     private static final String EXTRA_EVENT_TYPE = "cow_data_event";
@@ -200,24 +202,37 @@ public class Basic {
         return value.replaceAll("([;,\"<>]+)", "");
     }
 
-    public static void msg(String msg)
+    public static void msg(String msg){
+        msgInternal(msg, false);
+    }
+
+    public static void msg(String msg, boolean isClipboard){
+        msgInternal(msg, isClipboard);
+    }
+
+    public static void msgInternal(String msg, boolean isClipboard)
     {
         new Handler(Looper.getMainLooper()).post(() -> {
+            long currentTime = System.currentTimeMillis();
+            long fiveSecondsAgo = currentTime - 3000;  // 5s en ms
+
+            if (oldMsg.equals(msg) && lastShowTime > fiveSecondsAgo) {
+                return;  // No mostrar
+            }
+            // Actualiza el mensaje anterior y el tiempo de muestra
+            oldMsg = msg;
+            lastShowTime = currentTime;
+
             TextView text = new TextView(mContex);
             // Se ajustan los parametros del Texto ----------------------------------
             text.setText(msg);
             text.setTypeface(Typeface.DEFAULT_BOLD);
             text.setGravity(Gravity.CENTER);
             text.setWidth(R.dimen.spinner_w1);
-            //text.setHeight(R.dimen.spinner_h1);
-
-            text.setMaxLines(2);
-            text.setTextColor(ContextCompat.getColor(text.getContext(), R.color.inner_button));
+            text.setMaxLines(1);
+            text.setTextColor(ContextCompat.getColor(text.getContext(), R.color.text_color1));
             text.setBackgroundColor(ContextCompat.getColor(text.getContext(), R.color.text_background2));
-            text.setTextSize(18);
-            //text.setTextAppearance(R.style.Theme_CowData);
-
-            text.setPadding(10,5,10,5);
+            text.setPadding(10, 5, 10, 5);
 
             CardView cardView = new CardView(mContex);
             cardView.setLayoutParams(new GridLayout.LayoutParams(spec(140), spec(150)));
@@ -225,13 +240,19 @@ public class Basic {
             cardView.setRadius(10f);
 
             Toast mToast = new Toast(mContex);
-            mToast.setDuration(Toast.LENGTH_LONG);
             mToast.setView(cardView);
-
+            mToast.setDuration(Toast.LENGTH_LONG);
             mToast.show();
-        });
 
+            //Copiar al portapapeles
+            if(isClipboard){
+                ClipboardManager clipboard = (ClipboardManager) mContex.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Texto Extraído", msg);
+                clipboard.setPrimaryClip(clip);
+            }
+        });
     }
+
 
     public static void sendFileUploadedBroadcast(Context context, String[] filePaths, String senderType) {
         //LOG.debug("Sending file uploaded broadcast para: " + senderType);

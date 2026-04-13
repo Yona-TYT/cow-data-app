@@ -2,20 +2,21 @@ package com.example.cow_data;
 
 import android.icu.util.Calendar;
 import android.os.Build;
-import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CalcCalendar {
-    public CalcCalendar(){
+public class CalendUtls {
+    public CalendUtls(){
     }
     public static String dataConverted(String text, int selec){
 
@@ -289,6 +290,27 @@ public class CalcCalendar {
             }
         }
         return "Fecha no Valida";
+    }
+
+    public static LocalDateTime DTformat(String dt){
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'H:m:s");
+        LocalDateTime result = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            result = LocalDateTime.now();
+
+            DateTimeFormatter format = new DateTimeFormatterBuilder()
+                    .appendPattern("yyyy-MM-dd'T'") // Parte fija de la fecha
+                    .appendValue(java.time.temporal.ChronoField.HOUR_OF_DAY, 1, 2, java.time.format.SignStyle.NEVER)
+                    .appendLiteral(':')
+                    .appendValue(java.time.temporal.ChronoField.MINUTE_OF_HOUR, 1, 2, java.time.format.SignStyle.NEVER)
+                    .appendLiteral(':')
+                    .appendValue(java.time.temporal.ChronoField.SECOND_OF_MINUTE, 1, 2, java.time.format.SignStyle.NEVER)
+                    .toFormatter();
+
+             result = LocalDateTime.parse(dt, format);
+        }
+
+        return result;
     }
 }
 

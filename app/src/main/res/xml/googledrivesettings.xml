@@ -22,13 +22,13 @@
 
     <Preference
         android:key="google_drive_sync"
-        android:summary="string/google_drive_get_summary"
+        android:summary="Compara los datos locales con los de Drive y determina si es necesario actualizar o no"
         android:title="Sincronizar Datos Locales"
         app:iconSpaceReserved="false" />
 
     <Preference
         android:key="google_drive_sync_img"
-        android:summary="string/google_drive_get_summary"
+        android:summary="Guarda las imagenes locales y descarga las disponibles en Drive"
         android:title="Sincronizar Imagenes"
         app:iconSpaceReserved="false" />
 

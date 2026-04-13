@@ -27,6 +27,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.Basic;
 import com.example.cow_data.ClearFocusEditText;
 import com.example.cow_data.adapters.CheckboxAdapter;
@@ -140,7 +141,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
 
             if(myUser != null) {
 
-                if (Integer.parseInt(myUser.sel2) > 1){
+                if (myUser.sel2 > 1){
                     mInput1.setVisibility(View.INVISIBLE);
                 }
                 else {
@@ -158,7 +159,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 // Madre de: -------------------------------------------------------------------
                 boolean oneValue = false;
-                mAdapter1 = new CheckboxAdapter(MoreActivity.this, mtxList, oneValue, StartVar.mId1);
+                mAdapter1 = new CheckboxAdapter(AppContextProvider.getAppContext(), mtxList, oneValue, StartVar.mId1);
                 mlv1.setAdapter(mAdapter1);
                 mlv1.setVisibility(View.INVISIBLE);
                 //--------------------------------------------------------------------------------

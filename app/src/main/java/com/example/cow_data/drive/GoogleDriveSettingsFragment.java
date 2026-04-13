@@ -144,9 +144,10 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
             findPreference(PreferenceNames.GOOGLE_DRIVE_RESETAUTH).setSummary("Utiliza tu cuenta Google para autentificarte.");
         }
         //findPreference("google_drive_test").setVisible(false); // Ocultar la preferencia
-        findPreference("google_drive_test").setEnabled(authState.isAuthorized());
 
+        findPreference("google_drive_test").setEnabled(authState.isAuthorized());
         findPreference("google_drive_sync").setEnabled(authState.isAuthorized());
+
 
         findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setVisible(false); // Ocultar la preferencia
 //        findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setEnabled(authState.isAuthorized());

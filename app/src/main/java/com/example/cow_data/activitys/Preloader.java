@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.Basic;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.R;
@@ -72,15 +73,15 @@ public class Preloader extends AppCompatActivity {
         List<Usuario> listuser =  StartVar.listuser;
 
         // Inicializar la variable para las colas
-        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, getApplicationContext());
+        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, AppContextProvider.getAppContext());
 
         for(Usuario mUser : listuser){
-            String selecTx = mUser.sel3;
+            Integer selecTx = mUser.sel3;
             String userTx = mUser.usuario;
 
             String dateTx = mUser.pre;
 
-            if (selecTx.equals("1") && !dateTx.isEmpty()) {
+            if (selecTx == 1 && !dateTx.isEmpty()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     //Inicia la fecha actual
                     long currDate = LocalDate.now().getLong(ChronoField.EPOCH_DAY);
@@ -89,7 +90,7 @@ public class Preloader extends AppCompatActivity {
                     if(currDate > mDate) {
                         //Toast.makeText(Preloder.this, "A: " + currDate + " y B: " + mDate, Toast.LENGTH_LONG).show();
                         //Desactiva el selector pre
-                        StartVar.appDatabase.daoUser().updateSelecPre(userTx, "0");
+                        StartVar.appDatabase.daoUser().updateSelecPre(userTx, 0);
                     }
                 }
             }
@@ -115,6 +116,7 @@ public class Preloader extends AppCompatActivity {
         else{
             StartVar.setmMainStart(true);
         }
+
         if(StartVar.mainStart) {
             startMainDelay(800);
         }

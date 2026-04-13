@@ -46,13 +46,12 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.cow_data.Basic;
-import com.example.cow_data.CalcCalendar;
+import com.example.cow_data.CalendUtls;
 import com.example.cow_data.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.databinding.ActivityMainBinding;
 import com.example.cow_data.db.AppDatabase;
-import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.drive.GoogleDriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
@@ -215,7 +214,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String text = mInput4.getText().toString();
-                String newText = CalcCalendar.dataConvertedTo(text, currSel1, i);
+                String newText = CalendUtls.dataConvertedTo(text, currSel1, i);
                 currSel1 = i;
 
                 if(i == 0){
@@ -361,14 +360,14 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 String mTxInput = textView.getText().toString();
                 textView.clearFocus();
                 if (currSel1 == 0) {
-                    if(CalcCalendar.isDateFormat(mTxInput).isEmpty()){
+                    if(CalendUtls.isDateFormat(mTxInput).isEmpty()){
                         Basic.msg("Formato de FECHA incorrecto!.");
                         textView.setError("Fecha Incorrecta!, Ejm: 20/10/2020");
                         return true;
                     }
                 }
                 else if (currSel1 == 4) {
-                    if(Objects.requireNonNull(CalcCalendar.dataValidate(mTxInput)).length < 2){
+                    if(Objects.requireNonNull(CalendUtls.dataValidate(mTxInput)).length < 2){
                         Basic.msg("Formato de FECHA incorrecto!.");
                         textView.setError("Ingrese 3 digitos Ejm: 2/5/3");
                         return true;
@@ -382,7 +381,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (!b && currSel1 == 0) {
-                    if(CalcCalendar.isDateFormat(mInput4.getText().toString()).isEmpty()){
+                    if(CalendUtls.isDateFormat(mInput4.getText().toString()).isEmpty()){
                         Basic.msg("Formato de FECHA incorrecto!.");
                     }
                 }
@@ -413,7 +412,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     }
 
     private boolean chehkingPreInput(){
-        String mText = CalcCalendar.isDateFormat(mInput5.getText().toString());
+        String mText = CalendUtls.isDateFormat(mInput5.getText().toString());
         if (mText.isEmpty()) {
             Basic.msg("Formato de FECHA incorrecto!.");
             return true;
@@ -514,13 +513,13 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         String res= "";
                         //Para Fechas de nacimiento
                         if(currSel1 == 0){
-                            String mDate =  CalcCalendar.isDateFormat(text);
+                            String mDate =  CalendUtls.isDateFormat(text);
                             if (mDate.isEmpty()){
                                 msgIdx = 4;
                                 result = false;
                                 break;
                             }
-                            res = CalcCalendar.getFormatDateEN(mDate);
+                            res = CalendUtls.getFormatDateEN(mDate);
                         }
                         //Para años
                         else if(currSel1 == 1){
@@ -539,7 +538,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         }
                         //Para Validar Fechas completas
                         else if(currSel1 == 4){
-                            String[] dateList = CalcCalendar.dataValidate(text);
+                            String[] dateList = CalendUtls.dataValidate(text);
                             if (dateList != null && dateList.length > 1 ) {
                                 LocalDate from = currdate.minusYears(Long.parseLong(dateList[0]));
                                 from = from.minusMonths(Long.parseLong(dateList[1]));
@@ -565,8 +564,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 mList.add(text);
             }
             //Se comprueba el imput de fecha pre-------------------------------------------
-            String mPreDate =  CalcCalendar.isDateFormat(mInput5.getText().toString());
-            mPreDate = CalcCalendar.getFormatDateEN(mPreDate);
+            String mPreDate =  CalendUtls.isDateFormat(mInput5.getText().toString());
+            mPreDate = CalendUtls.getFormatDateEN(mPreDate);
             if (swPre && mPreDate.isEmpty()){
                 msgIdx = 4;
                 result = false;
@@ -599,7 +598,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 Usuario obj =
                         new Usuario(
                                 mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
-                                sImage, Integer.toString(currSel1), Integer.toString(currSel2), (swPre?"1":"0"),
+                                sImage, currSel1, currSel2, 0, 0,
                                 "@null" ,"@null" ,"@null" ,"@null"
                             );
                 appDatabase.daoUser().insetUser(obj);

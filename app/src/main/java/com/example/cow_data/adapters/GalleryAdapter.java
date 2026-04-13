@@ -17,7 +17,7 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-import com.example.cow_data.CalcCalendar;
+import com.example.cow_data.CalendUtls;
 import com.example.cow_data.R;
 
 import java.io.File;
@@ -124,14 +124,14 @@ public class GalleryAdapter extends BaseAdapter {
 
         //Date Text
         if(textList.get(pos)[6].equals("1")) {
-            String txCount = CalcCalendar.dateDaysCount(textList.get(pos)[3]);
+            String txCount = CalendUtls.dateDaysCount(textList.get(pos)[3]);
             TextView text3 = setTextView("Preñada (faltan "+txCount+" dias)");
             layoutV.addView(text3);
         }
 
         //BrithDate Text
         String txCount = textList.get(pos)[4];
-        TextView text4 = setTextView("Edad: "+ CalcCalendar.getBrithDateText(txCount));
+        TextView text4 = setTextView("Edad: "+ CalendUtls.getBrithDateText(txCount));
         layoutV.addView(text4);
 
         layoutH.addView(layoutV);

@@ -1,7 +1,11 @@
 package com.example.cow_data.activitys;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +19,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
@@ -31,6 +36,9 @@ public class SummaryActivity extends AppCompatActivity {
     private TextView mView6;
     private TextView mView7;
 
+    private Button mbutt1;
+
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +84,16 @@ public class SummaryActivity extends AppCompatActivity {
         mView6 = findViewById(R.id.textSumm6);
         mView7 = findViewById(R.id.textSumm7);
 
+        mbutt1 = findViewById(R.id.buttRet);
+
+        mbutt1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = new Intent(AppContextProvider.getAppContext(), ExcludedActivity.class);
+                startActivity(mIntent);
+            }
+        });
+
         List<Usuario> listuser = StartVar.listuser;
         int userSiz = listuser.size();
         int allTotal = userSiz;
@@ -87,7 +105,7 @@ public class SummaryActivity extends AppCompatActivity {
         int preTotal = 0;
 
         for(Usuario mUser : listuser){
-            int type = Integer.parseInt(mUser.sel2);
+            int type = mUser.sel2;
             // Type Vacas
             if(type == 0){
                 //Solo las Vacas tienen valores de litros
@@ -107,7 +125,7 @@ public class SummaryActivity extends AppCompatActivity {
                 torTotal++;
             }
             // Para Preñadas
-            if(mUser.sel3.equals("1")){
+            if(mUser.sel3 == 1){
                 preTotal++;
             }
 

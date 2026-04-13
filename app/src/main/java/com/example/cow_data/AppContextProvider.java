@@ -9,7 +9,11 @@ public class AppContextProvider extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Inicializamos AppData de forma segura
+        //GlobalData.initialize(this);
         sInstance = this;
+
+        new Basic(this);
     }
 
     public static AppContextProvider getInstance() {
