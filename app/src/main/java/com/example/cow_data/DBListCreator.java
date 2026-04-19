@@ -174,7 +174,7 @@ public class DBListCreator extends AppCompatActivity {
                 }
                 //Si no se agrega la configuracion aqui
                 else if (spl[0].equals("confID0")){
-                    mDaoConf.updateUser("confID0", spl[1], spl[2], spl[3], spl[4], spl[5], spl[6] ,spl[7]);
+                    mDaoConf.updateUser("confID0", StartVar.mDateVersion, spl[2], spl[3], spl[4], spl[5], spl[6] ,spl[7]);
 
                     version = spl[1];
                     continue;

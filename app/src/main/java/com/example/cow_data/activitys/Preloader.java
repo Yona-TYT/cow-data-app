@@ -20,7 +20,7 @@ import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.UsuarioQueue;
-import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.drive.SetWorkResult;
 
@@ -73,7 +73,7 @@ public class Preloader extends AppCompatActivity {
         List<Usuario> listuser =  StartVar.listuser;
 
         // Inicializar la variable para las colas
-        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, AppContextProvider.getAppContext());
+        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, AppContextProvider.getContext());
 
         for(Usuario mUser : listuser){
             Integer selecTx = mUser.sel3;
@@ -95,12 +95,12 @@ public class Preloader extends AppCompatActivity {
                 }
             }
         }
-        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+        DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         SetWorkResult mWorkResult = new SetWorkResult(StartVar.mLifecycle, executorService, manager);
 
         AuthState authState = new AuthState();
-        authState = GoogleDriveManager.getAuthState();
+        authState = DriveManager.getAuthState();
 
         //En caso de estancar se forza el inicio de mainActivity
         startMainDelayErr(30000);

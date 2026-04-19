@@ -6,8 +6,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.example.cow_data.drive.GoogleDriveSettingsFragment;
-
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -29,7 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.settings, new GoogleDriveSettingsFragment())
+                    .replace(R.id.settings, new com.example.cow_data.drive.SettingsFragment())
                     .commit();
         }
     }

@@ -10,7 +10,7 @@ import androidx.work.WorkManager;
 
 import com.example.cow_data.Basic;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.drive.SetWorkResult;
 import com.google.gson.Gson;
@@ -67,12 +67,12 @@ public class UsuarioQueue {
     }
 
     private void synchronizeCheck(){
-        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+        DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         StartVar.mWorkResult = new SetWorkResult( lifecycle, executorService, manager);
 
         AuthState authState = new AuthState();
-        authState = GoogleDriveManager.getAuthState();
+        authState = DriveManager.getAuthState();
         if(authState.isAuthorized()){
             manager.dataSynchronizeCheck();
         }

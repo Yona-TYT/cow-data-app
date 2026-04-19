@@ -159,7 +159,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 // Madre de: -------------------------------------------------------------------
                 boolean oneValue = false;
-                mAdapter1 = new CheckboxAdapter(AppContextProvider.getAppContext(), mtxList, oneValue, StartVar.mId1);
+                mAdapter1 = new CheckboxAdapter(AppContextProvider.getContext(), mtxList, oneValue, StartVar.mId1);
                 mlv1.setAdapter(mAdapter1);
                 mlv1.setVisibility(View.INVISIBLE);
                 //--------------------------------------------------------------------------------

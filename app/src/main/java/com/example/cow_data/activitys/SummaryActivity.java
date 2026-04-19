@@ -89,7 +89,7 @@ public class SummaryActivity extends AppCompatActivity {
         mbutt1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mIntent = new Intent(AppContextProvider.getAppContext(), ExcludedActivity.class);
+                Intent mIntent = new Intent(AppContextProvider.getContext(), ExcludedActivity.class);
                 startActivity(mIntent);
             }
         });

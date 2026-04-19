@@ -51,16 +51,23 @@ public class StartVar {
     public static ArrayList<Object> textList = new ArrayList<>();
     public static ArrayList<Object> dirList = new ArrayList<>();
     public static ArrayList<Object> typeList = new ArrayList<>();
+    public static ArrayList<Object> retirList = new ArrayList<>();
+
     public static ArrayList<String> morlist = new ArrayList<>();
+
 
     // DB Config
     public static ConfigDatabase configDatabase;
     public static Configdb mConfigDB;
     public static String mConfID = "confID0";
+    public static String mDateVersion = "4";
+
 
     // DB Config Temp
     public static ConfigDatabase configDatabaseTemp = null;
 
+    public static final String dirAppName = ".cowdata";
+    public static final String csvAppName = "DataSave.csv";
 
     public static int currSel2 = 4;
 
@@ -80,7 +87,7 @@ public class StartVar {
 
 
     public StartVar(Context mContex){
-        StartVar.mContex = AppContextProvider.getAppContext();
+        StartVar.mContex = AppContextProvider.getContext();
     }
 
 
@@ -115,7 +122,7 @@ public class StartVar {
             }
 
             //configDatabase.daoConf().insertUser();
-            Configdb obj = new Configdb(mConfID, "4", textID, date, time, "0", "0", "0");
+            Configdb obj = new Configdb(mConfID, mDateVersion, textID, date, time, "0", "0", "0");
             configDatabase.daoConf().insetUser(obj);
         }
     }
@@ -138,14 +145,16 @@ public class StartVar {
     public static void setmMainStart(boolean mStart){mainStart = mStart;}
 
 
-    public void setArrayList(ArrayList<Object> listA, ArrayList<Object> listB, ArrayList<Object> listC){
+    public void setArrayList(ArrayList<Object> listA, ArrayList<Object> listB, ArrayList<Object> listC, ArrayList<Object> listD){
         StartVar.textList.clear();
         StartVar.dirList.clear();
         StartVar.typeList.clear();
+        StartVar.retirList.clear();
 
         StartVar.textList = listA;
         StartVar.dirList = listB;
         StartVar.typeList = listC;
+        StartVar.retirList = listD;
     }
 
     public void setCurrSel2(int value){
@@ -166,7 +175,6 @@ public class StartVar {
         StartVar.csvList.clear();
         StartVar.csvList = mList;
     }
-
 
     public static void setArrayMap(HashMap<String, ArrayList<String>> mMap){
         StartVar.arrayMap.clear();

@@ -54,7 +54,7 @@ import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -290,10 +290,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 currSel2 = i;
 
                 if(i == 0){
-                    Basic.msg("Hay ? "+i);
-
                     mInput3.setEnabled(true);
-
                     mInput5.setVisibility(View.VISIBLE);
                     mSw1.setVisibility(View.VISIBLE);
                     mTextV.setVisibility(View.VISIBLE);
@@ -733,8 +730,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);
                     if(mFile.exists()) {
-                        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
-                        manager.ImportImgToDrive(mFile);
+                        DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
+                        manager.ImportDataToDrive(mFile, true);
                     }
                 }
 

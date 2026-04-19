@@ -2,6 +2,7 @@ package com.example.cow_data;
 
 import android.icu.util.Calendar;
 import android.os.Build;
+import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -11,7 +12,10 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -292,30 +296,42 @@ public class CalendUtls {
         return "Fecha no Valida";
     }
 
-    public static LocalDateTime DTformat(String dt){
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'H:m:s");
-        LocalDateTime result = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            result = LocalDateTime.now();
+    public static LocalDateTime DTformat(String dt) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (dt == null || dt.trim().isEmpty()) {
+                Log.e("DTformat", "Fecha recibida es null o vacía");
+                return LocalDateTime.now();
+            }
 
-            DateTimeFormatter format = new DateTimeFormatterBuilder()
-                    .appendPattern("yyyy-MM-dd'T'") // Parte fija de la fecha
-                    .appendValue(java.time.temporal.ChronoField.HOUR_OF_DAY, 1, 2, java.time.format.SignStyle.NEVER)
-                    .appendLiteral(':')
-                    .appendValue(java.time.temporal.ChronoField.MINUTE_OF_HOUR, 1, 2, java.time.format.SignStyle.NEVER)
-                    .appendLiteral(':')
-                    .appendValue(java.time.temporal.ChronoField.SECOND_OF_MINUTE, 1, 2, java.time.format.SignStyle.NEVER)
-                    .toFormatter();
+            // Intentamos varios formatos comunes de Google Drive
+            String[] patterns = {
+                    "yyyy-MM-dd'T'HH:mm:ss",           // formato normal
+                    "yyyy-MM-dd'T'H:mm:ss",            // hora con 1 dígito
+                    "yyyy-MM-dd'T'HH:mm:ss.SSS",       // con milisegundos
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",    // con microsegundos
+                    "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS"  // con nanosegundos
+            };
 
-             result = LocalDateTime.parse(dt, format);
+            for (String pattern : patterns) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault());
+                    LocalDateTime result = LocalDateTime.parse(dt, formatter);
+
+                    Log.d("DTformat", "✅ Parseado con éxito usando: " + pattern + " → " + result);
+                    return result;
+
+                } catch (Exception ignored) {
+                    // Probamos el siguiente patrón
+                }
+            }
+
+            // Si ninguno funcionó
+            Log.e("DTformat", "❌ No se pudo parsear la fecha: " + dt);
+            return LocalDateTime.now(); // fallback seguro
         }
-
-        return result;
+        return null;
     }
 }
-
-
-
 
 //    @RequiresApi(api = Build.VERSION_CODES.O)
 //    private LocalDate validateDate(int year, int moth, int day){

@@ -81,6 +81,8 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private List<TextView> mviewList = new ArrayList<>();
     private ArrayList<String> morlist = new ArrayList<>();
     private ArrayList<Object> typeList = StartVar.typeList;
+    private ArrayList<Object> retirList = StartVar.retirList;
+
 
     private CoordinatorLayout mLay1;
     private HorizontalScrollView mScroll;
@@ -160,6 +162,18 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         StartVar.mContex = getApplicationContext();
+
+        if (typeList == null){
+            typeList = StartVar.typeList;
+            retirList = StartVar.retirList;
+        }
+
+        for (int i = 0; i < typeList.size(); i++){
+            if((Integer) retirList.get(i) > 0){
+                typeList.set(i, -1);
+            }
+        }
+
 
         mConst = findViewById(R.id.viewContainer);
 
@@ -318,6 +332,14 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (typeList == null){
+            typeList = StartVar.typeList;
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private void setTextView(TextView view, String txValue){
         txValue = txValue.replaceFirst("@null","");
@@ -434,6 +456,12 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         newidx++;
         int siz = typeList.size();
         newidx = (newidx < siz? newidx : 0 );
+
+        while ((Integer)retirList.get(newidx) > 0){
+            newidx++;
+            newidx = (newidx < siz? newidx : 0 );
+        }
+
         if(mainSel == 4){
             mIntent.putExtras(getAndSetBundle(newidx));
             startActivity(mIntent);
@@ -470,6 +498,10 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         }
         else{
             newidx = 0;
+        }
+        while ((Integer)retirList.get(newidx) > 0){
+            newidx--;
+            newidx = (newidx < 0 ? (siz - 1) : newidx);
         }
         if(mainSel == 4){
             mIntent.putExtras(getAndSetBundle(newidx));

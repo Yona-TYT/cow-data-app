@@ -64,7 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         HashMap<String, ArrayList<Object>> arrayMap = DBListCreator.createList();
 
         if(StartVar.makeUpdate){
-            GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+            DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
             manager.uploadDataBase();
             StartVar.makeUpdate = false;
         }
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         retirList = arrayMap.get("retire");
         dirList = arrayMap.get("img");
 
-        startVar.setArrayList(dirList, dirList, formatList);
+        startVar.setArrayList(dirList, dirList, formatList, retirList);
 
         if(mPermiss) {
             int mainSelec = StartVar.currSel2;
@@ -628,12 +628,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     DBListCreator.cvsToDB(this, uri, importType, "Datos importados correctamente!");
 
-                    GoogleDriveManager  manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+                    DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
                     //ExecutorService executorService = Executors.newSingleThreadExecutor();
                     //SetWorkResult mWorkResult = new SetWorkResult(this, executorService, manager);
 
                     AuthState authState = new AuthState();
-                    authState = GoogleDriveManager.getAuthState();
+                    authState = DriveManager.getAuthState();
                     if(authState.isAuthorized()) {
                         File mFile = null;
                         try {
@@ -647,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             throw new RuntimeException(e);
                         }
                         if(mFile != null){
-                            manager.ImportDataToDrive(mFile);
+                            manager.ImportDataToDrive(mFile, false);
                         }
                     }
 //                    Intent mIntent = new Intent(this, MainActivity.class);

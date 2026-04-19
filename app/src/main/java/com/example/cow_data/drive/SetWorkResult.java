@@ -18,11 +18,14 @@ import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
+import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.Basic;
 import com.example.cow_data.CalendUtls;
 import com.example.cow_data.DBListCreator;
@@ -48,15 +51,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class SetWorkResult {
     private static final Log log = LogFactory.getLog(SetWorkResult.class);
     private LifecycleOwner lifecycle;
     private ExecutorService executorService;
-    private GoogleDriveManager manager;
+    private DriveManager manager;
     private Observer<WorkInfo> workObserver; // Referencia al Observer
 
-    public SetWorkResult(LifecycleOwner lifecycle, ExecutorService executorService, GoogleDriveManager manager) {
+    public SetWorkResult(LifecycleOwner lifecycle, ExecutorService executorService, DriveManager manager) {
         this.lifecycle = lifecycle;
         this.executorService = executorService;
         this.manager = manager;
@@ -289,40 +293,55 @@ public class SetWorkResult {
      * @param dataMap
      * @return
      */
-    public static void startWorkManagerRequest(Class workerClass, HashMap<String, Object> dataMap, String tag) {
-        androidx.work.Data data = new Data.Builder().putAll(dataMap).build();
+    public static void startWorkManagerRequest(Class<? extends ListenableWorker> workerClass, HashMap<String, Object> dataMap, String tag) {
+        // 1. Usar el contexto proporcionado o el global como respaldo
+        Context appContext = AppContextProvider.getContext();
 
-        NetworkRequest.Builder builder = new NetworkRequest.Builder();
-        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            builder.addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        if (appContext == null) {
+            android.util.Log.e("DriveSync", "❌ Sin contexto disponible.");
+            return;
         }
-        if(PreferenceHelper.getInstance().shouldAutoSendOnWifiOnly()){
-            builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
-        }
-        NetworkRequest networkRequest = builder.build();
 
+        // 2. Datos
+        Data data = new Data.Builder().putAll(dataMap).build();
+
+        // 3. Constraints simplificadas (Evita DeadObject en MIUI)
+        boolean soloWifi = PreferenceHelper.getInstance().shouldAutoSendOnWifiOnly();
         Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkRequest(networkRequest, PreferenceHelper.getInstance().shouldAutoSendOnWifiOnly() ? NetworkType.UNMETERED: NetworkType.CONNECTED)
-                .setRequiredNetworkType(PreferenceHelper.getInstance().shouldAutoSendOnWifiOnly() ? NetworkType.UNMETERED: NetworkType.CONNECTED)
+                .setRequiredNetworkType(soloWifi ? NetworkType.UNMETERED : NetworkType.CONNECTED)
                 .build();
 
-        //En caso de error de conexion se forza para cerrar el preloader
-        if(!isNetworkAvailable(StartVar.mContex) && !StartVar.mainStart){
-            StartVar.setmMainStart(true);
-            resetPreloader(true);
+        // 4. Request
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(workerClass)
+                .setConstraints(constraints)
+                .setInitialDelay(1, TimeUnit.SECONDS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                .setInputData(data)
+                .addTag(tag)
+                .build();
+
+        // 5. Verificar conexión (usando la versión segura)
+        if (!isNetworkAvailable(appContext)) {
+
+            //Basic.msg("Aqui hay! "+isNetworkAvailable(appContext),true);
+            android.util.Log.w("DriveSync", "Sin conexión a internet. Se encolará cuando vuelva la conexión.");
+
+            // Solo forzamos el preloader si es el flujo inicial
+            if (!StartVar.mainStart) {
+                StartVar.setmMainStart(true);
+                resetPreloader(true);
+            }
+            // Puedes decidir si quieres encolar igual o no. WorkManager lo manejará con las constraints.
         }
 
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest
-                .Builder(workerClass)
-                .setConstraints(constraints)
-                .setInitialDelay(1, java.util.concurrent.TimeUnit.SECONDS)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, java.util.concurrent.TimeUnit.SECONDS)
-                .setInputData(data)
-                .build();
-
-        WorkManager.getInstance(StartVar.mContex)
-                .enqueueUniqueWork(tag, ExistingWorkPolicy.REPLACE, workRequest);
+        // 6. Encolar con política conservadora
+        try {
+            WorkManager.getInstance(appContext)
+                    .enqueueUniqueWork(tag, ExistingWorkPolicy.KEEP, workRequest);
+            android.util.Log.i("DriveSync", "✅ WorkManager encolado: " + tag);
+        } catch (Exception e) {
+            android.util.Log.e("DriveSync", "❌ Error Binder/WorkManager", e);
+        }
     }
 
     public static boolean isNetworkAvailable(Context context) {

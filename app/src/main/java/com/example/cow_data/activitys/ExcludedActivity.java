@@ -22,20 +22,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.adapters.CheckboxAdapter;
-import com.example.cow_data.adapters.GalleryAdapter;
-import com.example.cow_data.adapters.SearchAdapter;
 import com.example.cow_data.adapters.SelecAdapter;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 
 public class ExcludedActivity extends AppCompatActivity {
@@ -120,7 +114,7 @@ public class ExcludedActivity extends AppCompatActivity {
                     StartVar.usuarioQueue.enqueue(myUser);
 
 
-                    Intent mIntent = new Intent(AppContextProvider.getAppContext(), MainActivity.class);
+                    Intent mIntent = new Intent(AppContextProvider.getContext(), MainActivity.class);
                     startActivity(mIntent);
                     finish(); //Finaliza la actividad y ya no se accede mas
                 }
@@ -149,7 +143,7 @@ public class ExcludedActivity extends AppCompatActivity {
             usrList.add(mU.usuario);
         }
 
-        mAdapter = new SelecAdapter(AppContextProvider.getAppContext(), mtxList);
+        mAdapter = new SelecAdapter(AppContextProvider.getContext(), mtxList);
 
         listView1.setAdapter(mAdapter);
        //listView1.setVisibility(View.INVISIBLE);

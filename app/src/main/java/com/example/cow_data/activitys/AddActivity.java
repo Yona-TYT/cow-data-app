@@ -53,7 +53,7 @@ import com.example.cow_data.StartVar;
 import com.example.cow_data.databinding.ActivityMainBinding;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.drive.GoogleDriveManager;
+import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -623,8 +623,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);
                     if(mFile.exists()) {
-                        GoogleDriveManager manager = new GoogleDriveManager(PreferenceHelper.getInstance());
-                        manager.ImportImgToDrive(mFile);
+                        DriveManager manager = new DriveManager(PreferenceHelper.getInstance());
+                        manager.ImportDataToDrive(mFile, true);
                     }
                 }
 

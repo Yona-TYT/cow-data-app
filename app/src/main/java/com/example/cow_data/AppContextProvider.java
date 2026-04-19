@@ -20,7 +20,7 @@ public class AppContextProvider extends Application {
         return sInstance;
     }
 
-    public static Context getAppContext() {
+    public static Context getContext() {
         return sInstance != null ? sInstance.getApplicationContext() : null;
     }
 }

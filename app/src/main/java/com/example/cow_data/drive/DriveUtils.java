@@ -1,0 +1,356 @@
+package com.example.cow_data.drive;
+import android.util.Log;
+
+import com.example.cow_data.ex.Logs;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+public class DriveUtils {
+    private static final Logger LOG = Logs.of(DriveUpWorker.class);
+
+    private static final String TAG = "GoogleDriveFileHelper";
+
+    /**
+     * Obtiene metadatos de un archivo en Google Drive (ID, nombre, MD5 y fecha de modificación)
+     *
+     * @param accessToken Token de acceso de Google
+     * @param fileName    Nombre exacto del archivo
+     * @param folderId    ID de la carpeta donde buscar
+     * @return DriveFileMeta con la información, o null si no se encuentra
+     */
+    public static DriveFileMeta getFileMetaFromDrive(String accessToken, String fileName, String folderId) {
+        try {
+            // Construir query
+            String query = "name = '" + fileName + "' " +
+                    "and '" + folderId + "' in parents " +
+                    "and trashed = false";
+
+            String encodedQuery = URLEncoder.encode(query, "UTF-8");
+
+            // URL con los campos necesarios
+            String urlString = "https://www.googleapis.com/drive/v3/files" +
+                    "?q=" + encodedQuery +
+                    "&fields=files(id,name,md5Checksum,modifiedTime)";
+
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+            conn.setRequestProperty("Accept", "application/json");
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == 200) {
+                // Leer respuesta
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                br.close();
+
+                String response = sb.toString();
+
+                if (response.isEmpty() || response.equals("{}")) {
+                    Log.d(TAG, "Respuesta vacía para archivo: " + fileName);
+                    return null;
+                }
+
+                JSONObject json = new JSONObject(response);
+
+                if (!json.has("files") || json.isNull("files")) {
+                    return null;
+                }
+
+                JSONArray files = json.getJSONArray("files");
+
+                if (files.length() > 0) {
+                    JSONObject fileJson = files.getJSONObject(0);
+
+                    String id          = fileJson.optString("id", null);
+                    String name        = fileJson.optString("name", "Unknown");
+                    String md5         = fileJson.optString("md5Checksum", "");
+                    String modifiedTime = fileJson.optString("modifiedTime", "");
+
+                    if (id != null && !id.isEmpty()) {
+                        Log.d(TAG, "Archivo encontrado: " + name + " | MD5: " + md5 + " | Modified: " + modifiedTime);
+                        return new DriveFileMeta(id, name, md5, modifiedTime);
+                    }
+                }
+            } else {
+                Log.e(TAG, "Error HTTP " + responseCode + " buscando archivo: " + fileName);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error en getFileMetaFromDrive para " + fileName, e);
+        }
+
+        return null;
+    }
+
+    // ====================== MÉTODOS DE AYUDA ======================
+
+    /**
+     * Obtiene solo el MD5 del archivo
+     */
+    public static String getMd5Checksum(String accessToken, String fileName, String folderId) {
+        DriveFileMeta meta = getFileMetaFromDrive(accessToken, fileName, folderId);
+        return (meta != null) ? meta.md5Checksum : null;
+    }
+
+    /**
+     * Obtiene solo la fecha de modificación
+     */
+    public static String getModifiedTime(String accessToken, String fileName, String folderId) {
+        DriveFileMeta meta = getFileMetaFromDrive(accessToken, fileName, folderId);
+        return (meta != null) ? meta.modifiedTime : null;
+    }
+
+    /**
+     * Verifica si el archivo existe en la carpeta
+     */
+    public static boolean fileExists(String accessToken, String fileName, String folderId) {
+        return getFileMetaFromDrive(accessToken, fileName, folderId) != null;
+    }
+
+    public static long parseGoogleDriveTime(String modifiedTime) {
+        if (modifiedTime == null || modifiedTime.isEmpty()) {
+            return 0;
+        }
+        try {
+            // Google usa formato ISO 8601
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            java.util.Date date = sdf.parse(modifiedTime);
+            return date != null ? date.getTime() : 0;
+        } catch (Exception e) {
+            Log.e("No se pudo parsear la fecha de Drive: {}", modifiedTime);
+            return 0;
+        }
+    }
+
+    public static String getLocalFileMd5(File file) {
+        try (InputStream is = new FileInputStream(file)) {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) > 0) {
+                digest.update(buffer, 0, read);
+            }
+            byte[] md5sum = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : md5sum) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId) throws Exception {
+        if (DriveUtils.isNullOrEmpty(fileName)) {
+            return "";
+        }
+
+        try {
+            String escapedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+
+            String inFolderParam = "";
+            if (!DriveUtils.isNullOrEmpty(inFolderId)) {
+                inFolderParam = "+and+'" + inFolderId + "'+in+parents";
+            }
+
+            String searchUrl = "https://www.googleapis.com/drive/v3/files?q=name%20%3D%20%27"
+                    + escapedFileName
+                    + "%27%20and%20trashed%20%3D%20false"
+                    + inFolderParam;
+
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(searchUrl)
+                    .addHeader("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    String errorBody = response.body() != null ? response.body().string() : "";
+                    LOG.warn("Error buscando archivo '{}': HTTP {} - {}", fileName, response.code(), errorBody);
+                    return "";
+                }
+
+                String fileMetadata = response.body().string();
+                LOG.debug("Respuesta búsqueda archivo '{}': {}", fileName, fileMetadata);
+
+                JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+                JSONArray filesArray = fileMetadataJson.optJSONArray("files");
+
+                if (filesArray != null && filesArray.length() > 0) {
+                    String fileId = filesArray.getJSONObject(0).getString("id");
+                    LOG.debug("Archivo encontrado: {} → ID: {}", fileName, fileId);
+                    return fileId;
+                } else {
+                    LOG.debug("No se encontró el archivo: {}", fileName);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Excepción buscando archivo '{}'", fileName, e);
+        }
+
+        return "";  // No encontrado
+    }
+
+    public static String getFileIdFromFileName(String accessToken, String fileName, String inFolderId, String mimeType) throws Exception {
+        if (isNullOrEmpty(fileName)) {
+            return "";
+        }
+
+        // Build plain query string (escape specials like ' with \ if in fileName)
+        String escapedFileName = fileName.replace("\\", "\\\\").replace("'", "\\'");  // Escape for query syntax
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("name = '").append(escapedFileName).append("'");
+        queryBuilder.append(" and trashed = false");
+
+        if (!isNullOrEmpty(inFolderId)) {
+            queryBuilder.append(" and '").append(inFolderId).append("' in parents");
+        }
+
+        if (!isNullOrEmpty(mimeType)) {
+            queryBuilder.append(" and mimeType = '").append(mimeType).append("'");
+        }
+
+        String fullQuery = queryBuilder.toString();
+        String encodedQuery = URLEncoder.encode(fullQuery, StandardCharsets.UTF_8.toString());
+
+        String searchUrl = "https://www.googleapis.com/drive/v3/files?q=" + encodedQuery;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(searchUrl)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body().string();
+                LOG.warn("API error: " + response.code() + " - " + errorBody);
+                throw new Exception("Search failed: " + errorBody);  // e.g., "Invalid query"
+            }
+
+            String fileMetadata = response.body().string();
+            LOG.debug(fileMetadata);
+
+            JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+            JSONArray filesArray = fileMetadataJson.optJSONArray("files");
+            if (filesArray != null && filesArray.length() > 0) {
+                if (filesArray.length() > 1) {
+                    LOG.warn("Multiple matches for '" + fileName + "'. Returning first.");
+                }
+                return filesArray.getJSONObject(0).getString("id");
+            }
+        }
+
+        return "";  // Not found
+    }
+
+    public static String createEmptyFile(String accessToken, String fileName, String mimeType, String parentFolderId) throws Exception {
+
+        String fileId = null;
+        String createFileUrl = "https://www.googleapis.com/drive/v3/files";
+
+        String createFilePayload = "   {\n" +
+                "             \"name\": \"" + fileName + "\",\n" +
+                "             \"mimeType\": \"" + mimeType + "\",\n" +
+                "             \"parents\": [\"" + parentFolderId + "\"]\n" +
+                "            }";
+
+
+        OkHttpClient client = new OkHttpClient();
+        Request.Builder requestBuilder = new Request.Builder().url(createFileUrl);
+
+        requestBuilder.addHeader("Authorization", "Bearer " + accessToken);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), createFilePayload);
+        requestBuilder = requestBuilder.method("POST", body);
+
+
+        Request request = requestBuilder.build();
+        Response response = client.newCall(request).execute();
+        String fileMetadata = response.body().string();
+        LOG.debug(fileMetadata);
+        response.body().close();
+
+        JSONObject fileMetadataJson = new JSONObject(fileMetadata);
+        fileId = fileMetadataJson.getString("id");
+
+        return fileId;
+    }
+
+    /**
+     * Gets the MIME type to use for a given filename/extension
+     *
+     * @param fileName
+     * @return
+     */
+    public static String getMimeTypeFromFileName(String fileName) {
+        if (fileName.endsWith("kml")) {
+            return "application/vnd.google-earth.kml+xml";
+        }
+
+        if (fileName.endsWith("gpx")) {
+            return "application/gpx+xml";
+        }
+
+        if (fileName.endsWith("zip")) {
+            return "application/zip";
+        }
+
+        if (fileName.endsWith("xml")) {
+            return "application/xml";
+        }
+
+        if (fileName.endsWith("nmea") || fileName.endsWith("txt")) {
+            return "text/plain";
+        }
+
+        if (fileName.endsWith("geojson")) {
+            return "application/vnd.geo+json";
+        }
+
+        if (fileName.endsWith("csv")){
+            return "application/vnd.google-apps.spreadsheet";
+        }
+
+        return "application/octet-stream";
+
+    }
+
+    /**
+     * Checks if a string is null or empty
+     *
+     * @param text
+     * @return
+     */
+    public static boolean isNullOrEmpty(String text) {
+        return text == null || text.trim().isEmpty();
+    }
+}

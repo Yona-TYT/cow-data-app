@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -64,14 +63,14 @@ import eltos.simpledialogfragment.form.SimpleFormDialog;
 import com.example.cow_data.activitys.MainActivity;
 
 
-public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implements
+public class SettingsFragment extends PreferenceFragmentCompat implements
         SimpleDialog.OnDialogResultListener,
         Preference.OnPreferenceChangeListener,
         Preference.OnPreferenceClickListener {
 
-    private static final Logger LOG = Logs.of(GoogleDriveSettingsFragment.class);
+    private static final Logger LOG = Logs.of(SettingsFragment.class);
 
-    GoogleDriveManager manager;
+    DriveManager manager;
 
     private AuthState authState = new AuthState();
     private AuthorizationService authorizationService;
@@ -82,7 +81,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        manager = new GoogleDriveManager(PreferenceHelper.getInstance());
+        manager = new DriveManager(PreferenceHelper.getInstance());
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
             findPreference(PreferenceNames.AUTOSEND_GOOGLE_DRIVE_ENABLED).setEnabled(false);
@@ -135,7 +134,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
 
     private void setPreferencesState() {
 
-        authState = GoogleDriveManager.getAuthState();
+        authState = DriveManager.getAuthState();
         if (authState.isAuthorized()) {
             findPreference(PreferenceNames.GOOGLE_DRIVE_RESETAUTH).setTitle("Cerrar Seccion"/*R.string.osm_resetauth*/);
             findPreference(PreferenceNames.GOOGLE_DRIVE_RESETAUTH).setSummary("Al cerrar la seccion se desactiva la sincronizacion con Drive."/*R.string.google_drive_clearauthorization_summary*/);
@@ -147,11 +146,10 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
 
         findPreference("google_drive_test").setEnabled(authState.isAuthorized());
         findPreference("google_drive_sync").setEnabled(authState.isAuthorized());
+        findPreference("google_drive_sync_img").setEnabled(authState.isAuthorized());
 
 
         findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setVisible(false); // Ocultar la preferencia
-//        findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setEnabled(authState.isAuthorized());
-//        findPreference(PreferenceNames.GOOGLE_DRIVE_FOLDER_PATH).setSummary(PreferenceHelper.getInstance().getGoogleDriveFolderPath());
     }
 
     @Override
@@ -185,7 +183,7 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
                 setPreferencesState();
                 return true;
             }
-            authorizationService = GoogleDriveManager.getAuthorizationService(getActivity());
+            authorizationService = DriveManager.getAuthorizationService(getActivity());
 
             SecureRandom sr = new SecureRandom();
             byte[] ba = new byte[64];
@@ -198,13 +196,13 @@ public class GoogleDriveSettingsFragment extends PreferenceFragmentCompat implem
                 String codeChallenge = android.util.Base64.encodeToString(hash, Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP);
 
                 AuthorizationRequest.Builder requestBuilder = new AuthorizationRequest.Builder(
-                        GoogleDriveManager.getAuthorizationServiceConfiguration(),
-                        GoogleDriveManager.getGoogleDriveApplicationClientID(),
+                        DriveManager.getAuthorizationServiceConfiguration(),
+                        DriveManager.getGoogleDriveApplicationClientID(),
                         ResponseTypeValues.CODE,
-                        Uri.parse(GoogleDriveManager.getGoogleDriveApplicationOauth2Redirect())
+                        Uri.parse(DriveManager.getGoogleDriveApplicationOauth2Redirect())
                 ).setCodeVerifier(codeVerifier, codeChallenge, "S256");
 
-                requestBuilder.setScopes(GoogleDriveManager.getGoogleDriveApplicationScopes());
+                requestBuilder.setScopes(DriveManager.getGoogleDriveApplicationScopes());
                 AuthorizationRequest authRequest = requestBuilder.build();
                 Intent authIntent = authorizationService.getAuthorizationRequestIntent(authRequest);
                 googleDriveAuthenticationWorkflow.launch(new IntentSenderRequest.Builder(
