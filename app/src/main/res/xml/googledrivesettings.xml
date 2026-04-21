@@ -32,5 +32,10 @@
         android:title="Sincronizar Imagenes"
         app:iconSpaceReserved="false" />
 
+    <DropDownPreference
+        android:key="google_drive_backups"
+        android:title="Restaurar respaldo"
+        android:summary="Selecciona un respaldo CSV desde Drive"
+        app:iconSpaceReserved="false" />
 
 </PreferenceScreen>

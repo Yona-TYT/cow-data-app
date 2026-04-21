@@ -142,30 +142,35 @@ public class DriveManager {
 
     // Metodo para sincronizar desde el preloder
     public void dataSynchronizeStarting(){
-        internalDataSynchronize(false,true, false, false);
+        internalDataSynchronize(false,true, false, false, null);
     }
 
     // Metodo para sincronizar y enviar objetos
     public void dataSynchronizeObj(){
-        internalDataSynchronize(false,false, false, false);
+        internalDataSynchronize(false,false, false, false, null);
+    }
+
+    // Metodo para sincronizar con un Id especifico
+    public void dataSynchronizeSelect(String id){
+        internalDataSynchronize(false,false, false, false, id);
     }
 
     // Metodo para sincronizar y enviar imagenes
     public void dataSynchronizeImg(){
-        internalDataSynchronize(true,false, false, false);
+        internalDataSynchronize(true,false, false, false, null);
     }
 
     // Metodo para chequear estado sincronizacio
     public void dataSynchronizeCheck(){
-        internalDataSynchronize(false, false, false, true);
+        internalDataSynchronize(false, false, false, true, null);
     }
 
     // Metodo para sincronizar
     public void dataSynchronize(){
-        internalDataSynchronize( false,false, false, false);
+        internalDataSynchronize( false,false, false, false, null);
     }
 
-    public void internalDataSynchronize(boolean img, boolean preLoader, boolean newObj, boolean check){
+    public void internalDataSynchronize(boolean img, boolean preLoader, boolean newObj, boolean check, String selectId){
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/"+StartVar.csvAppName);
         // Crear un tag único para la tarea de descarga
         String tag = StartVar.WORK_TAG_DOWNLOAD;
@@ -188,6 +193,7 @@ public class DriveManager {
             dataMap.put("path", path.getAbsolutePath());
         }
         dataMap.put("name", StartVar.csvAppName);
+        dataMap.put("fileId", selectId);
         dataMap.put("preloader", preLoader);
         dataMap.put("newobj", newObj);
         dataMap.put("check", check);
@@ -213,7 +219,6 @@ public class DriveManager {
                     Basic.msg("Error Archivo no creado: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
-
                 if (file != null) {
                     mFileList.add(file);
                     // Ahora se envía también un respaldo
@@ -227,15 +232,19 @@ public class DriveManager {
                         }
                         if (newFile != null) {
                             // Ejecutar ImportDataToDrive en el hilo principal
-                            mFileList.add(file);
+                            mFileList.add(newFile);
                         }
                     }
                 }
                 if (!mFileList.isEmpty()){
                     ImportDataToDrive(mFileList, false);
                 }
-            });
+                else {
+                    //Si la lista esta vacia se procede a sincronizar
+                    dataSynchronize();
+                }
 
+            });
         } catch (Exception e) {
             Basic.msg("Error Archivo no creado: " + e.getMessage());
             e.printStackTrace();

@@ -107,10 +107,9 @@ public class SetWorkResult {
                             boolean isFileOk = outputData.getBoolean("file", false);
                             boolean isCheck = outputData.getBoolean("check", false);
                             boolean isImg = outputData.getBoolean("img", false);
-
+                            boolean isId = outputData.getBoolean("isId", false);
 
                             //Basic.msg("!!!!---0 !: "+ isCheck);
-
 
                             String[] filesDownloaded = outputData.getStringArray("files_downloaded");
 
@@ -126,8 +125,14 @@ public class SetWorkResult {
 
                                 File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
                                 if(mFile.exists()){
-
                                     Uri uri = Uri.fromFile(mFile);
+
+                                    // Se ha seleccionado un respaldo y remplazara todos los datos locales
+                                    if (isId){
+                                        String mMsg = "Restaurando respaldo...";
+                                        DBListCreator.cvsToDB(StartVar.mActivity, uri, 1, mMsg);
+                                        return;
+                                    }
 
                                     // call this to persist permission across decice reboots
                                     StringBuilder stringBuilder = new StringBuilder();
