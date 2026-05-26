@@ -46,6 +46,7 @@ import com.example.cow_data.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
+import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -273,7 +274,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mainSel = StartVar.currSel2;
         typeList = StartVar.typeList;
 
-        List<Usuario> listuser = StartVar.listuser;
+        List<Usuario> listuser = StartVar.appDatabase.daoUser().getUsers();
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {

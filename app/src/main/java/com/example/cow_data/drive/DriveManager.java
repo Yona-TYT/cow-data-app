@@ -237,6 +237,7 @@ public class DriveManager {
                     }
                 }
                 if (!mFileList.isEmpty()){
+                   // Basic.msg("List: "+mFileList.size());
                     ImportDataToDrive(mFileList, false);
                 }
                 else {

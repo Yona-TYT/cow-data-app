@@ -614,9 +614,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 mVars.getUserListDB();
                 //-------------------------------------------------------
 
-                //Esto inicia las actividad Main y cierra la actual
-                startActivity(new Intent(AddActivity.this,MainActivity.class));
-
                 //Encola al usuario para sincronizar
                 StartVar.usuarioQueue.enqueue(obj);
 
@@ -627,6 +624,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         manager.ImportDataToDrive(mFile, true);
                     }
                 }
+
+                //Esto inicia las actividad Main y cierra la actual
+                startActivity(new Intent(AddActivity.this,MainActivity.class));
 
                 finish(); //Finaliza la actividad y ya no se acceder mas
             }
