@@ -98,6 +98,7 @@ public class SetWorkResult {
                 .observe(lifecycle, workInfos -> {
                     for (WorkInfo workInfo : workInfos) {
                         if (workInfo.getState().isFinished()) {
+
                             StartVar.setmMainStart(true);
 
                             Data outputData = workInfo.getOutputData();
@@ -114,6 +115,7 @@ public class SetWorkResult {
                             String[] filesDownloaded = outputData.getStringArray("files_downloaded");
 
                             if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+
                                 String displayMessage = message != null ? message : "Descarga completada";
                                 if (filesDownloaded != null && filesDownloaded.length > 0) {
                                     displayMessage += ": " + String.join(", ", filesDownloaded);
@@ -123,8 +125,9 @@ public class SetWorkResult {
                                     return;
                                 }
 
-                                File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/DataSave.csv");
+                                File mFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/"+StartVar.csvAppName);
                                 if(mFile.exists()){
+
                                     Uri uri = Uri.fromFile(mFile);
 
                                     // Se ha seleccionado un respaldo y remplazara todos los datos locales
@@ -203,6 +206,9 @@ public class SetWorkResult {
 
                                             // Comparar fechas y horas
                                             int result = dateTimeA.compareTo(dateTimeB);
+
+
+
                                             if (result > 0) {
                                                 //uploadDataBase();
                                                 if (newObj) {
@@ -211,7 +217,7 @@ public class SetWorkResult {
 
                                                 }
                                                 else{
-                                                    //Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")");
+                                                    Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")", true);
 
                                                     if(isCheck) {
                                                         StartVar.usuarioQueue.startUsuarioQueue(1);
