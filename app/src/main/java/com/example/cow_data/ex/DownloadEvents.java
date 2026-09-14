@@ -76,26 +76,6 @@ public class DownloadEvents {
 
         }
 
-
-        public static class CustomUrl extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-
-        public static class Dropbox extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-        public static class GoogleDrive extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-
-        public static class Ftp extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {
-            public ArrayList<String> ftpMessages;
-        }
-
-        public static class OpenGTS extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-
-        public static class OpenStreetMap extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-
-        public static class OwnCloud extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {}
-
-        public static class SFTP extends com.example.cow_data.ex.UploadEvents.BaseUploadEvent {
-            public String fingerprint;
-            public String hostKey;
-        }
     }
 
 

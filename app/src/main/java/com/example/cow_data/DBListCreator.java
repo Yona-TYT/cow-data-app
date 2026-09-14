@@ -2,6 +2,7 @@ package com.example.cow_data;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -11,7 +12,6 @@ import com.example.cow_data.db.Conf;
 import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.dao.DaoCfg;
-import com.example.cow_data.utls.Basic;
 import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.utls.Msg;
 
@@ -29,9 +29,17 @@ public class DBListCreator extends AppCompatActivity {
 
     // Classs para la gestion de archivos
     private FilesManager fmang = new FilesManager();
-    public DBListCreator(){}
+    private GlobalData glData ;
 
-    public static HashMap<String, ArrayList<Object>> createList(){
+    private final Context context;
+
+    // Constructor para forzar el uso del contexto correcto
+    public DBListCreator(Context context) {
+        this.context = context.getApplicationContext();
+        this.glData = GlobalData.getInstance(this.context);
+    }
+
+    public static HashMap<String, ArrayList<Object>> createDbLists(){
 
         DaoCfg daoConf = StartVar.appDBall.daoCfg();
 

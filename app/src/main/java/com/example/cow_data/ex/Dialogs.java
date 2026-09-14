@@ -14,8 +14,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.Toast;
-import com.google.common.base.Strings;  // O usa android.text.TextUtils si no tienes Guava
-// ... otros imports necesarios (ej. para LOG si lo usas)
 
 public class Dialogs {
     private static ProgressDialog simpleProgress;  // Para progress genérico
@@ -96,16 +94,66 @@ public class Dialogs {
 
     // Progress dialog
     public static void progress(Context context, String title) {
-        simpleProgress = new ProgressDialog(context);
-        simpleProgress.setTitle(title);
-        simpleProgress.setMessage("Por favor espere...");
-        simpleProgress.setCancelable(false);
-        simpleProgress.show();
-    }
+        // 1. VALIDACIÓN PREVIA: Si el contexto es una actividad que está muriendo, no hacemos nada
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+        }
 
-    public static void hideProgress() {
-        if (simpleProgress != null && simpleProgress.isShowing()) {
-            simpleProgress.dismiss();
+        try {
+            // Aseguramos cerrar cualquier residuo previo antes de abrir uno nuevo
+            hideProgress();
+
+            simpleProgress = new ProgressDialog(context);
+            simpleProgress.setTitle(title);
+            simpleProgress.setMessage("Por favor espere...");
+            simpleProgress.setCancelable(false);
+            simpleProgress.show();
+        } catch (Exception e) {
+            android.util.Log.e("Dialogs", "Error al mostrar el progreso", e);
         }
     }
+//    public static void progress(Context context, String title) {
+//        simpleProgress = new ProgressDialog(context);
+//        simpleProgress.setTitle(title);
+//        simpleProgress.setMessage("Por favor espere...");
+//        simpleProgress.setCancelable(false);
+//        simpleProgress.show();
+//    }
+
+//    public static void hideProgress() {
+//        if (simpleProgress != null && simpleProgress.isShowing()) {
+//            simpleProgress.dismiss();
+//        }
+//    }
+
+    public static void hideProgress() {
+        try {
+            if (simpleProgress != null && simpleProgress.isShowing()) {
+                // 2. CORRECCIÓN DEL CRASH: Comprobamos el contexto de la ventana del diálogo
+                Context context = simpleProgress.getContext();
+                if (context instanceof Activity) {
+                    Activity activity = (Activity) context;
+                    // Si la pantalla ya murió, no podemos llamar a dismiss() o crasheará
+                    if (activity.isFinishing() || activity.isDestroyed()) {
+                        simpleProgress = null; // Limpiamos la referencia estática y salimos
+                        return;
+                    }
+                }
+
+                // Si todo está en orden, cerramos de forma segura
+                simpleProgress.dismiss();
+            }
+        } catch (IllegalArgumentException e) {
+            // Captura el error específico del log: "not attached to window manager"
+            android.util.Log.w("Dialogs", "El diálogo ya no estaba acoplado a la ventana.");
+        } catch (Exception e) {
+            android.util.Log.e("Dialogs", "Error al ocultar el progreso", e);
+        } finally {
+            simpleProgress = null; // Garantizamos liberar la memoria siempre
+        }
+    }
+
 }

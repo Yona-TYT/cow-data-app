@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Msg.m("Aquuuuuuuuiiiiii Hayyyyyyyy !: "+listuser.size());
 
         //Test
-        HashMap<String, ArrayList<Object>> arrayMap = DBListCreator.createList();
+        HashMap<String, ArrayList<Object>> arrayMap = DBListCreator.createDbLists();
 
         if(StartVar.makeUpdate){
             DriveManager manager = new DriveManager(PreferenceHelper.getInstance());

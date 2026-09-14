@@ -1,8 +1,6 @@
 package com.example.cow_data.drive;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -10,14 +8,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.utls.Basic;
+import com.example.cow_data.DBListCreator;
+import com.example.cow_data.GlobalData;
+import com.example.cow_data.db.Conf;
+import com.example.cow_data.db.GenericQueue;
 import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.db.Usuario;
 import com.example.cow_data.ex.Logs;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.utls.Msg;
@@ -38,17 +35,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 
 public class DriveManager {
     private static DriveManager instance;
     private static final Logger LOG = Logs.of(DriveManager.class);
+    private static final String TAG = "DriveManager";
+
     private final PreferenceHelper preferenceHelper;
     @SuppressLint("StaticFieldLeak")
     private static Context mContext;
 
     private java.io.File file;
+
+    private GlobalData glData = GlobalData.getInstance(AppContextProvider.getContext());
 
     public static synchronized DriveManager getInstance() {
         if (instance == null) {
@@ -99,7 +99,7 @@ public class DriveManager {
 
         //copyToClipboard(mContext, google_drive_auth_state, "tago");
 
-        if (!isNullOrEmpty(google_drive_auth_state)) {
+        if (!DriveUtils.isNullOrEmpty(google_drive_auth_state)) {
             try {
                 authState = AuthState.jsonDeserialize(google_drive_auth_state);
 
@@ -118,24 +118,54 @@ public class DriveManager {
 
     public void ImportDataToDrive(File file, boolean img) {
         if (file == null) {
-            Log.e("ImportData", "El archivo es null");
+            android.util.Log.e(TAG, "El archivo es null");
             return;
         }
         List<File> files = Collections.singletonList(file);   // Forma más corta y eficiente
         InternalImportDataToDrive(files, img);
     }
 
-    public void InternalImportDataToDrive(List<File> files, boolean img) {
-        String tag = String.valueOf(Objects.hashCode(files));
+    /** Directorio de datos de la app en Documents */
+    public static File getAppDataDir() {
+        File path = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS + "/" + StartVar.dirAppName + "/");
+        if (!path.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            path.mkdirs();
+        }
+        return path;
+    }
 
+    public static File getLocalUploadFile() {
+        return new File(getAppDataDir(), StartVar.LOCAL_UPLOAD);
+    }
+
+    public static File getLocalDownloadFile() {
+        return new File(getAppDataDir(), StartVar.LOCAL_DOWNLOAD);
+    }
+
+    /** Nombre remoto en Drive para un file local de subida */
+    public static String remoteNameForUpload(File local) {
+        if (local == null) return StartVar.EXPORT_NAME;
+        String n = local.getName();
+        if (StartVar.LOCAL_UPLOAD.equals(n) || StartVar.EXPORT_NAME.equals(n)) {
+            return StartVar.EXPORT_NAME; // siempre DataSave.bin en Drive
+        }
+        return n; // respaldos diarios 2026-08-21.bin, etc.
+    }
+
+
+    public void InternalImportDataToDrive(List<File> files, boolean img) {
+        String tag = img ? StartVar.WORK_TAG_UPLOAD_IMG : StartVar.WORK_TAG_UPLOAD;
+
+        String[] paths = files.stream().map(File::getAbsolutePath).toArray(String[]::new);
+        String[] remoteNames = files.stream().map(DriveManager::remoteNameForUpload).toArray(String[]::new);
 
         HashMap<String, Object> dataMap = new HashMap<>();
-        dataMap.put("filePaths", files.stream().map(File::getAbsolutePath).toArray(String[]::new));
-
+        dataMap.put("filePaths", paths);
+        dataMap.put("remoteNames", remoteNames); // paralelo a filePaths
         dataMap.put("filePath", "");
-
         dataMap.put("img", img);
-
         dataMap.put("list", true);
 
         SetWorkResult.startWorkManagerRequest(DriveUpWorker.class, dataMap, tag);
@@ -146,7 +176,7 @@ public class DriveManager {
         internalDataSynchronize(false,true, false, false, null);
     }
 
-    // Metodo para sincronizar y enviar objetos
+    // Metodo para sincronizar y enviar objetosnull
     public void dataSynchronizeObj(){
         internalDataSynchronize(false,false, false, false, null);
     }
@@ -168,88 +198,130 @@ public class DriveManager {
 
     // Metodo para sincronizar
     public void dataSynchronize(){
-        internalDataSynchronize( false,false, false, false, null);
+        GenericQueue q = GlobalData.getInstance(mContext).getGenericQueue();
+        if (q.hasPendingQueueItems()) {
+            Log.w(TAG, "Cola pendiente: se omite dataSynchronize()");
+            Msg.m("Sincronizando...");
+            return;
+        }
+        internalDataSynchronize(false, false, false, false, null);
     }
 
-    public void internalDataSynchronize(boolean img, boolean preLoader, boolean newObj, boolean check, String selectId){
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/"+StartVar.csvAppName);
-        // Crear un tag único para la tarea de descarga
-        String tag = StartVar.WORK_TAG_DOWNLOAD;
+    public void internalDataSynchronize(boolean img, boolean preLoader, boolean newObj,
+                                        boolean check, String selectId) {
+        String tag = img ? StartVar.WORK_TAG_DOWNLOAD_IMG : StartVar.WORK_TAG_DOWNLOAD;
 
-        // Preparar datos de entrada
         HashMap<String, Object> dataMap = new HashMap<>();
+        File path;
 
-        if(img){
-            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/");
+        if (img) {
+            path = getAppDataDir();
             dataMap.put("img", true);
-            dataMap.put("type", "?alt=media");
-
-        }
-        else {
-            dataMap.put("img", false);
-            dataMap.put("type", "/export?mimeType=text/csv");
-        }
-
-        if (path != null) {
             dataMap.put("path", path.getAbsolutePath());
+            dataMap.put("name", ""); // imágenes: según tu worker
+        } else {
+            // Baja a archivo SEPARADO: no pisa el de subida
+            File downloadTarget = getLocalDownloadFile();
+            dataMap.put("img", false);
+            dataMap.put("path", downloadTarget.getAbsolutePath()); // path completo del file
+            dataMap.put("name", StartVar.EXPORT_NAME);           // nombre en Drive a buscar
+            dataMap.put("localName", StartVar.LOCAL_DOWNLOAD);
         }
-        dataMap.put("name", StartVar.csvAppName);
+
+        dataMap.put("type", "?alt=media");
         dataMap.put("fileId", selectId);
         dataMap.put("preloader", preLoader);
         dataMap.put("newobj", newObj);
         dataMap.put("check", check);
 
-        // Encolar el GoogleDriveDownloadWorker
         SetWorkResult.startWorkManagerRequest(DriveDowWorker.class, dataMap, tag);
     }
 
-    public void uploadDataBase() {
-        //Dialogs.progress((FragmentActivity) getActivity(), "getString(R.string.please_wait)");
-        //Msg.m("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
-        Context context = AppContextProvider.getContext();
-        try {
-            // Ejecutar ImportDataToDrive en el hilo principal
-            new Handler(Looper.getMainLooper()).post(() -> {
-                List<File> mFileList = new ArrayList<>();
-                FilesManager fMang = new FilesManager();
-                File file;
-                String name = StartVar.csvAppName;
-                try {
-                    file = fMang.csvExport(StartVar.csvList, name);
-                } catch (IOException e) {
-                    Msg.m("Error Archivo no creado: " + e.getMessage());
-                    throw new RuntimeException(e);
-                }
-                if (file != null) {
-                    mFileList.add(file);
-                    // Ahora se envía también un respaldo
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        LocalDate currDate = LocalDate.now();
-                        File newFile;
-                        try {
-                            newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-") + ".csv");
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (newFile != null) {
-                            // Ejecutar ImportDataToDrive en el hilo principal
-                            mFileList.add(newFile);
-                        }
-                    }
-                }
-                if (!mFileList.isEmpty()){
-                   // Msg.m("List: "+mFileList.size());
-                    ImportDataToDrive(mFileList, false);
-                }
-                else {
-                    //Si la lista esta vacia se procede a sincronizar
-                    dataSynchronize();
-                }
 
-            });
+    public void uploadDataBase() {
+        final String tag = TAG;
+
+        try {
+            if (StartVar.csvList != null) {
+                StartVar.csvList.clear();
+            }
+            DBListCreator.createDbLists();
+
+            if (StartVar.csvList == null || StartVar.csvList.isEmpty()) {
+                Log.e(tag, "csvList vacía tras createDbLists → cancelo subida");
+                Msg.m("Error: no hay datos para exportar");
+                return;
+            }
+
+            Conf c = StartVar.appDBall.daoCfg().getUsers(StartVar.mConfID);
+            if (c == null) {
+                Log.e(tag, "Conf null en Room");
+                return;
+            }
+
+            String[] confRow = StartVar.csvList.get(1);
+            Log.d(tag, "Room date=" + c.date + " time=" + c.time
+                    + " | csvList date=" + confRow[6] + " dbg=" + confRow[13]);
+
+            if (!String.valueOf(c.date).equals(String.valueOf(confRow[6]))) {
+                Log.w(tag, "Desfase Room vs csvList → regenerando");
+                StartVar.csvList.clear();
+                DBListCreator.createDbLists();
+                confRow = StartVar.csvList.get(1);
+                Log.d(tag, "Reintento csvList date=" + confRow[6]);
+            }
+
+            FilesManager fMang = new FilesManager();
+
+            // Export SOLO a DataSave.upload.bin (no al path que usa el download)
+            File uploadFile = getLocalUploadFile();
+            if (uploadFile.exists() && !uploadFile.delete()) {
+                Log.w(tag, "No se pudo borrar upload previo");
+            }
+
+            File file = fMang.csvExport(StartVar.csvList, StartVar.LOCAL_UPLOAD);
+            if (file == null || !file.exists()) {
+                Log.e(tag, "csvExport falló para LOCAL_UPLOAD");
+                Msg.m("Error: archivo no creado");
+                return;
+            }
+
+            file.setLastModified(System.currentTimeMillis());
+            Log.d(tag, "Upload local path=" + file.getAbsolutePath()
+                    + " size=" + file.length()
+                    + " md5=" + DriveUtils.getLocalFileMd5(file)
+                    + " → remoto=" + StartVar.EXPORT_NAME);
+
+            if (!FilesManager.isCsvSafeToUpload(file)) {
+                Log.e(tag, "CSV inválido");
+                Msg.m("Error: archivo inválido");
+                return;
+            }
+
+            List<File> mFileList = new ArrayList<>();
+            mFileList.add(file); // Worker debe subir como DataSave.bin
+
+            // Respaldo diario (mismo contenido; en Drive conserva su nombre)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                try {
+                    String backupName = LocalDate.now().toString().replaceAll("\\D", "-") + ".bin";
+                    File backup = FilesManager.getNewFile(file.getAbsolutePath(), backupName);
+                    if (backup != null && backup.exists()) {
+                        Log.d(tag, "Respaldo=" + backup.getName()
+                                + " md5=" + DriveUtils.getLocalFileMd5(backup));
+                        mFileList.add(backup);
+                    }
+                } catch (IOException e) {
+                    Log.e(tag, "Error respaldo: " + e.getMessage());
+                }
+            }
+
+            ImportDataToDrive(mFileList, false);
+            Log.d(tag, "Subida encolada: " + mFileList.size() + " archivo(s)");
+
         } catch (Exception e) {
-            Msg.m("Error Archivo no creado: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(tag, "Error en uploadDataBase", e);
+            Msg.m("Error al subir: " + e.getMessage());
         }
     }
 
@@ -263,32 +335,29 @@ public class DriveManager {
             try {
                 List<File> mFileList = new ArrayList<>();
 
-                List<Usuario> users = StartVar.appDBall.daoUser().getUsers();
                 // Procesamiento de la lista (Operación pesada de I/O)
-                if (users != null) {
-                    for (Usuario mUser : users){
-                        if(mUser != null && !mUser.imagen.isEmpty()){
-                            File mFile = new File(mUser.imagen);
-                            if(mFile.exists()){
-                                mFileList.add(mFile);
-                            }
-                        }
+                for (String s : StartVar.getImgList()) {
+                    File mFile = new File(s);
+                    if (mFile.exists()) {
+                        mFileList.add(mFile);
                     }
                 }
-
                 // 3. Encolar el trabajo solo si hay archivos
                 if (!mFileList.isEmpty()) {
-                    //Msg.m("Siz img: "+mFileList.size());
+                    // Basic.msg("Siz img: "+mFileList.size());
                     // Llamamos a ImportDataToDrive directamente desde este hilo
                     ImportDataToDrive( mFileList, true);
-
-                    android.util.Log.i("DriveSync", "✅ Lista preparada: " + mFileList.size() + " imágenes.");
-                } else {
-                    android.util.Log.w("DriveSync", "⚠️ No se encontraron imágenes para subir.");
+                    android.util.Log.i(TAG, "✅ Lista preparada: " + mFileList.size() + " imágenes.");
+                }
+                else {
+                    Msg.m("Descargando imagenes...");
+                    //Si la lista esta vacia se procede a descargar las imagenes
+                    dataSynchronizeImg();
+                    android.util.Log.w(TAG, "⚠️ No se encontraron imágenes para subir.");
                 }
 
             } catch (Exception e) {
-                android.util.Log.e("DriveSync", "❌ Error en el hilo de búsqueda de imágenes", e);
+                android.util.Log.e(TAG, "❌ Error en el hilo de búsqueda de imágenes", e);
                 // Si necesitas mostrar un mensaje al usuario, usa el MainLooper solo para el Toast
                 new Handler(Looper.getMainLooper()).post(() ->
                         Msg.m("Error al procesar imágenes: " + e.getMessage())
@@ -311,43 +380,5 @@ public class DriveManager {
 
     public boolean accept(File file, String s) {
         return true;
-    }
-
-
-    /**
-     * Checks if a string is null or empty
-     *
-     * @param text
-     * @return
-     */
-    public static boolean isNullOrEmpty(String text) {
-        return text == null ||  text.trim().length() == 0;
-    }
-
-    /**
-     * Copia un texto al portapapeles del dispositivo.
-     *
-     * @param context Contexto de la aplicación.
-     * @param text    Texto a copiar al portapapeles.
-     * @param label   Etiqueta opcional para describir el contenido (puede ser null).
-     * @return true si se copió exitosamente, false si ocurrió un error.
-     */
-    public static boolean copyToClipboard(@NonNull Context context, @NonNull String text, @Nullable String label) {
-        try {
-            // Obtener el servicio del portapapeles
-            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-
-            // Crear un ClipData con el texto
-            ClipData clip = ClipData.newPlainText(label != null ? label : "Texto copiado", text);
-
-            // Copiar al portapapeles
-            clipboard.setPrimaryClip(clip);
-
-            return true;
-        } catch (Exception e) {
-            // Registrar el error (puedes usar un logger como Logcat o el de tu preferencia)
-            android.util.Log.e("ClipboardUtils", "Error al copiar al portapapeles: " + e.getMessage(), e);
-            return false;
-        }
     }
 }

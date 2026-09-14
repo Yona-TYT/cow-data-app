@@ -24,19 +24,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
-//import com.mendhak.gpslogger.R;
-//import com.mendhak.gpslogger.common.slf4j.Logs;
-//import com.mendhak.gpslogger.loggers.Files;
-//import com.mendhak.gpslogger.common.AppSettings;
 
-import com.example.cow_data.StartVar;
+import com.example.cow_data.AppContextProvider;
 
 import org.slf4j.Logger;
-
 import java.io.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.*;
 
 public class PreferenceHelper {
 
@@ -44,10 +36,9 @@ public class PreferenceHelper {
     private SharedPreferences prefs;
     private static final Logger LOG = Logs.of(PreferenceHelper.class);
 
-    //Test------------------------------------
     @SuppressLint("StaticFieldLeak")
-    private static Context mContext;
-    //---------------------------------------
+    private static Context mContext = AppContextProvider.getContext();
+
     /**
      * Use PreferenceHelper.getInstance()
      */
@@ -57,7 +48,7 @@ public class PreferenceHelper {
     public static PreferenceHelper getInstance(){
         if(instance==null){
             instance = new PreferenceHelper();
-            instance.prefs = PreferenceManager.getDefaultSharedPreferences(StartVar.mContex/*AppSettings.getInstance().getApplicationContext()*/);
+            instance.prefs = PreferenceManager.getDefaultSharedPreferences(mContext/*AppSettings.getInstance().getApplicationContext()*/);
         }
 
         return instance;
@@ -118,7 +109,7 @@ public class PreferenceHelper {
      */
     @ProfilePreference(name= PreferenceNames.GPSLOGGER_FOLDER)
     public String getGpsLoggerFolder() {
-        return prefs.getString(PreferenceNames.GPSLOGGER_FOLDER, storageFolder(StartVar.mContex).getAbsolutePath());
+        return prefs.getString(PreferenceNames.GPSLOGGER_FOLDER, storageFolder(mContext).getAbsolutePath());
     }
 
     public static File storageFolder(Context context){

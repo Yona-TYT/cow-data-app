@@ -198,4 +198,13 @@ public class StartVar {
         StartVar.arrayMap = mMap;
     }
 
+    public static List<String> getImgList(){
+        ArrayList<String> list = new ArrayList<>();
+        List<Usuario> users =  StartVar.appDBall.daoUser().getUsers();
+        for (Usuario mU : users) {
+            list.add(mU.imagen);
+        }
+        return list;
+    }
+
 }

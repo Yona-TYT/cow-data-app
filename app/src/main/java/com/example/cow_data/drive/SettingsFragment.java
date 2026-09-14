@@ -30,7 +30,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.utls.Basic;
+import com.example.cow_data.GlobalData;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.ex.Dialogs;
@@ -39,7 +39,6 @@ import com.example.cow_data.ex.EventBusHook;
 import com.example.cow_data.ex.Logs;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.ex.PreferenceNames;
-import com.example.cow_data.ex.UploadEvents;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
@@ -69,6 +68,7 @@ import eltos.simpledialogfragment.form.Input;
 import eltos.simpledialogfragment.form.SimpleFormDialog;
 
 import com.example.cow_data.activitys.MainActivity;
+import com.example.cow_data.ex.UploadEvents;
 import com.example.cow_data.utls.Msg;
 
 
@@ -77,6 +77,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         Preference.OnPreferenceChangeListener,
         Preference.OnPreferenceClickListener {
 
+    private GlobalData glData = GlobalData.getInstance(AppContextProvider.getContext());
+
     private static final Logger LOG = Logs.of(SettingsFragment.class);
 
     DriveManager manager;
@@ -84,6 +86,55 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     private AuthState authState = new AuthState();
     private AuthorizationService authorizationService;
     private SetWorkResult mWorkResult;
+
+
+    public void onEvent(Object event) {
+        // Dejar vacío por ahora para evitar el crash fatídico
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+        super.onStop();
+    }
+
+    @EventBusHook
+    public void onEventMainThread(UploadEvents.GoogleDrive event) {
+        if (!event.success) {
+            Dialogs.hideProgress();
+            Dialogs.showError(getContext(), "Error",
+                    "No se pudo sincronizar con Google Drive",
+                    event.message, event.throwable);
+            return;
+        }
+
+        String msg = event.message != null ? event.message : "";
+
+        // Solo aquí termina el flujo de imágenes
+        if (msg.contains("Imágenes sincronizadas") || msg.contains("Imágenes descargadas")) {
+            Dialogs.hideProgress();
+            if (StartVar.mActivity != null) {
+                Intent i = new Intent(AppContextProvider.getContext(), MainActivity.class);
+                StartVar.mActivity.startActivity(i);
+                StartVar.mActivity.finish();
+            }
+            return;
+        }
+
+        // Upload terminó → falta el download
+        Dialogs.progress((FragmentActivity) getActivity(), "Descargando imágenes...");
+        manager.dataSynchronizeImg();
+    }
 
 
     @Override
@@ -158,7 +209,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                 String latestFolderId = null;
 
                 for (String part : pathParts) {
-                    latestFolderId = DriveUtils.getFileIdFromFileName(googleDriveAccessToken, part, parentFolderId);
+                    latestFolderId = DriveUtils.getFileIdFromFileName(googleDriveAccessToken, part, parentFolderId, "application/vnd.google-apps.folder");
                     if (DriveUtils.isNullOrEmpty(latestFolderId)) {
                         latestFolderId = DriveUtils.createEmptyFile(googleDriveAccessToken, part,
                                 "application/vnd.google-apps.folder",
@@ -167,28 +218,28 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                     parentFolderId = latestFolderId;
                 }
 
-                List<DriveFileMeta> csvFiles = DriveUtils.listCsvFilesFromDrive(googleDriveAccessToken, latestFolderId);
+                List<DriveFileMeta> metaList = DriveUtils.listFilesFromDrive(googleDriveAccessToken, latestFolderId);
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    if (csvFiles.isEmpty()) {
+                    if (metaList.isEmpty()) {
                         spinner.setSummary("No hay respaldos disponibles");
                         spinner.setEnabled(false);
                         return;
                     }
 
                     // ==================== ELEMENTO FALSO AL INICIO ====================
-                    String[] entries = new String[csvFiles.size() + 1];
-                    String[] entryValues = new String[csvFiles.size() + 1];
+                    String[] entries = new String[metaList.size() + 1];
+                    String[] entryValues = new String[metaList.size() + 1];
 
                     // Primer elemento falso (no hace nada)
                     entries[0] = "— Selecciona un respaldo —";
                     entryValues[0] = "";   // valor vacío = no hacer nada
 
                     // Agregar los respaldos reales a partir del índice 1
-                    for (int i = 0; i < csvFiles.size(); i++) {
-                        DriveFileMeta file = csvFiles.get(i);
-                        entries[i + 1] = file.name + " (" + file.modifiedTime + ")";
-                        entryValues[i + 1] = file.id;
+                    for (int i = 0; i < metaList.size(); i++) {
+                        DriveFileMeta meta = metaList.get(i);
+                        entries[i + 1] = meta.name + " (" + meta.modifiedTime + ")";
+                        entryValues[i + 1] = meta.id;
                     }
 
                     spinner.setEntries(entries);
@@ -255,12 +306,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                         .setMessage("¿Estás seguro de restaurar este respaldo?\n\nEsta acción puede sobrescribir datos existentes.")
                         .setPositiveButton("Restaurar", (dialog, which) -> {
 
-                            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/"+StartVar.csvAppName);
+                            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/"+StartVar.EXPORT_NAME);
                             String mType = "?alt=media";
                             //DriveUtils.downloadFileFromDrive(accessToken,  selectedFileId, path, mType);
                             manager.dataSynchronizeSelect(selectedFileId);
 
-                        })
+                            })
                         .setNegativeButton("Cancelar", null)
                         .show();
             }
@@ -425,77 +476,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         return false;
     }
 
-    @EventBusHook
-    public void onEventMainThread(UploadEvents.GoogleDrive event) {
-        LOG.debug("Evento Google Drive recibido, éxito: " + event.success);
-        Dialogs.hideProgress();  // Oculta loading
-
-        if (!event.success) {
-            Dialogs.showError(getContext(),
-                    "Error",  // Título
-                    "No se pudo Sincronizar desde Google Drive",  // Mensaje amigable
-                    event.message,
-                    event.throwable);
-        } else {
-            // Detalles opcionales
-            @SuppressLint("DefaultLocale") String detailMsg = String.format("✅ %s %d",
-                    event.message,
-                    event.count);
-
-            DialogInterface.OnClickListener successListener = (dialog, which) -> {
-                LOG.debug("Botón [Aceptar] en éxito pulsado");
-                dialog.dismiss();  // Opcional
-
-                Intent mIntent = new Intent(AppContextProvider.getContext(), MainActivity.class);
-                StartVar.mActivity.startActivity(mIntent);
-                StartVar.mActivity.finish();
-            };
-
-            if(event.count > 0) {
-                Dialogs.progress((FragmentActivity) getActivity(), "Subidos " + event.count +" Archivos...");
-            }
-            else{
-                Dialogs.progress((FragmentActivity) getActivity(), "Sincronizado Imagenes...");
-            }
-
-            manager.dataSynchronizeImg();
-
-        }
-    }
-
-    @EventBusHook
-    public void onEventMainThread(DownloadEvents.GoogleDrive event) {
-        LOG.debug("Evento Google Drive recibido, éxito: " + event.success);
-        Dialogs.hideProgress();  // Oculta loading
-
-        if (!event.success) {
-            Dialogs.showError(getContext(),
-                    "Error",  // Título
-                    "No se pudo Sincronizar desde Google Drive",  // Mensaje amigable
-                    event.message,
-                    event.throwable);
-        } else {
-            // Detalles opcionales
-            @SuppressLint("DefaultLocale") String detailMsg = String.format("✅ %s %d",
-                    event.message,
-                    event.count);
-
-            DialogInterface.OnClickListener successListener = (dialog, which) -> {
-                LOG.debug("Botón [Aceptar] en éxito pulsado");
-                dialog.dismiss();  // Opcional
-
-                Intent mIntent = new Intent(AppContextProvider.getContext(), MainActivity.class);
-                StartVar.mActivity.startActivity(mIntent);
-                StartVar.mActivity.finish();
-            };
-            Dialogs.alert(getContext(),
-                    "Completado",
-                    detailMsg,
-                    successListener);
-        }
-    }
-
-    public static File createTestFile() throws IOException {
+    public File createTestFile() throws IOException {
         File gpxFolder = new File(PreferenceHelper.getInstance().getGpsLoggerFolder());
         if (!gpxFolder.exists()) {
             gpxFolder.mkdirs();

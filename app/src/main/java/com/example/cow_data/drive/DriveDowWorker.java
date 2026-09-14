@@ -1,32 +1,28 @@
 package com.example.cow_data.drive;
 
-
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.cow_data.StartVar;
 import com.example.cow_data.ex.DownloadEvents;
 import com.example.cow_data.ex.Logs;
 import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.ex.UploadEvents;
 
 import net.openid.appauth.AuthState;
-import net.openid.appauth.AuthorizationException;
 import net.openid.appauth.AuthorizationService;
-
 
 import org.slf4j.Logger;
 
 import java.io.File;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.greenrobot.event.EventBus;
-
 
 public class DriveDowWorker extends Worker {
     private static final Logger LOG = Logs.of(DriveDowWorker.class);
@@ -42,6 +38,7 @@ public class DriveDowWorker extends Worker {
     private static final String KEY_IS_CHECK = "check";
     private static final String KEY_IS_IMG = "img";
     private static final String KEY_IS_ID = "isId";
+
     private int count = 0;
 
 
@@ -53,199 +50,205 @@ public class DriveDowWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Result mResult = null;
         String failureMessage = "";
-        String downloadMessage = "";
         boolean isFileOk = true;
-
         count = 0;
 
         String filePath = getInputData().getString("path");
         String fileName = getInputData().getString("name");
-        String fileType = getInputData().getString("type");
+        String fileType = getInputData().getString("type"); // ej. "?alt=media"
         String fileId = getInputData().getString("fileId");
 
         boolean isPreloader = getInputData().getBoolean("preloader", false);
         boolean isNewObj = getInputData().getBoolean("newobj", false);
         boolean isCheck = getInputData().getBoolean("check", false);
         boolean isImg = getInputData().getBoolean("img", false);
-
         boolean isId = fileId != null && !fileId.isEmpty();
 
         File fileToDownload = new File(filePath);
         boolean success = true;
         Throwable failureThrowable = null;
-        AuthState authState = DriveManager.getAuthState();
 
-        if (!authState.isAuthorized()) {
-            failureMessage = "Could not download to Google Drive. Not Authorized.";
-            //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed("Could not upload to Google Drive. Not Authorized."));
+        AuthState authState = DriveManager.getAuthState();
+        if (authState == null || !authState.isAuthorized()) {
+            failureMessage = "Could not download. Not Authorized.";
+            return Result.failure(new Data.Builder()
+                    .putString(KEY_RESULT_MESSAGE, failureMessage)
+                    .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                    .putBoolean(KEY_IS_FILE_OK, false)
+                    .build());
         }
 
-        final AtomicBoolean taskDone = new AtomicBoolean(false);
         try {
             AuthorizationService authorizationService = DriveManager.getAuthorizationService(mContext);
-
-            // The performActionWithFreshTokens seems to happen on a UI thread! (Why??)
-            // So I can't do network calls on this thread.
-            // Instead, updating a class level variable, and waiting for it afterwards.
-            // https://github.com/openid/AppAuth-Android/issues/123
-            authState.performActionWithFreshTokens(authorizationService, new AuthState.AuthStateAction() {
-                @Override
-                public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException ex) {
-                    if (ex != null) {
-                        EventBus.getDefault().post(new DownloadEvents.GoogleDrive().failed(ex.toJsonString(), ex));
-                        taskDone.set(true);
-                        LOG.error(ex.toJsonString(), ex);
-                        return;
-                    }
-                    googleDriveAccessToken = accessToken;
-                    taskDone.set(true);
-                }
-            });
-
-            // Wait for the performActionWithFreshTokens.execute callback
-            // (which happens on the UI thread for some reason) to complete.
-            while (!taskDone.get()) {
-                Thread.sleep(500);
-            }
+            googleDriveAccessToken = DriveUtils.getFreshAccessToken(authState, authorizationService);
 
             if (DriveUtils.isNullOrEmpty(googleDriveAccessToken)) {
-                LOG.error("Failed to fetch Access Token for Google Drive. Stopping this job.");
-                failureMessage = "Failed to fetch Access Token for Google Drive. Stopping this job.";
-                return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage).build());
+                failureMessage = "Failed to fetch Access Token.";
+                return Result.failure(new Data.Builder()
+                        .putString(KEY_RESULT_MESSAGE, failureMessage)
+                        .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                        .putBoolean(KEY_IS_FILE_OK, false)
+                        .build());
             }
 
-            // Figure out the Folder ID to upload to, from the path; recursively create if it doesn't exist.
+            // ===== Carpetas del path (Sales-Save, etc.) =====
             String folderPath = PreferenceHelper.getInstance().getGoogleDriveFolderPath();
             String[] pathParts = folderPath.split("/");
-            String parentFolderId = null;//Se obtiene el id desde google driver
-            String latestFolderId = null;
+            String parentFolderId = "root";
+
             for (String part : pathParts) {
-                latestFolderId = DriveUtils.getFileIdFromFileName(googleDriveAccessToken, part, parentFolderId);
-                if (!DriveUtils.isNullOrEmpty(latestFolderId)) {
-                    LOG.debug("Folder " + part + " found, folder ID is " + latestFolderId);
-                } else {
-                    LOG.debug("Folder " + part + " not found, creating.");
-                    latestFolderId = DriveUtils.createEmptyFile(googleDriveAccessToken, part,
-                            "application/vnd.google-apps.folder", DriveUtils.isNullOrEmpty(parentFolderId) ? "root" : parentFolderId);
-                }
-                parentFolderId = latestFolderId;
+                if (part == null || part.trim().isEmpty()) continue;
+                // getOrCreateFolder ya usa mimeType = application/vnd.google-apps.folder
+                parentFolderId = DriveUtils.getOrCreateFolder(
+                        googleDriveAccessToken,
+                        part.trim(),
+                        parentFolderId
+                );
             }
 
-            //copyToClipboard(mContext, folderPath+" id: "+parentFolderId, "tago");
-
-            String mFolderId = latestFolderId;
+            String mFolderId = parentFolderId;
 
             if (DriveUtils.isNullOrEmpty(mFolderId)) {
-                failureMessage = "Could not create folder";
+                failureMessage = "Could not resolve folder";
                 success = false;
             }
-            else {
-                if(isImg) {
-                    String imgFolderName = PreferenceHelper.getInstance().getGoogleDriveImgPath();
-                    String imgFolderId = DriveUtils.getFileIdFromFileName(googleDriveAccessToken, imgFolderName, mFolderId, "application/vnd.google-apps.folder");
-                    if (!DriveUtils.isNullOrEmpty(imgFolderId)) {
-                        LOG.debug("Folder " + imgFolderName + " found, folder ID is " + mFolderId);
-                    } else {
-                        LOG.debug("Folder " + imgFolderName + " not found, creating.");
-                        imgFolderId = DriveUtils.createEmptyFile(googleDriveAccessToken, imgFolderName,
-                                "application/vnd.google-apps.folder", mFolderId);
+            else if (isImg) {
+                String imgFolderName = PreferenceHelper.getInstance().getGoogleDriveImgPath();
+                String imgFolderId = DriveUtils.getOrCreateFolder(
+                        googleDriveAccessToken,
+                        imgFolderName,
+                        mFolderId
+                );
+
+                if (DriveUtils.isNullOrEmpty(imgFolderId)) {
+                    failureMessage = "Could not create img folder";
+                    success = false;
+                } else {
+                    File dir = new File(filePath);
+                    if (!dir.exists()) {
+                        dir.mkdirs();
                     }
 
-                    if (DriveUtils.isNullOrEmpty(imgFolderId)) {
-                        failureMessage = "Could not create folder";
+                    List<String[]> mList = DriveUtils.getDriveIdAndNameList(
+                            googleDriveAccessToken, imgFolderId);
+                    count = mList.size();
+
+                    if (mList.isEmpty()) {
+                        failureMessage = "No hay imágenes en Drive";
+                        isFileOk = false;
                         success = false;
-                    }
-                    else {
-
-                        List<String[]> mList = DriveUtils.getDriveIdAndNameList(googleDriveAccessToken, imgFolderId);
-                        count = mList.size();
-                        for (String[] dataFile : mList){
+                    } else {
+                        for (String[] dataFile : mList) {
                             String fId = dataFile[0];
                             String fName = dataFile[1];
-
-                            if (DriveUtils.isNullOrEmpty(fId)) {
-                                isFileOk = false;
-                                failureMessage = "Error no se encontraron DATOS.";
-                                return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
-                                        .putBoolean(KEY_IS_PRELOADER, isPreloader)
-                                        .putBoolean(KEY_IS_FILE_OK, isFileOk)
-                                        .build());
+                            if (DriveUtils.isNullOrEmpty(fId) || DriveUtils.isNullOrEmpty(fName)) {
+                                continue;
                             }
-                            // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
-                            if (!DriveUtils.isNullOrEmpty(fId)) {
-                                File currFile = new File(filePath+"/"+fName);
 
-                                LOG.debug("Downloading file contents");
-                                //File destinationFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/cueblo.db");
-                                failureMessage = "" + downloadFileContents(googleDriveAccessToken, imgFolderId, fId, currFile, fileType, false);
-                                //Basic.msg("Fail: "+failureMessage);
-                            }
+                            File currFile = new File(dir, fName);
+
+                            // forceDownload = true → bajar siempre en sync de imágenes
+                            downloadFileContents(
+                                    googleDriveAccessToken,
+                                    imgFolderId,
+                                    fId,
+                                    currFile,
+                                    fileType,
+                                    true,
+                                    fName
+                            );
                         }
                     }
                 }
-                else {
-                    // Now search for the file
-                    String driveFileId = isId? fileId : DriveUtils.getFileIdFromFileName2(googleDriveAccessToken, fileName, mFolderId);
+            }
+            else {
+                // ===== Archivo DB =====
+                String driveFileId;
+                if (isId) {
+                    driveFileId = fileId;
+                } else {
+                    String fileMime = DriveUtils.getMimeTypeFromFileName(fileName);
+                    driveFileId = DriveUtils.getFileIdFromFileName(
+                            googleDriveAccessToken, fileName, mFolderId, fileMime);
 
-                    //Basic.msg(fileName + " : "+driveFileId);
                     if (DriveUtils.isNullOrEmpty(driveFileId)) {
-                        isFileOk = false;
-                        failureMessage = "Error no se encontraron DATOS.";
-                        return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage)
-                                .putBoolean(KEY_IS_PRELOADER, isPreloader)
-                                .putBoolean(KEY_IS_FILE_OK, isFileOk)
-                                .build());
-                    }
-
-                    // The above empty file creation needs to happen first - this shouldn't be an 'else' to the above if.
-                    if (!DriveUtils.isNullOrEmpty(driveFileId)) {
-                        LOG.debug("Uploading file contents");
-                        //File destinationFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/cueblo.db");
-                        failureMessage = "" + downloadFileContents(googleDriveAccessToken, mFolderId, driveFileId, fileToDownload, fileType, isId);
-                        //Basic.msg("Fail: "+failureMessage);
+                        driveFileId = DriveUtils.getFileIdFromFileName(
+                                googleDriveAccessToken, fileName, mFolderId, null);
                     }
                 }
+
+                if (DriveUtils.isNullOrEmpty(driveFileId)) {
+                    isFileOk = false;
+                    failureMessage = "Error no se encontraron DATOS.";
+                    return Result.failure(new Data.Builder()
+                            .putString(KEY_RESULT_MESSAGE, failureMessage)
+                            .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                            .putBoolean(KEY_IS_FILE_OK, isFileOk)
+                            .putBoolean(KEY_IS_CHECK, isCheck)
+                            .putBoolean(KEY_IS_NEW_OBJ, isNewObj)
+                            .build());
+                }
+
+                // fileToDownload = path local (DataSave.download.bin)
+                // fileName       = nombre en Drive (DataSave.bin)
+                downloadFileContents(
+                        googleDriveAccessToken,
+                        mFolderId,
+                        driveFileId,
+                        fileToDownload,
+                        fileType,
+                        isId || isCheck || isPreloader,
+                        fileName
+                );
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             success = false;
-            failureMessage = e.getMessage();
+            failureMessage = e.getMessage() != null ? e.getMessage() : e.toString();
             failureThrowable = e;
         }
 
-        if(success){
-            if(isImg) {
-                // Notify internal listeners
-                EventBus.getDefault().post(new DownloadEvents.GoogleDrive().succeeded(" Archivos Descargados: ", count));
-                // Notify external listeners
-                //Basic.sendFileUploadedBroadcast(getApplicationContext(), new String[]{fileToUpload.getAbsolutePath()}, "googledrive");
-            }
-            failureMessage = "";
-            return Result.success(new Data.Builder()
-                        .putString(KEY_RESULT_MESSAGE, failureMessage)
+        if (success) {
+            if (isImg) {
+                EventBus.getDefault().post(
+                        new UploadEvents.GoogleDrive().succeeded("Imágenes sincronizadas: ", count)
+                );
+                LOG.info("Google Drive - Imágenes procesadas: " + count);
+                return Result.success(new Data.Builder()
+                        .putString(KEY_RESULT_MESSAGE, "Imágenes descargadas: " + count)
+                        .putInt("downloaded_count", count)
+                        .putBoolean(KEY_IS_IMG, true)      // "img" = true
+                        .putBoolean(KEY_IS_FILE_OK, true)
                         .putBoolean(KEY_IS_PRELOADER, isPreloader)
-                        .putBoolean(KEY_IS_NEW_OBJ, isNewObj)
-                        .putBoolean(KEY_IS_CHECK, isCheck)
-                        .putBoolean(KEY_IS_IMG, isImg)
-                        .putBoolean(KEY_IS_ID, isId)
-                        .putStringArray(KEY_FILES_DOWNLOADED, new String[]{fileToDownload.getAbsolutePath()})
                         .build());
+            }
+            return Result.success(new Data.Builder()
+                    .putString(KEY_RESULT_MESSAGE, "DriveDowWorker")
+                    .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                    .putBoolean(KEY_IS_NEW_OBJ, isNewObj)
+                    .putBoolean(KEY_IS_CHECK, isCheck)
+                    .putBoolean(KEY_IS_IMG, isImg)
+                    .putBoolean(KEY_IS_ID, isId)
+                    .putBoolean(KEY_IS_FILE_OK, true)
+                    .putStringArray(KEY_FILES_DOWNLOADED, new String[]{fileToDownload.getAbsolutePath()})
+                    .build());
         }
 
-        if(getRunAttemptCount() < getRetryLimit()){
-            LOG.warn(String.format("Google Drive - attempt %d of %d failed, will retry", getRunAttemptCount(), getRetryLimit()));
+        if (getRunAttemptCount() < getRetryLimit()) {
             return Result.retry();
         }
 
-        if(failureThrowable == null) {
-            failureThrowable = new Exception(failureMessage);
-        }
+        EventBus.getDefault().post(
+                new UploadEvents.GoogleDrive().failed(failureMessage, failureThrowable)
+        );
 
-        //EventBus.getDefault().post(new UploadEvents.GoogleDrive().failed(failureMessage, failureThrowable));
-        return Result.failure(new Data.Builder().putString(KEY_RESULT_MESSAGE, failureMessage +" : "+ failureThrowable).build());
+        return Result.failure(new Data.Builder()
+                .putString(KEY_RESULT_MESSAGE, failureMessage)
+                .putBoolean(KEY_IS_PRELOADER, isPreloader)
+                .putBoolean(KEY_IS_FILE_OK, isFileOk)
+                .putBoolean(KEY_IS_CHECK, isCheck)
+                .build());
     }
 
     protected int getRetryLimit() {
@@ -253,47 +256,58 @@ public class DriveDowWorker extends Worker {
     }
 
     // Método para descargar un archivo desde Google Drive
-    public int downloadFileContents(String accessToken, String folderId, String mFileId, File mFile, String mType, boolean isId) throws Exception {
+    public int downloadFileContents(
+            String accessToken,
+            String folderId,
+            String mFileId,
+            File mFile,
+            String mType,
+            boolean forceDownload,
+            String remoteName
+    ) throws Exception {
 
+        // Nombre en Drive (DataSave.bin). NUNCA uses mFile.getName() si es .download.bin
+        if (remoteName == null || remoteName.isEmpty()) {
+            remoteName = mFile.getName(); // no forzar EXPORT_NAME
+        }
 
-        if(!isId) {
-            // 1. Obtener metadatos del archivo en Drive (incluye modifiedTime)
+        if (!forceDownload) {
             DriveFileMeta driveFile = DriveUtils.getFileMetaFromDrive(
                     accessToken,
-                    mFile.getName(),   // Usamos el nombre del archivo
+                    remoteName,
                     folderId
             );
+
             if (driveFile == null) {
-                LOG.warn("No se pudieron obtener metadatos del archivo en Drive. Se procederá a descargar.");
+                LOG.warn("Sin metadatos en Drive para " + remoteName + ". Se descarga igual.");
             } else {
                 LOG.debug("Fecha en Drive: {}", driveFile.modifiedTime);
 
-                //DriveUtils.copyToClipboard(mContext, mFile.getName()+driveFile.md5Checksum+" ?"+ driveFile.md5Checksum +" "+DriveUtils.getLocalFileMd5(mFile), mFile.getName());
-                //copyToClipboard(mContext, localFile.getName()+" "+ driveFile.md5Checksum +" "+GoogleDriveFileHelper.getLocalFileMd5(localFile), localFile.getName());
-
-                // 2. Comparar fechas si el archivo local existe
                 if (mFile.exists() && driveFile.hasModifiedTime()) {
-                    long localLastModified = mFile.lastModified();           // milisegundos
-                    long driveLastModified = DriveUtils.parseGoogleDriveTime(driveFile.modifiedTime); // milisegundos
-
-                    LOG.debug("Fecha local : {}", new java.util.Date(localLastModified));
+                    long localLastModified = mFile.lastModified();
+                    long driveLastModified = DriveUtils.parseGoogleDriveTime(driveFile.modifiedTime);
 
                     if (driveLastModified <= localLastModified) {
-                        LOG.info("✅ Archivo local está actualizado. No se descargará.");
+                        LOG.info("Local actualizado. No se descarga: " + mFile.getName());
                         count--;
-                        return 0;   // No necesita descargar
-                    } else {
-                        if (driveFile.md5Checksum.equals(DriveUtils.getLocalFileMd5(mFile))) {
-                            count--;
-                            return 0;   // No necesita descargar
-                        }
-
-                        LOG.info("🔄 Archivo en Drive es más reciente. Procediendo a descargar...");
+                        return 0;
                     }
+
+                    String localMd5 = DriveUtils.getLocalFileMd5(mFile);
+                    if (driveFile.md5Checksum != null
+                            && localMd5 != null
+                            && driveFile.md5Checksum.equalsIgnoreCase(localMd5)) {
+                        LOG.info("MD5 igual. No se descarga: " + mFile.getName());
+                        count--;
+                        return 0;
+                    }
+
+                    LOG.info("Drive más reciente. Descargando → " + mFile.getAbsolutePath());
                 }
             }
         }
 
+        // Escribe en mFile = DataSave.download.bin (path que vino en input "path")
         return DriveUtils.downloadFileFromDrive(accessToken, mFileId, mFile, mType);
     }
 }
