@@ -3,6 +3,8 @@ package com.example.cow_data;
 import android.app.Application;
 import android.content.Context;
 
+import com.example.cow_data.utls.Basic;
+
 public class AppContextProvider extends Application {
     private static AppContextProvider sInstance;
 

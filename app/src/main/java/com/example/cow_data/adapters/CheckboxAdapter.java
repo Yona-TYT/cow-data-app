@@ -15,9 +15,10 @@ import android.widget.LinearLayout;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.cow_data.Basic;
+import com.example.cow_data.utls.Basic;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.utls.Msg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +158,7 @@ public class CheckboxAdapter extends BaseAdapter implements Filterable, View.OnC
             String mId = v.getTag().toString();
 
             if(myArray == null){
-                Basic.msg("Error in Array Map!.");
+                Msg.m("Error in Array Map!.");
                 return;
             }
             if (isCheck) {

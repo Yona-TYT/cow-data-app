@@ -14,15 +14,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.db.GenericQueue;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
-import com.example.cow_data.db.UsuarioQueue;
 import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
 import com.example.cow_data.drive.SetWorkResult;
+import com.example.cow_data.utls.Msg;
 
 import net.openid.appauth.AuthState;
 
@@ -56,7 +57,11 @@ public class Preloader extends AppCompatActivity {
         //Check valus before start main activity
         //Satrted variables
         StartVar startVar = new StartVar(getApplicationContext());
-        startVar.setUserListDB();
+
+        //Check valus before start main activity
+        //Satrted variables
+        StartVar.setAllListDB();
+
         startVar.setmActivity(this);
         new Basic(getApplicationContext());
 
@@ -69,11 +74,11 @@ public class Preloader extends AppCompatActivity {
         FilesManager.directoryCreate();
 
         //Instancia de la base de datos
-        StartVar.getUserListDB();
+        //StartVar.getUserListDB();
         List<Usuario> listuser =  StartVar.listuser;
 
         // Inicializar la variable para las colas
-        StartVar.usuarioQueue = new UsuarioQueue(StartVar.mLifecycle, AppContextProvider.getContext());
+        StartVar.genericQueue = new GenericQueue(AppContextProvider.getContext());
 
         for(Usuario mUser : listuser){
             Integer selecTx = mUser.sel3;
@@ -90,7 +95,7 @@ public class Preloader extends AppCompatActivity {
                     if(currDate > mDate) {
                         //Toast.makeText(Preloder.this, "A: " + currDate + " y B: " + mDate, Toast.LENGTH_LONG).show();
                         //Desactiva el selector pre
-                        StartVar.appDatabase.daoUser().updateSelecPre(userTx, 0);
+                        StartVar.appDBall.daoUser().updateSelecPre(userTx, 0);
                     }
                 }
             }
@@ -107,7 +112,7 @@ public class Preloader extends AppCompatActivity {
 
         if(authState.isAuthorized()) {
             if(!StartVar.mainStart) {
-                Basic.msg("Sincronizando Datos...");
+                Msg.m("Sincronizando Datos...");
                 manager.dataSynchronizeStarting();
                 mWorkResult.observeWorkResult();
                 return;
@@ -140,7 +145,7 @@ public class Preloader extends AppCompatActivity {
                 if(StartVar.mActivity == null || StartVar.mActivity.getClass().getSimpleName().equals("Preloader")) {
                     //Esto inicia las actividad Main despues de tiempo de espera del preloder
                     startActivity(new Intent(Preloader.this, MainActivity.class));
-                    Basic.msg("Algo fallo, Inicio forzado!");
+                    Msg.m("Algo fallo, Inicio forzado!");
                     finish(); //Finaliza la actividad y ya no se accede mas
                 }
             }

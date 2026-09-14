@@ -17,7 +17,7 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-import com.example.cow_data.CalendUtls;
+import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.R;
 
 import java.io.File;

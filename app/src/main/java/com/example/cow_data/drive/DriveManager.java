@@ -14,12 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.ex.Logs;
 import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.utls.Msg;
 
 
 import net.openid.appauth.AppAuthConfiguration;
@@ -204,7 +205,7 @@ public class DriveManager {
 
     public void uploadDataBase() {
         //Dialogs.progress((FragmentActivity) getActivity(), "getString(R.string.please_wait)");
-        //Basic.msg("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
+        //Msg.m("StartVar.csvList: "+StartVar.csvList.get(1)[1]);
         Context context = AppContextProvider.getContext();
         try {
             // Ejecutar ImportDataToDrive en el hilo principal
@@ -216,7 +217,7 @@ public class DriveManager {
                 try {
                     file = fMang.csvExport(StartVar.csvList, name);
                 } catch (IOException e) {
-                    Basic.msg("Error Archivo no creado: " + e.getMessage());
+                    Msg.m("Error Archivo no creado: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
                 if (file != null) {
@@ -226,7 +227,7 @@ public class DriveManager {
                         LocalDate currDate = LocalDate.now();
                         File newFile;
                         try {
-                            newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-") + ".csv", context);
+                            newFile = FilesManager.getNewFile(file.getAbsolutePath(), currDate.toString().replaceAll("\\D", "-") + ".csv");
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -237,7 +238,7 @@ public class DriveManager {
                     }
                 }
                 if (!mFileList.isEmpty()){
-                   // Basic.msg("List: "+mFileList.size());
+                   // Msg.m("List: "+mFileList.size());
                     ImportDataToDrive(mFileList, false);
                 }
                 else {
@@ -247,7 +248,7 @@ public class DriveManager {
 
             });
         } catch (Exception e) {
-            Basic.msg("Error Archivo no creado: " + e.getMessage());
+            Msg.m("Error Archivo no creado: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -276,7 +277,7 @@ public class DriveManager {
 
                 // 3. Encolar el trabajo solo si hay archivos
                 if (!mFileList.isEmpty()) {
-                    //Basic.msg("Siz img: "+mFileList.size());
+                    //Msg.m("Siz img: "+mFileList.size());
                     // Llamamos a ImportDataToDrive directamente desde este hilo
                     ImportDataToDrive( mFileList, true);
 
@@ -289,7 +290,7 @@ public class DriveManager {
                 android.util.Log.e("DriveSync", "❌ Error en el hilo de búsqueda de imágenes", e);
                 // Si necesitas mostrar un mensaje al usuario, usa el MainLooper solo para el Toast
                 new Handler(Looper.getMainLooper()).post(() ->
-                        Basic.msg("Error al procesar imágenes: " + e.getMessage())
+                        Msg.m("Error al procesar imágenes: " + e.getMessage())
                 );
             }
         }).start();

@@ -28,10 +28,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.cow_data.Basic;
-import com.example.cow_data.CalendUtls;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
+import com.example.cow_data.utls.Msg;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -152,7 +153,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 String mTxInput = textView.getText().toString();
                 if (currSel1 == 1) {
                     if(CalendUtls.isDateFormat(mTxInput).isEmpty()){
-                        Basic.msg("Formato de FECHA incorrecto!.");
+                        Msg.m("Formato de FECHA incorrecto!.");
                         textView.setError("Fecha Incorrecta!.");
                         return true;
                     }
@@ -160,7 +161,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 else if (currSel1 == 3) {
                     String[] dateList = CalendUtls.dataValidate(mTxInput);
                     if (dateList == null || dateList.length < 2) {
-                        Basic.msg("Formato incorrecto!.");
+                        Msg.m("Formato incorrecto!.");
                         textView.setError("Formato Incorrecta!.");
                         return true;
                     }
@@ -176,14 +177,14 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 if(!b){
                     if (currSel1 == 1) {
                         if (CalendUtls.isDateFormat(mTxInput).isEmpty()) {
-                            Basic.msg("Formato de FECHA incorrecto!.");
+                            Msg.m("Formato de FECHA incorrecto!.");
                             mInput1.setError("Fecha Incorrecta!.");
                         }
                     }
                     else if (currSel1 == 3) {
                         String[] dateList = CalendUtls.dataValidate(mTxInput);
                         if (dateList == null || dateList.length < 2) {
-                            Basic.msg("Formato incorrecto!.");
+                            Msg.m("Formato incorrecto!.");
                             mInput1.setError("Formato Incorrecta!.");
                         }
                     }
@@ -199,7 +200,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                 if (currSel2 == 3) {
                     String[] dateList = CalendUtls.dataValidate(mTxInput);
                     if (dateList == null || dateList.length < 2) {
-                        Basic.msg("Formato incorrecto!.");
+                        Msg.m("Formato incorrecto!.");
                         textView.setError("Formato Incorrecta!.");
                         return true;
                     }
@@ -216,7 +217,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
                     if (currSel2 == 3) {
                         String[] dateList = CalendUtls.dataValidate(mTxInput);
                         if (dateList == null || dateList.length < 2) {
-                            Basic.msg("Formato incorrecto!.");
+                            Msg.m("Formato incorrecto!.");
                             mInput2.setError("Formato Incorrecta!.");
                         }
                     }
@@ -321,10 +322,10 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             if(!mText.isEmpty()) {
                 ClipData clipData = ClipData.newPlainText("Clip Data", mText);
                 clipboard.setPrimaryClip(clipData);
-                Basic.msg("FECHA Copiada al Portapapeles!.");
+                Msg.m("FECHA Copiada al Portapapeles!.");
             }
             else{
-                Basic.msg("El campo de FECHA esta VACIO!");
+                Msg.m("El campo de FECHA esta VACIO!");
             }
         }
 
@@ -333,10 +334,10 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
             if(!mText.isEmpty()) {
                 ClipData clipData = ClipData.newPlainText("Clip Data", mText);
                 clipboard.setPrimaryClip(clipData);
-                Basic.msg("FECHA Copiada al Portapapeles!.");
+                Msg.m("FECHA Copiada al Portapapeles!.");
             }
             else{
-                Basic.msg("El campo de FECHA esta VACIO!");
+                Msg.m("El campo de FECHA esta VACIO!");
             }
         }
     }
@@ -419,7 +420,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
         String copyTx = "";
         if(m.find()) {
             String gr = m.group(1);
-            //Basic.msg("-> "+gr);
+            //Msg.m("-> "+gr);
             assert gr != null;
             copyTx = mText.replaceFirst(gr, "");
             mInput.setText(copyTx);
@@ -429,9 +430,9 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
         m = patt.matcher(mText);
         if(m.find()) {
             String gr = m.group(1);
-            //Basic.msg("-> "+gr);
+            //Msg.m("-> "+gr);
             assert gr != null;
-            //Basic.msg(s.toString().replaceAll(gr, "-"));
+            //Msg.m(s.toString().replaceAll(gr, "-"));
             copyTx = mText.replaceAll(gr, "-");
             copyTx = copyTx.replaceAll("^\\D", "");
             mInput.setText(copyTx);
@@ -442,7 +443,7 @@ public class CalcActivity extends AppCompatActivity implements View.OnClickListe
         m = patt.matcher(mText);
         if(m.find()) {
             //String gr = m.group(1);
-            //Basic.msg("-> "+gr);
+            //Msg.m("-> "+gr);
             //assert gr != null;
             copyTx = mText.replaceFirst("\\D+$", "");
             mInput.setText(copyTx);

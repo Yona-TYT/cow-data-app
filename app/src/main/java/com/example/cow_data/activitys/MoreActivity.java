@@ -28,13 +28,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
+import com.example.cow_data.utls.Basic;
 import com.example.cow_data.ClearFocusEditText;
 import com.example.cow_data.adapters.CheckboxAdapter;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.utls.Msg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,10 +64,6 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     public ListView mlv2;
     private CheckboxAdapter mAdapter2;
     private HashMap<String, ArrayList<String>> arrayMap;
-
-
-    //Base de datos
-    public AppDatabase appDatabase = StartVar.appDatabase;
 
     @SuppressLint({"ClickableViewAccessibility", "MissingInflatedId"})
     @Override
@@ -172,11 +169,11 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                 //--------------------------------------------------------------------------------
             }
             else {
-                Basic.msg("El index: "+currIdx+" no existe!");
+                Msg.m("El index: "+currIdx+" no existe!");
             }
         }
         else {
-            Basic.msg("Aqui no hay :(");
+            Msg.m("Aqui no hay :(");
         }
         setCheckInputs( mInput1, mlv1, StartVar.mId1, mAdapter1);
         setCheckInputs( mInput2, mlv2, StartVar.mId2, mAdapter2);
@@ -197,7 +194,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         String textList = "";
 
         for (String s : mSplit){
-            Usuario mU = appDatabase.daoUser().getUsers(s);
+            Usuario mU = StartVar.appDBall.daoUser().getUsers(s);
             if( mU != null){
                 String name = mU.nombre.replaceAll("\\d","");
                 String number = mU.nombre.replaceAll("\\D","");
@@ -333,7 +330,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
                         for (int i = mArray.size()-1; i > rest ; i--){
                             StartVar.arrayMap.get(mapID).remove(i);
                         }
-                        //Basic.msg(""+newText.split(",").length+"--"+boxlist.size());
+                        //Msg.m(""+newText.split(",").length+"--"+boxlist.size());
                     }
                     mAdapter.getFilter().filter(newText.replaceAll("([a-z\\d,]+);",""));
                 }
@@ -401,7 +398,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
     private String getCheckNames(ArrayList<String> mArray){
         String textList = "";
         for (String s : mArray){
-            Usuario mU = appDatabase.daoUser().getUsers(s);
+            Usuario mU = StartVar.appDBall.daoUser().getUsers(s);
             if(mU != null) {
                 String name = mU.nombre.replaceAll("\\d","");
                 String number = mU.nombre.replaceAll("\\D","");

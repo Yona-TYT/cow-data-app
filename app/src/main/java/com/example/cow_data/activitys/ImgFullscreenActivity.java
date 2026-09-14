@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.widget.ImageView;
 
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.adapters.GalleryAdapter;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;

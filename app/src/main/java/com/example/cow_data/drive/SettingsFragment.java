@@ -30,7 +30,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
+import com.example.cow_data.utls.Basic;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.ex.Dialogs;
@@ -69,6 +69,7 @@ import eltos.simpledialogfragment.form.Input;
 import eltos.simpledialogfragment.form.SimpleFormDialog;
 
 import com.example.cow_data.activitys.MainActivity;
+import com.example.cow_data.utls.Msg;
 
 
 public class SettingsFragment extends PreferenceFragmentCompat implements
@@ -387,7 +388,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
                                     setPreferencesState();
 
                                     //Inicia la sincronizacion
-                                    Basic.msg("Sincronizando Datos...");
+                                    Msg.m("Sincronizando Datos...");
                                     manager.dataSynchronize();
                                     mWorkResult.observeWorkResult();
                                 }

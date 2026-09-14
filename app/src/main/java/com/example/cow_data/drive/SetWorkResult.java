@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 
 import androidx.lifecycle.LifecycleOwner;
@@ -26,14 +24,15 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
 import com.example.cow_data.AppContextProvider;
-import com.example.cow_data.Basic;
-import com.example.cow_data.CalendUtls;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.activitys.MainActivity;
-import com.example.cow_data.db.Configdb;
+import com.example.cow_data.db.Conf;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.utls.Msg;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SetWorkResult {
+    private static final String TAG = "SetWorkResult";
     private static final Log log = LogFactory.getLog(SetWorkResult.class);
     private LifecycleOwner lifecycle;
     private ExecutorService executorService;
@@ -110,7 +110,7 @@ public class SetWorkResult {
                             boolean isImg = outputData.getBoolean("img", false);
                             boolean isId = outputData.getBoolean("isId", false);
 
-                            //Basic.msg("!!!!---0 !: "+ isCheck);
+                            //Msg.m("!!!!---0 !: "+ isCheck);
 
                             String[] filesDownloaded = outputData.getStringArray("files_downloaded");
 
@@ -166,9 +166,9 @@ public class SetWorkResult {
                                             stringBuilder.append(line);
                                             break;
                                         }
-                                       Configdb mConf = StartVar.configDatabase.daoConf().getUsers(StartVar.mConfID);
+                                       Conf mConf = StartVar.appDBall.daoCfg().getUsers(StartVar.mConfID);
 
-                                        List<Usuario> mUserList = StartVar.appDatabase.daoUser().getUsers();
+                                        List<Usuario> mUserList = StartVar.appDBall.daoUser().getUsers();
                                         if(!mConf.hexid.equals(hexID)){
                                             if(mUserList.isEmpty()){
                                                 String mMsg = "Los datos locales están vacios";
@@ -176,7 +176,7 @@ public class SetWorkResult {
                                                 return;
                                             }
                                             else {
-                                                Basic.msg("Error: Los IDs de las DB no coinciden:");
+                                                Msg.m("Error: Los IDs de las DB no coinciden:");
 
                                                 //Si es desde el preloder se reinicia la actividad
                                                 resetPreloader(preloader);
@@ -191,12 +191,12 @@ public class SetWorkResult {
                                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                                             // Validar datos de entrada
                                             if (mConf.date == null || date.isEmpty() || mConf.time == null || time.isEmpty()) {
-                                                Basic.msg("Error: Datos de fecha/hora incompletos");
+                                                Msg.m("Error: Datos de fecha/hora incompletos");
                                                 return;
                                             }
 //                                            if (true) {
 //                                                LocalDateTime test = LocalDateTime.now();
-//                                                Basic.msg(test.toString()+" "+mConf.date + "T" + mConf.time+" "+date + "T" + time, true);
+//                                                Msg.m(test.toString()+" "+mConf.date + "T" + mConf.time+" "+date + "T" + time, true);
 //                                                return;
 //                                            }
 
@@ -212,15 +212,15 @@ public class SetWorkResult {
                                             if (result > 0) {
                                                 //uploadDataBase();
                                                 if (newObj) {
-                                                    //Basic.msg("Enviando Actualizacion...");
+                                                    //Msg.m("Enviando Actualizacion...");
                                                     manager.uploadDataBase();
 
                                                 }
                                                 else{
-                                                    Basic.msg("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")", true);
+                                                    Msg.m("Los datos locales están más actualizados (" + dateTimeA + " > " + dateTimeB + ")", true);
 
                                                     if(isCheck) {
-                                                        StartVar.usuarioQueue.startUsuarioQueue(1);
+                                                        StartVar.genericQueue.startUsuarioQueue(1);
                                                     }
                                                 }
                                             }
@@ -233,7 +233,7 @@ public class SetWorkResult {
                                                 }
                                                 if(isCheck) {
                                                     DBListCreator.cvsToDbNotFinish(StartVar.mActivity, uri, 1, "");
-                                                    StartVar.usuarioQueue.startUsuarioQueue(2);
+                                                    StartVar.genericQueue.startUsuarioQueue(2);
                                                 }
                                                 else {
                                                     DBListCreator.cvsToDB(StartVar.mActivity, uri, 1, "");
@@ -243,20 +243,22 @@ public class SetWorkResult {
                                             }
                                             else {
                                                 if (newObj){
-                                                    //Basic.msg("Enviando Actualizacion...");
-                                                    String currDate = LocalDate.now().toString();
-                                                    String currTime = LocalTime.now().toString();
-                                                    StartVar.configDatabase.daoConf().updateDateTime(StartVar.mConfID, currDate, currTime);
+                                                    Msg.m("Enviando Actualizacion...");
+
+                                                    long now = System.currentTimeMillis();
+                                                    String strDbg = TAG + ": " + CalendUtls.getShortDate(now) + " " + CalendUtls.getTime(now);
+                                                    StartVar.appDBall.daoCfg().updateDateTime(StartVar.mConfID, now, now, strDbg);
+
                                                     StartVar.getConfigDB();
                                                     manager.uploadDataBase();
                                                 }
                                                 else {
                                                     if(!isCheck) {
-                                                        Basic.msg("La base de datos está actualizada (" + dateTimeA + ")");
+                                                        Msg.m("La base de datos está actualizada (" + dateTimeA + ")");
                                                     }
                                                 }
                                                 if(isCheck) {
-                                                    StartVar.usuarioQueue.startUsuarioQueue(1);
+                                                    StartVar.genericQueue.startUsuarioQueue(1);
                                                 }                                            }
 
                                             //Si es desde el preloder se reinicia la actividad
@@ -271,12 +273,12 @@ public class SetWorkResult {
                                     }
                                 }
                                 else {
-                                    Basic.msg("CVS no Existe 1 !: "+displayMessage);
+                                    Msg.m("CVS no Existe 1 !: "+displayMessage);
                                 }
                             }
                             else if (workInfo.getState() == WorkInfo.State.FAILED) {
                                 String displayMessage = message != null ? message : "Error en la descarga";
-                                Basic.msg("CVS no Existe 2 !: "+displayMessage);
+                                Msg.m("CVS no Existe 2 !: "+displayMessage);
 
                                 if (!isFileOk) {
                                     if(preloader){
@@ -284,7 +286,7 @@ public class SetWorkResult {
                                         StartVar.makeUpdate = true;
                                     }
                                     else {
-                                        Basic.msg("Subiendo Datos...");
+                                        Msg.m("Subiendo Datos...");
                                         manager.uploadDataBase();
                                     }
                                 }
@@ -334,7 +336,7 @@ public class SetWorkResult {
         // 5. Verificar conexión (usando la versión segura)
         if (!isNetworkAvailable(appContext)) {
 
-            //Basic.msg("Aqui hay! "+isNetworkAvailable(appContext),true);
+            //Msg.m("Aqui hay! "+isNetworkAvailable(appContext),true);
             android.util.Log.w("DriveSync", "Sin conexión a internet. Se encolará cuando vuelva la conexión.");
 
             // Solo forzamos el preloader si es el flujo inicial

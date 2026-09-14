@@ -5,9 +5,11 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 
 import androidx.appcompat.widget.AppCompatEditText;
+
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.Msg;
 
 public class ClearFocusEditText extends AppCompatEditText {
 
@@ -25,7 +27,7 @@ public class ClearFocusEditText extends AppCompatEditText {
 
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        Basic.msg("HAy?");
+        Msg.m("HAy?");
 
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
             clearFocus();  // Limpia el foco del EditText

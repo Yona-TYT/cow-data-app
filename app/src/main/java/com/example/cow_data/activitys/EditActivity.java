@@ -47,15 +47,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.cow_data.Basic;
-import com.example.cow_data.CalendUtls;
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.db.DaoUser;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.CalendUtls;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.utls.Msg;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -70,9 +72,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener {
-    //Base de datos
-    public AppDatabase appDatabase = StartVar.appDatabase;
-
     private static final int STORAGE_PERMISSION_CODE = 23;
     private static final int CAMERA_PERMISSION_CODE = 100;
     private boolean mPermiss = false;
@@ -274,7 +273,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         else {
-            Basic.msg("Aqui no hay :(");
+            Msg.m("Aqui no hay :(");
         }
 
         //Inicializa more list
@@ -423,14 +422,14 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 String mTxInput = textView.getText().toString();
                 if (currSel1 == 0) {
                     if(CalendUtls.isDateFormat(mTxInput).isEmpty()){
-                        Basic.msg("Formato de FECHA incorrecto!.");
+                        Msg.m("Formato de FECHA incorrecto!.");
                         textView.setError("Fecha Incorrecta!.");
                         return true;
                     }
                 }
                 else if (currSel1 == 4) {
                     if(Objects.requireNonNull(CalendUtls.dataValidate(mTxInput)).length < 2){
-                        Basic.msg("Formato de FECHA incorrecto!.");
+                        Msg.m("Formato de FECHA incorrecto!.");
                         textView.setError("Ingrese 3 digitos Ejm: 2/5/3");
                         return true;
                     }
@@ -444,7 +443,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             public void onFocusChange(View view, boolean b) {
                 if (!b && currSel1 == 0) {
                     if(CalendUtls.isDateFormat(mInput4.getText().toString()).isEmpty()){
-                        Basic.msg("Formato de FECHA incorrecto!.");
+                        Msg.m("Formato de FECHA incorrecto!.");
                     }
                 }
             }
@@ -476,7 +475,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private boolean chehkingPreInput(){
         String mText = CalendUtls.isDateFormat(mInput5.getText().toString());
         if (mText.isEmpty()) {
-            Basic.msg("Formato de FECHA incorrecto!.");
+            Msg.m("Formato de FECHA incorrecto!.");
             return true;
         }
         else {
@@ -486,7 +485,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 LocalDate mDateA = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayA);
                 LocalDate mDateB = LocalDate.parse(mText, formatter).plusDays(StartVar.mDayB);
 
-                Basic.msg("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
+                Msg.m("Parto estimado del: " + mDateA.format(formatter) + " al " + mDateB.format(formatter));
                 return false;
             }
         }
@@ -551,6 +550,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        DaoUser mDao = StartVar.appDBall.daoUser();
+
         int itemId = view.getId();
         if (itemId == R.id.bttGall) {
             if(!mPermiss) {
@@ -564,7 +565,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 dispatchSelectPictureIntent();
             }
             else {
-                Basic.msg("Error Permiso Denegado!");
+                Msg.m("Error Permiso Denegado!");
             }
         }
         // GUARDA los datos ---------------------------------------------------------------
@@ -682,7 +683,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     if(currUri != null){
                         oldFile = Uri.parse(saveImage);
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currUri);
-                        sImage = fmang.SavePhoto(bitmap, mUser, oldFile, this, this.getContentResolver());
+                        sImage = fmang.SavePhoto(bitmap, mUser);
                     }
                 } catch (IOException e) {
                     //textSnackbar("Erorro con imagen");
@@ -691,14 +692,14 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 //-------------------------------------------------------------------
-                appDatabase.daoUser().updateUser(
+                mDao.updateUser(
                         mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
                         sImage.isEmpty()? saveImage:sImage, currSel1,
                         currSel2,(swPre?1:0)
                 );
 
                 if(morlist != null && !morlist.isEmpty()) {
-                    appDatabase.daoUser().updateMore(
+                    mDao.updateMore(
                             mList.get(0), morlist.get(0),  morlist.get(1), morlist.get(2), morlist.get(3)
                     );
                 }
@@ -715,7 +716,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Recarga La lista de la DB ----------------------------
                 StartVar mVars = new StartVar(getApplicationContext());
-                mVars.getUserListDB();
+                //mVars.getUserListDB();
                 //-------------------------------------------------------
 
                 //Esto inicia las actividad Main y cierra la actual
@@ -725,7 +726,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Encola al usuario para sincronizar
                 myUser = StartVar.listuser.get(currIdx);
-                StartVar.usuarioQueue.enqueue(myUser);
+                StartVar.genericQueue.enqueue(myUser);
 
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);
@@ -738,7 +739,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 finish(); //Finaliza la actividad y ya no se accede mas
             }
             else {
-                Basic.msg(getTextMessage(msgIdx));
+                Msg.m(getTextMessage(msgIdx));
                 mList.clear();
             }
         }
@@ -757,23 +758,23 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (itemId == R.id.buttDEL){
             if (currSel3 == 1) {
-                fmang.RemoveFile(saveImage, this.getContentResolver());
-                appDatabase.daoUser().removerUser(mUser);
+                fmang.RemoveFile(saveImage);
+                mDao.removerUser(mUser);
 
                 myUser = StartVar.listuser.get(currIdx);
                 Usuario mDelUser = new Usuario("@null", myUser.usuario, "", "", "",
                         "", "", 0, 0, 0, 0, "", "",
                         "", "");
-                StartVar.usuarioQueue.enqueue(mDelUser);
+                StartVar.genericQueue.enqueue(mDelUser);
             }
             else {
-                appDatabase.daoUser().updateStatus(
+                mDao.updateStatus(
                         myUser.usuario, currSel3
                 );
 
                 //Encola al usuario para sincronizar
                 myUser = StartVar.listuser.get(currIdx);
-                StartVar.usuarioQueue.enqueue(myUser);
+                StartVar.genericQueue.enqueue(myUser);
             }
 
             Intent mIntent = new Intent(this, MainActivity.class);

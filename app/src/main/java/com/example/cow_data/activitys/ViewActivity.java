@@ -41,12 +41,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.cow_data.CalendUtls;
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.utls.CalendUtls;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.AppDatabase;
-import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -111,9 +110,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private int currSel2 = 0;
     private final List<String> mSpinL2 = Arrays.asList("Vaca", "Novilla", "Becerro", "Toro");
     //-----------------------------------------------------------------------
-
-    //Base de datos
-    public AppDatabase appDatabase = StartVar.appDatabase;
 
     //Usuario
     private Usuario mUser;
@@ -274,7 +270,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mainSel = StartVar.currSel2;
         typeList = StartVar.typeList;
 
-        List<Usuario> listuser = StartVar.appDatabase.daoUser().getUsers();
+        List<Usuario> listuser = StartVar.appDBall.daoUser().getUsers();
 
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
@@ -360,7 +356,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         String textList = "";
 
             for (String s : mSplit){
-            Usuario mU = appDatabase.daoUser().getUsers(s);
+            Usuario mU = StartVar.appDBall.daoUser().getUsers(s);
             if( mU != null){
                 String name = mU.nombre.replaceAll("\\d","");
                 String number = mU.nombre.replaceAll("\\D","");

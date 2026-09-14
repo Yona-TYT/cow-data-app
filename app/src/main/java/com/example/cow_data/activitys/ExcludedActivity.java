@@ -34,8 +34,6 @@ import java.util.List;
 
 public class ExcludedActivity extends AppCompatActivity {
 
-    public AppDatabase appDatabase = StartVar.appDatabase;
-
     private Usuario myUser;
 
     private SearchView searchBar;
@@ -105,13 +103,13 @@ public class ExcludedActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (myUser != null) {
-                    appDatabase.daoUser().updateStatus(
+                    StartVar.appDBall.daoUser().updateStatus(
                             myUser.usuario, currSel2
                     );
 
                     //Encola al usuario para sincronizar
-                    myUser = appDatabase.daoUser().getUsers(myUser.usuario);
-                    StartVar.usuarioQueue.enqueue(myUser);
+                    myUser = StartVar.appDBall.daoUser().getUsers(myUser.usuario);
+                    StartVar.genericQueue.enqueue(myUser);
 
 
                     Intent mIntent = new Intent(AppContextProvider.getContext(), MainActivity.class);
@@ -138,7 +136,7 @@ public class ExcludedActivity extends AppCompatActivity {
         //--------------------------------------------------------------------------------------------
 
 
-        for (Usuario mU : StartVar.appDatabase.daoUser().getUsers(1)) {
+        for (Usuario mU : StartVar.appDBall.daoUser().getUsers(1)) {
             mtxList.add(mU.nombre+" ("+mStatusL.get(mU.sel4)+")");
             usrList.add(mU.usuario);
         }
@@ -151,7 +149,7 @@ public class ExcludedActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
                 currSel1 = i;
-                myUser = appDatabase.daoUser().getUsers(usrList.get(i));
+                myUser = StartVar.appDBall.daoUser().getUsers(usrList.get(i));
             }
         });
 

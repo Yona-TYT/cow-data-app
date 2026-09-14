@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.Msg;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +30,16 @@ public class DatabaseHelper {
         String dbPath = dbFile.getAbsolutePath();
         try {
             if (!dbFile.exists()) {
-                Basic.msg("El archivo de base de datos no existe");
+                Msg.m("El archivo de base de datos no existe");
                 return null;
             }
 
             SQLiteDatabase database = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
-            Basic.msg("Base de datos abierta exitosamente");
+            Msg.m("Base de datos abierta exitosamente");
             return database;
 
         } catch (Exception e) {
-            Basic.msg("Error al abrir la base de datos: " + e.getMessage());
+            Msg.m("Error al abrir la base de datos: " + e.getMessage());
             return null;
         }
     }
@@ -48,20 +51,20 @@ public class DatabaseHelper {
      */
     public void queryDatabase(SQLiteDatabase database, String tableName) {
         if (database == null) {
-            Basic.msg("La base de datos es nula, no se puede realizar la consulta");
+            Msg.m("La base de datos es nula, no se puede realizar la consulta");
             return;
         }
 
         try {
             Cursor cursor = database.rawQuery("SELECT * FROM " + tableName, null);
             if (cursor != null) {
-                Basic.msg("Consulta exitosa: " + cursor.getCount() + " filas encontradas");
+                Msg.m("Consulta exitosa: " + cursor.getCount() + " filas encontradas");
                 cursor.close();
             } else {
-                Basic.msg("No se encontraron datos en la tabla " + tableName);
+                Msg.m("No se encontraron datos en la tabla " + tableName);
             }
         } catch (Exception e) {
-            Basic.msg("Error al consultar la base de datos: " + e.getMessage());
+            Msg.m("Error al consultar la base de datos: " + e.getMessage());
         }
     }
 
@@ -76,7 +79,7 @@ public class DatabaseHelper {
     public List<String[]> getAllDataFromTable(SQLiteDatabase database, String tableName) {
         List<String[]> dataList = new ArrayList<>();
         if (database == null) {
-            Basic.msg("La base de datos es nula, no se puede realizar la consulta");
+            Msg.m("La base de datos es nula, no se puede realizar la consulta");
             return dataList;
         }
 
@@ -95,12 +98,12 @@ public class DatabaseHelper {
                     dataList.add(rowData);
                 }
                 cursor.close();
-                Basic.msg("Datos extraídos: " + dataList.size() + " filas en la tabla " + tableName);
+                Msg.m("Datos extraídos: " + dataList.size() + " filas en la tabla " + tableName);
             } else {
-                Basic.msg("No se encontraron datos en la tabla " + tableName);
+                Msg.m("No se encontraron datos en la tabla " + tableName);
             }
         } catch (Exception e) {
-            Basic.msg("Error al extraer datos: " + e.getMessage());
+            Msg.m("Error al extraer datos: " + e.getMessage());
         }
         return dataList;
     }
@@ -113,7 +116,7 @@ public class DatabaseHelper {
     public void closeDatabase(SQLiteDatabase database) {
         if (database != null && database.isOpen()) {
             database.close();
-            Basic.msg("Base de datos cerrada");
+            Msg.m("Base de datos cerrada");
         }
     }
 }

@@ -46,9 +46,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.cow_data.Basic;
+import com.example.cow_data.utls.Basic;
 import com.example.cow_data.DBListCreator;
-import com.example.cow_data.FilesManager;
+import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.SettingsActivity;
 import com.example.cow_data.adapters.GalleryAdapter;
 import com.example.cow_data.R;
@@ -66,6 +66,7 @@ import java.util.List;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.drive.DriveManager;
 import com.example.cow_data.ex.PreferenceHelper;
+import com.example.cow_data.utls.Msg;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import net.openid.appauth.AuthState;
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Satrted variables
         startVar = new StartVar(getApplicationContext());
-        startVar.setUserListDB();
+        StartVar.setAllListDB();
         startVar.setmPermiss(mPermiss);
         startVar.setmActivity(this);
 
@@ -186,22 +187,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         File dbFile = new File(getApplicationContext().getDatabasePath(StartVar.nameDBconf).getPath());
         Log.d(TAG, "Ruta de la base de datos: " + dbFile.getAbsolutePath());
 
-       // Basic.msg(dbFile.getAbsolutePath());
+       // Msg.m(dbFile.getAbsolutePath());
 
 //        Configdb mConfig = StartVar.configDatabase.daoConf().getUsers(StartVar.mConfID);
 //        if(mConfig == null){
-//            Basic.msg("Aqui no hay :(");
+//            Msg.m("Aqui no hay :(");
 //        }
 //        else {
-//            Basic.msg("Aqui hay !! "+mConfig.hexid);
+//            Msg.m("Aqui hay !! "+mConfig.hexid);
 //        }
 
         //Instancia de la base de datos
-        StartVar.getUserListDB();
-        listuser =  StartVar.listuser;
+        //StartVar.getUserListDB();
+        listuser =  StartVar.appDBall.daoUser().getUsers();
         dirList.clear();
 
-        //Basic.msg(""+myPrefernce.getGoogleDriveImgPath());
+        //Msg.m(""+myPrefernce.getGoogleDriveImgPath());
 
         // Obtener usuarios de Room y encolarlos
         //List<Usuario> testusuarios = StartVar.appDatabase.usuarioDao().getAllUsuarios();
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        usuarioQueue.enqueue( testusuarios.get(0));
 
 
-        //Basic.msg("Aquuuuuuuuiiiiii Hayyyyyyyy !: "+listuser.size());
+        //Msg.m("Aquuuuuuuuiiiiii Hayyyyyyyy !: "+listuser.size());
 
         //Test
         HashMap<String, ArrayList<Object>> arrayMap = DBListCreator.createList();
@@ -327,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void run() {
                             int savedPosition = myPrefernce.getGalleryPosition();
                             int savedOffset = myPrefernce.getGalleryOffset();
-                            //Basic.msg("Recuperado: Pos=" + savedPosition + ", Offset=" + savedOffset);
+                            //Msg.m("Recuperado: Pos=" + savedPosition + ", Offset=" + savedOffset);
                             // Valida como antes (para evitar crashes)
                             int count = (gridView.getAdapter() != null) ? gridView.getAdapter().getCount() : 0;
                             if (savedPosition < 0 || savedPosition >= count) {
@@ -344,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 // Retrocede la posición para compensar el offset negativo
                                 int itemsToBack = Math.abs(savedOffset) / itemHeight;  // Cuántos ítems "subir"
                                 adjustedPosition = Math.max(0, savedPosition - itemsToBack);
-                                //Basic.msg("Offset negativo: Ajustando posición de " + savedPosition + " a " + adjustedPosition);
+                                //Msg.m("Offset negativo: Ajustando posición de " + savedPosition + " a " + adjustedPosition);
                             } else if (savedOffset > 0) {
                                 // Opcional: Si offset positivo, podrías avanzar, pero suele ser raro
                                 int itemsToAdvance = savedOffset / itemHeight;
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                             // Aplica el valor combinado con setSelection
                             gridView.setSelection(adjustedPosition);
-                            //Basic.msg("Valor combinado aplicado: " + adjustedPosition);
+                            //Msg.m("Valor combinado aplicado: " + adjustedPosition);
                         }
                     });
                 }
@@ -642,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             throw new RuntimeException(e);
                         }
                         try {
-                            mFile = FilesManager.getNewFile(mFile.getAbsolutePath(), "DataSave.csv", StartVar.mContex);
+                            mFile = FilesManager.getNewFile(mFile.getAbsolutePath(), StartVar.csvAppName);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -656,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
                 else {
-                    Basic.msg("request denied by user");
+                    Msg.m("request denied by user");
                 }
             }
     );
@@ -688,14 +689,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBundle.putInt("index", pos);
         mIntent.putExtras(mBundle);
         //Save gallery petition
-        Basic.msg(""+pos);
+        Msg.m(""+pos);
         int firstVisiblePosition = gridView.getFirstVisiblePosition();
-        Basic.msg("Primera posición visible: " + firstVisiblePosition);
+        Msg.m("Primera posición visible: " + firstVisiblePosition);
 
         // Opcional: Para más precisión, obtén el offset (píxeles desde el top del primer ítem)
         if (gridView.getChildCount() > 0) {
             int offset = gridView.getChildAt(0).getTop();
-            Basic.msg("Offset: " + offset);
+            Msg.m("Offset: " + offset);
             // Guarda ambos: posición + offset
             myPrefernce.setGalleryPosition(firstVisiblePosition, offset);
         }

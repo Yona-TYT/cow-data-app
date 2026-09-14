@@ -2,18 +2,18 @@ package com.example.cow_data;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.cow_data.activitys.MainActivity;
-import com.example.cow_data.db.AppDatabase;
-import com.example.cow_data.db.Configdb;
-import com.example.cow_data.db.DaoConf;
+import com.example.cow_data.db.Conf;
 import com.example.cow_data.db.DaoUser;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.db.dao.DaoCfg;
+import com.example.cow_data.utls.Basic;
+import com.example.cow_data.utls.FilesManager;
+import com.example.cow_data.utls.Msg;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,6 +33,8 @@ public class DBListCreator extends AppCompatActivity {
 
     public static HashMap<String, ArrayList<Object>> createList(){
 
+        DaoCfg daoConf = StartVar.appDBall.daoCfg();
+
         //Define y Inizializa el Array Map
         HashMap<String, ArrayList<Object>> arrayMap;
         arrayMap = new HashMap<>();
@@ -49,13 +51,18 @@ public class DBListCreator extends AppCompatActivity {
         List<String[]> mList = new ArrayList<>();
 
         //Instancia de la base de datos
-        List<Usuario> listuser =  StartVar.appDatabase.daoUser().getUsers();
+        List<Usuario> listuser =  StartVar.appDBall.daoUser().getUsers();
 
-        //Se agrega una fila con las configuraciones de la db y versoion
-        StartVar.getConfigDB();
-        Configdb mConf = StartVar.mConfigDB;
-        mList.add(new String[]{mConf.config, mConf.version, mConf.hexid, mConf.date, mConf.time, mConf.save1, mConf.save2, mConf.save3});
+        //=================================== Config DB Lista =====================================================
+        mList.add(new String[]{"<0>"});// Etiqueta para config
+        //Instancia de la base de datos
+        Conf mConf =  daoConf.getUsers(StartVar.mConfID);
 
+        mList.add(new String[]{mConf.config, mConf.version, mConf.hexid, mConf.datetasa,
+                String.valueOf(mConf.dolar), String.valueOf(mConf.margen), String.valueOf(mConf.date),
+                String.valueOf(mConf.time), mConf.curr.toString(), mConf.moneda.toString(),
+                mConf.mes.toString(), mConf.show.toString(), mConf.datos, mConf.dbg
+        });
 
         ArrayList<Object> nameL = arrayMap.get("name");
         ArrayList<Object> ltsL = arrayMap.get("lts");
@@ -112,11 +119,8 @@ public class DBListCreator extends AppCompatActivity {
                 swPreL.add(txsel3);
                 retL.add(txsel4);
 
-                if (FilesManager.isBlockedPath(tximg)) {
-                    imgL.add(tximg);
-                } else {
-                    imgL.add("null");
-                }
+                imgL.add(tximg);
+
                 //------------------------------------------
             }
             StartVar.setCsvList(mList);
@@ -129,10 +133,10 @@ public class DBListCreator extends AppCompatActivity {
 //            for (Object s : mArray) {
 //                mText = ((String) s+",");
 //            }
-//            Basic.msg(mText);
+//            Msg.m(mText);
 //        }
 //        else {
-//            Basic.msg("Aqui no hay!");
+//            Msg.m("Aqui no hay!");
 //        }
 
     }
@@ -146,7 +150,7 @@ public class DBListCreator extends AppCompatActivity {
 
     public static void cvsToDBInternal(Activity myThis, Uri uri, int importType, String mMsg, boolean finish){
         StartVar mStartVar = new StartVar(StartVar.mContex);
-        mStartVar.setUserListDB();
+        StartVar.setAllListDB();
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -156,8 +160,8 @@ public class DBListCreator extends AppCompatActivity {
             String line;
             String version = "0";
 
-            DaoUser mDao = StartVar.appDatabase.daoUser();
-            DaoConf mDaoConf = StartVar.configDatabase.daoConf();
+            DaoUser mDao = StartVar.appDBall.daoUser();
+            DaoCfg daoConf = StartVar.appDBall.daoCfg();
             for (Usuario mUser : mDao.getUsers()){
                 mDao.removerUser(mUser.usuario);
             }
@@ -167,16 +171,23 @@ public class DBListCreator extends AppCompatActivity {
                 String[] spl = line.split(",");
                 //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ line);
                 int f = spl.length;
-                //Si la version es vieja
-                if(f<2){
-                    version = spl[0];
-                    continue;
-                }
-                //Si no se agrega la configuracion aqui
-                else if (spl[0].equals("confID0")){
-                    mDaoConf.updateUser("confID0", StartVar.mDateVersion, spl[2], spl[3], spl[4], spl[5], spl[6] ,spl[7]);
 
+                //Si no se agrega la configuracion aqui
+                if (spl[0].equals("confID0")){
                     version = spl[1];
+                    if(Objects.equals(version, "4")) {
+                        daoConf.updateUser("confID0", StartVar.mDateVersion, spl[2], "", 0d,
+                                0d, 0L, 0L,
+                                0, 0, 0,
+                                0, "", "Old Version");
+
+                    }
+                    else {
+                        daoConf.updateUser("confID0", StartVar.mDateVersion, spl[2], spl[3], Double.parseDouble(spl[4]),
+                                Double.parseDouble(spl[5]), Long.parseLong(spl[6]), Long.parseLong(spl[7]),
+                                Integer.parseInt(spl[8]), Integer.parseInt(spl[9]), Integer.parseInt(spl[10]),
+                                Integer.parseInt(spl[11]), spl[12], spl[13]);
+                    }
                     continue;
                 }
                 if(Objects.equals(version, "0")) {
@@ -220,22 +231,22 @@ public class DBListCreator extends AppCompatActivity {
 
                 stringBuilder.append(line);
             }
-            mStartVar.setUserListDB();
+            StartVar.setAllListDB();
 
         }
         catch (FileNotFoundException e) {
-            Basic.msg("ErrorA: "+ e.getMessage());
+            Msg.m("ErrorA: "+ e.getMessage());
             throw new RuntimeException(e);
         }
         catch (IOException e) {
-            Basic.msg("ErrorB: "+ e.getMessage());
+            Msg.m("ErrorB: "+ e.getMessage());
             throw new RuntimeException(e);
         }
 
         if(finish) {
             Intent mIntent = new Intent(StartVar.mContex, myThis.getClass());
             myThis.startActivity(mIntent);
-            Basic.msg(mMsg);
+            Msg.m(mMsg);
             myThis.finish();
         }
     }
