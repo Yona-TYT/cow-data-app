@@ -41,7 +41,6 @@ public class StartVar {
     public static List<String[]> csvList = new ArrayList<>();
 
     // Var redundants
-    public static List<Usuario> listuser = new ArrayList<>();;
     public static boolean mPermiss;
     public static int mDayA = 276;
     public static int mDayB = 283;

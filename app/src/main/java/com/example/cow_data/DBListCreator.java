@@ -54,7 +54,7 @@ public class DBListCreator extends AppCompatActivity {
         List<Usuario> listuser =  StartVar.appDBall.daoUser().getUsers();
 
         //=================================== Config DB Lista =====================================================
-        mList.add(new String[]{"<0>"});// Etiqueta para config
+        //mList.add(new String[]{"<0>"});// Etiqueta para config
         //Instancia de la base de datos
         Conf mConf =  daoConf.getUsers(StartVar.mConfID);
 

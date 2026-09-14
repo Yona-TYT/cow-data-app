@@ -224,7 +224,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
-            List<Usuario> listuser = StartVar.listuser;
+            List<Usuario> listuser = StartVar.appDBall.daoUser().getUsers();
             myUser = listuser.get(currIdx);
 
             int i = 0;
@@ -552,6 +552,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         DaoUser mDao = StartVar.appDBall.daoUser();
 
+        List<Usuario> users = mDao.getUsers();
+
+
         int itemId = view.getId();
         if (itemId == R.id.bttGall) {
             if(!mPermiss) {
@@ -725,7 +728,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(mIntent);
 
                 //Encola al usuario para sincronizar
-                myUser = StartVar.listuser.get(currIdx);
+                myUser = users.get(currIdx);
                 StartVar.genericQueue.enqueue(myUser);
 
                 if(!sImage.isEmpty()) {
@@ -761,7 +764,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 fmang.RemoveFile(saveImage);
                 mDao.removerUser(mUser);
 
-                myUser = StartVar.listuser.get(currIdx);
+                myUser = users.get(currIdx);
                 Usuario mDelUser = new Usuario("@null", myUser.usuario, "", "", "",
                         "", "", 0, 0, 0, 0, "", "",
                         "", "");
@@ -773,7 +776,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 );
 
                 //Encola al usuario para sincronizar
-                myUser = StartVar.listuser.get(currIdx);
+                myUser = users.get(currIdx);
                 StartVar.genericQueue.enqueue(myUser);
             }
 

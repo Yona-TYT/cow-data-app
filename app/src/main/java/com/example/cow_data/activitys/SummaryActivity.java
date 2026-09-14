@@ -94,8 +94,8 @@ public class SummaryActivity extends AppCompatActivity {
             }
         });
 
-        List<Usuario> listuser = StartVar.listuser;
-        int userSiz = listuser.size();
+        List<Usuario> users = StartVar.appDBall.daoUser().getUsers();
+        int userSiz = users.size();
         int allTotal = userSiz;
         int litTotal = 0;
         int vacTotal = 0;
@@ -104,7 +104,7 @@ public class SummaryActivity extends AppCompatActivity {
         int torTotal = 0;
         int preTotal = 0;
 
-        for(Usuario mUser : listuser){
+        for(Usuario mUser : users){
             int type = mUser.sel2;
             // Type Vacas
             if(type == 0){

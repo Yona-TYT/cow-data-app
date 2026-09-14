@@ -263,9 +263,10 @@ public class DriveManager {
             try {
                 List<File> mFileList = new ArrayList<>();
 
+                List<Usuario> users = StartVar.appDBall.daoUser().getUsers();
                 // Procesamiento de la lista (Operación pesada de I/O)
-                if (StartVar.listuser != null) {
-                    for (Usuario mUser : StartVar.listuser){
+                if (users != null) {
+                    for (Usuario mUser : users){
                         if(mUser != null && !mUser.imagen.isEmpty()){
                             File mFile = new File(mUser.imagen);
                             if(mFile.exists()){

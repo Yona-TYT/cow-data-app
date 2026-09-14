@@ -133,7 +133,7 @@ public class MoreActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
-            List<Usuario> listuser = StartVar.listuser;
+            List<Usuario> listuser = StartVar.appDBall.daoUser().getUsers();
             myUser = listuser.get(currIdx);
 
             if(myUser != null) {
