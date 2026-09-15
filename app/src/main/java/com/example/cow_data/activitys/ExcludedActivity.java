@@ -25,7 +25,6 @@ import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.adapters.SelecAdapter;
-import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
 
 import java.util.ArrayList;

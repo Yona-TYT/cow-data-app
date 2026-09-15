@@ -45,7 +45,6 @@ import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 

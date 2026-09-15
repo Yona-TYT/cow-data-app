@@ -35,32 +35,50 @@ public class CalendUtls {
     public CalendUtls() {
     }
 
-    public static String dataConverted(String text, int selec) {
+    public static String dataConverted(String text, int selec){
+        if(text.isEmpty()){
+            return "";
+        }
+        //  Basic.msg("1 a: "+text +" sel: "+selec);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             //Convierte Sting  a forrmato de fecha
-            LocalDate date = LocalDate.parse(text);
-            //Inicia la fecha actual
-            LocalDate currdate = LocalDate.now();
-
-            long vlresult = 0;
-            //Para años
-            if (selec == 0) {
-                vlresult = ChronoUnit.YEARS.between(date, currdate);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(StartVar.mDateFormEN);
+            LocalDate date;
+            try {
+                date = LocalDate.parse(text, formatter);
             }
-            //Para meses
-            else if (selec == 1) {
-                vlresult = ChronoUnit.MONTHS.between(date, currdate);
+            catch (Exception e) {
+                date = null;
             }
-            //Para Dias
-            else if (selec == 2) {
-                vlresult = ChronoUnit.DAYS.between(date, currdate);
+            if(date != null) {
+                //Inicia la fecha actual
+                LocalDate currdate = LocalDate.now();
+                long vlresult = 0;
+                //Para fecha de Nacimiento
+                if (selec == 0) {
+                    //Log.d("Calendar", "Calen3 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+text);
+                    return getFormatDateES(text);
+                }
+                //Para años
+                else if (selec == 1) {
+                    vlresult = ChronoUnit.YEARS.between(date, currdate);
+                }
+                //Para meses
+                else if (selec == 2) {
+                    vlresult = ChronoUnit.MONTHS.between(date, currdate);
+                }
+                //Para Dias
+                else if (selec == 3) {
+                    vlresult = ChronoUnit.DAYS.between(date, currdate);
+                }
+                //Para Formato de fecha
+                else if (selec == 4) {
+                    Period result = date.until(currdate);
+                    return result.getYears() + "-" + result.getMonths() + "-" + result.getDays();
+                }
+                return "" + (vlresult < 0 ? 1 : vlresult);
             }
-            //Para Formato de fecha
-            else if (selec == 3) {
-                Period result = date.until(currdate);
-                return result.getDays() + "-" + result.getMonths() + "-" + result.getYears();
-            }
-            return "" + (vlresult < 0 ? 1 : vlresult);
+            return text;
         }
         return "1";
     }

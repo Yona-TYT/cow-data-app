@@ -33,7 +33,6 @@ import com.example.cow_data.ClearFocusEditText;
 import com.example.cow_data.adapters.CheckboxAdapter;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
-import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.utls.Msg;
 

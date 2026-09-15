@@ -7,9 +7,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.room.Room;
 
 import com.example.cow_data.db.AllDao;
-import com.example.cow_data.db.AppDatabase;
 import com.example.cow_data.db.Conf;
-import com.example.cow_data.db.ConfigDatabase;
 import com.example.cow_data.db.GenericQueue;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.drive.SetWorkResult;
