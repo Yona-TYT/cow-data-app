@@ -47,8 +47,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.cow_data.db.DaoUser;
-import com.example.cow_data.utls.Basic;
+import com.example.cow_data.db.dao.DaoUser;
 import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;

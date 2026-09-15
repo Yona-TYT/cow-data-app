@@ -75,7 +75,7 @@ public class GenericQueue {
             // Si la app despertó en segundo plano y StartVar no se ha inicializado, lo forzamos
             if (StartVar.appDBall == null) {
                 Log.w(TAG, "La BD en StartVar es null. Inicializando contenedores...");
-                //StartVar.setAllListDB();
+                StartVar.setAllListDB();
             }
             queueItemDao = StartVar.appDBall.daoQueue();
         }

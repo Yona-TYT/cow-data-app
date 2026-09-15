@@ -4,6 +4,8 @@ import io.reactivex.annotations.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.example.cow_data.db.dao.DaoUser;
+
 @Entity
 public class Usuario {
     @PrimaryKey(autoGenerate = true)

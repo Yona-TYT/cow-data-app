@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.cow_data.db.dao.DaoCfg;
 import com.example.cow_data.db.dao.DaoDat;
+import com.example.cow_data.db.dao.DaoUser;
 import com.example.cow_data.db.dao.QueueItemDao;
 
 @Database(

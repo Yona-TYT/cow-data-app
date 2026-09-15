@@ -1,10 +1,12 @@
-package com.example.cow_data.db;
+package com.example.cow_data.db.dao;
 
 import androidx.room.Dao;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Insert;
 import androidx.room.Update;
+
+import com.example.cow_data.db.Usuario;
 
 import java.util.List;
 
@@ -15,6 +17,9 @@ public interface DaoUser {
 
     @Query("SELECT * FROM usuario")
     List<Usuario> getUsers();
+
+    @Update
+    void update(Usuario user);
 
     @Query("SELECT * FROM usuario WHERE sel4 >= :sel4")
     List<Usuario> getUsers(Integer sel4);

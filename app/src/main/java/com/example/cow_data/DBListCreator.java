@@ -9,7 +9,7 @@ import android.net.Uri;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cow_data.db.Conf;
-import com.example.cow_data.db.DaoUser;
+import com.example.cow_data.db.dao.DaoUser;
 import com.example.cow_data.db.Usuario;
 import com.example.cow_data.db.dao.DaoCfg;
 import com.example.cow_data.utls.FilesManager;
@@ -131,6 +131,9 @@ public class DBListCreator extends AppCompatActivity {
 
                 //------------------------------------------
             }
+
+            mList.add(new String[]{"<end>"});  // marca de cierre
+
             StartVar.setCsvList(mList);
         }
         return arrayMap;
