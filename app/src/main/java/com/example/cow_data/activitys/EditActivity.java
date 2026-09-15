@@ -47,6 +47,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cow_data.GlobalData;
 import com.example.cow_data.db.dao.DaoUser;
 import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.utls.FilesManager;
@@ -727,7 +728,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Encola al usuario para sincronizar
                 myUser = users.get(currIdx);
-                StartVar.genericQueue.enqueue(myUser);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(myUser, 3);
 
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);
@@ -766,7 +767,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 Usuario mDelUser = new Usuario("@null", myUser.usuario, "", "", "",
                         "", "", 0, 0, 0, 0, "", "",
                         "", "");
-                StartVar.genericQueue.enqueue(mDelUser);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(mDelUser, 3);
             }
             else {
                 mDao.updateStatus(
@@ -775,7 +776,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Encola al usuario para sincronizar
                 myUser = users.get(currIdx);
-                StartVar.genericQueue.enqueue(myUser);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(myUser, 3);
             }
 
             Intent mIntent = new Intent(this, MainActivity.class);

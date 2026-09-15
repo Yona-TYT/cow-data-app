@@ -22,6 +22,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cow_data.AppContextProvider;
+import com.example.cow_data.GlobalData;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.adapters.SelecAdapter;
@@ -108,8 +109,7 @@ public class ExcludedActivity extends AppCompatActivity {
 
                     //Encola al usuario para sincronizar
                     myUser = StartVar.appDBall.daoUser().getUsers(myUser.usuario);
-                    StartVar.genericQueue.enqueue(myUser);
-
+                    GlobalData.getInstance(AppContextProvider.getContext()).getGenericQueue().enqueue(myUser, 3);
 
                     Intent mIntent = new Intent(AppContextProvider.getContext(), MainActivity.class);
                     startActivity(mIntent);

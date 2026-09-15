@@ -9,7 +9,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.example.cow_data.AppContextProvider;
 import com.example.cow_data.CsvWriterSimple;
+import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -109,7 +111,7 @@ public class FilesManager {
 
         String myName = StartVar.csvAppName;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            myName = StartVar.fileName
+            myName = AppContextProvider.getContext().getString(R.string.app_name)
                     + LocalDate.now()
                     + "_"
                     + LocalTime.now().toString().replaceAll("\\D", "_")

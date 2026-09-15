@@ -77,9 +77,6 @@ public class Preloader extends AppCompatActivity {
         //StartVar.getUserListDB();
         List<Usuario> users =  StartVar.appDBall.daoUser().getUsers();
 
-        // Inicializar la variable para las colas
-        StartVar.genericQueue = new GenericQueue(AppContextProvider.getContext());
-
         for(Usuario mUser : users){
             Integer selecTx = mUser.sel3;
             String userTx = mUser.usuario;

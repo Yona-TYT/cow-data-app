@@ -45,6 +45,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import androidx.core.content.FileProvider;
 
+import com.example.cow_data.GlobalData;
 import com.example.cow_data.utls.Basic;
 import com.example.cow_data.utls.CalendUtls;
 import com.example.cow_data.utls.FilesManager;
@@ -612,7 +613,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 //-------------------------------------------------------
 
                 //Encola al usuario para sincronizar
-                StartVar.genericQueue.enqueue(obj);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(obj, 3);
 
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);

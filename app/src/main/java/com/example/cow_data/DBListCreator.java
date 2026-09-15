@@ -62,7 +62,7 @@ public class DBListCreator extends AppCompatActivity {
         List<Usuario> listuser =  StartVar.appDBall.daoUser().getUsers();
 
         //=================================== Config DB Lista =====================================================
-        //mList.add(new String[]{"<0>"});// Etiqueta para config
+        mList.add(new String[]{"<0>"});// Etiqueta para config
         //Instancia de la base de datos
         Conf mConf =  daoConf.getUsers(StartVar.mConfID);
 
@@ -183,6 +183,10 @@ public class DBListCreator extends AppCompatActivity {
                 //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy ------------------------: "+ line);
                 int f = spl.length;
 
+                if (spl[0].equals("<0>") || spl[0].equals("<end>")) {
+                    continue;
+                }
+
                 //Si no se agrega la configuracion aqui
                 if (spl[0].equals("confID0")){
                     version = spl[1];
@@ -201,38 +205,16 @@ public class DBListCreator extends AppCompatActivity {
                     }
                     continue;
                 }
-                if(Objects.equals(version, "0")) {
+
+                if (Objects.equals(version, "1")) {
                     Usuario obj = new Usuario(
-                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], 0, (f > 7 ? Integer.parseInt(spl[7]) : 0),
-                            0, (f > 8 ? Integer.parseInt(spl[8]) : 0), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")
+                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], Integer.parseInt(spl[7]), Integer.parseInt(spl[8]), Integer.parseInt(spl[9]), Integer.parseInt(spl[10]),
+                            (f > 11 ? spl[11] : "@null"), (f > 12 ? spl[12] : "@null"), (f > 13 ? spl[13] : "@null"), (f > 14 ? spl[14] : "@null")
                     );
                     mDao.insetUser(obj);
-                }
-                else if(Objects.equals(version, "1")) {
-                    Usuario obj = new Usuario(
-                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], ""/*spl[5]*/, spl[5], Integer.parseInt(spl[6]), Integer.parseInt(spl[7]), 0,
-                            (f > 8 ? Integer.parseInt(spl[8]) : 0), (f > 9 ? spl[9] : ""), (f > 10 ? spl[10] : ""), (f > 11 ? spl[11] : ""), (f > 12 ? spl[12] : "")                           );
-                    mDao.insetUser(obj);
-
                 }
 
-                else if(Objects.equals(version, "2")) {
-                    Usuario obj = new Usuario(
-                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], Integer.parseInt(spl[7]), Integer.parseInt(spl[8]), Integer.parseInt(spl[9]),
-                            (f > 10 ? Integer.parseInt(spl[10]) : 0), (f > 11 ? spl[11] : "@null"), (f > 12 ? spl[12] : "@null"), (f > 13 ? spl[13] : "@null"),
-                            (f > 14 ? spl[14] : "@null")
-                    );
-                    mDao.insetUser(obj);
-                }
-                else if(Objects.equals(version, "3")) {
-                    Usuario obj = new Usuario(
-                            (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], Integer.parseInt(spl[7]), Integer.parseInt(spl[8]), Integer.parseInt(spl[9]),
-                            0, (f > 10 ? spl[10] : "@null"), (f > 11 ? spl[11] : "@null"), (f > 12 ? spl[12] : "@null"),
-                            (f > 13 ? spl[13] : "@null")
-                    );
-                    mDao.insetUser(obj);
-                }
-                else if(Objects.equals(version, "4")) {
+                else if (Objects.equals(version, "4")) {
                     Usuario obj = new Usuario(
                             (importType == 0? getUserId(mDao) : spl[0]), spl[1], spl[2], spl[3], spl[4], spl[5], spl[6], Integer.parseInt(spl[7]), Integer.parseInt(spl[8]), Integer.parseInt(spl[9]), Integer.parseInt(spl[10]),
                             (f > 11 ? spl[11] : "@null"), (f > 12 ? spl[12] : "@null"), (f > 13 ? spl[13] : "@null"), (f > 14 ? spl[14] : "@null")

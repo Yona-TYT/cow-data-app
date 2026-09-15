@@ -30,7 +30,7 @@ public class GenericWorker extends Worker {
             }
 
             if (StartVar.appDBall == null) {
-                //StartVar.setAllListDB();
+                StartVar.setAllListDB();
             }
 
             QueueItemDao dao = StartVar.appDBall.daoQueue();

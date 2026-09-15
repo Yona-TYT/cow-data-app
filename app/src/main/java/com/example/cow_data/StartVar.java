@@ -81,7 +81,6 @@ public class StartVar {
 
     public static Context mContex ;
     public static Activity mActivity;
-    public static GenericQueue genericQueue;
     public static int sendDate = 0;
 
     public static SetWorkResult mWorkResult = null;
