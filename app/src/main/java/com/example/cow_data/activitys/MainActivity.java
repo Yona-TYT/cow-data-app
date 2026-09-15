@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         new Basic(getApplicationContext());
 
+        Msg.init(this);
+
         // Inicializar Handler para el hilo principal
         mainHandler = new Handler(Looper.getMainLooper());
 
@@ -689,14 +691,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBundle.putInt("index", pos);
         mIntent.putExtras(mBundle);
         //Save gallery petition
-        Msg.m(""+pos);
+        //Msg.m(""+pos);
         int firstVisiblePosition = gridView.getFirstVisiblePosition();
-        Msg.m("Primera posición visible: " + firstVisiblePosition);
+        //Msg.m("Primera posición visible: " + firstVisiblePosition);
 
         // Opcional: Para más precisión, obtén el offset (píxeles desde el top del primer ítem)
         if (gridView.getChildCount() > 0) {
             int offset = gridView.getChildAt(0).getTop();
-            Msg.m("Offset: " + offset);
+           // Msg.m("Offset: " + offset);
             // Guarda ambos: posición + offset
             myPrefernce.setGalleryPosition(firstVisiblePosition, offset);
         }

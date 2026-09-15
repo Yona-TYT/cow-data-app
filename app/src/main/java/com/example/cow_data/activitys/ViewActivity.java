@@ -93,7 +93,6 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mPermiss = false;
     // El index actual de bd
     private int currIdx = 0;
-    private String currDir = "";
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
@@ -292,7 +291,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 i++;
                 mviewList.get(i).setText("Edad: "+ CalendUtls.getBrithDateText(mUser.edad));
-                currDir = fmang.getImage(mUser.imagen, mImageView);
+                FilesManager.setImageView(mUser.imagen, mImageView);
                 i++;
                 if(mUser.sel3 == 1) {
                     mviewList.get(i).setText("Fecha de Parto: (" + mUser.pre + ")");
@@ -431,7 +430,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             if(f.exists()) {
                 Intent mIntent = new Intent(this, ImgFullscreenActivity.class);
                 Bundle mBundle = new Bundle();
-                mBundle.putString("dir", currDir);
+                mBundle.putString("dir", mUser.imagen);
                 mBundle.putInt("index", currIdx);
                 mIntent.putExtras(mBundle);
                 startActivity(mIntent);

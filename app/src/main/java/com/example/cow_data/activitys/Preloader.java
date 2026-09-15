@@ -57,9 +57,7 @@ public class Preloader extends AppCompatActivity {
         //Check valus before start main activity
         //Satrted variables
         StartVar startVar = new StartVar(getApplicationContext());
-
-        //Check valus before start main activity
-        //Satrted variables
+        Msg.init(this);
         StartVar.setAllListDB();
 
         startVar.setmActivity(this);

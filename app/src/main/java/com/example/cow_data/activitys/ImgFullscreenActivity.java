@@ -173,7 +173,7 @@ public class ImgFullscreenActivity extends AppCompatActivity {
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             String dir = intent.getStringExtra("dir");
-            fmang.getImage(dir, imageView);
+            FilesManager.setImageView(dir, imageView);
         }
 
         OnBackPressedDispatcher onBackPressedDispatcher = getOnBackPressedDispatcher();
