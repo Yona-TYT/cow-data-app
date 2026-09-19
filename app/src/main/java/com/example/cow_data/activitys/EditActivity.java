@@ -762,6 +762,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 fmang.RemoveFile(saveImage);
 
                 mUser.usuario = "@null";
+                mUser.sel4 = currSel3;
                 mDao.update(mUser);
 
                 GlobalData.getInstance(this).getGenericQueue().enqueue(mUser, 3);

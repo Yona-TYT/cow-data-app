@@ -73,6 +73,7 @@ public class Preloader extends AppCompatActivity {
 
         //Instancia de la base de datos
         //StartVar.getUserListDB();
+
         List<Usuario> users =  StartVar.appDBall.daoUser().getUsers();
 
         for(Usuario mUser : users){
