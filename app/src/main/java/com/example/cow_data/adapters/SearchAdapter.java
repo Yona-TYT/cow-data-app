@@ -45,31 +45,50 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public View getView(int pos, View convertView, ViewGroup parent){
+    public View getView(int pos, View convertView, ViewGroup parent) {
+        LinearLayout layout;
+        TextView text;
 
-       //Log.d("PhotoPicker", "Ya hay ? 11111------------------------: "+ newList.size());
-        TextView text = new TextView(mContex);
-        LinearLayout layout = new LinearLayout(mContex);
-        // Se ajustan los parametros del Texto ----------------------------------
+        // 1. REUTILIZACIÓN: Si convertView no es nulo, reciclamos la vista existente
+        if (convertView == null) {
+            // Si es nulo, creamos el contenedor y el texto por primera vez
+            layout = new LinearLayout(mContex);
+            layout.setOrientation(LinearLayout.HORIZONTAL);
+            layout.setVisibility(View.VISIBLE);
 
-        text.setText(textList.get(newList.get(pos))[1]);
-        text.setTypeface(Typeface.DEFAULT_BOLD);
-        text.setGravity(Gravity.CENTER);
-        text.setTextSize(18);
-        text.setPadding(10,5,10,5);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.addView(text);
-        layout.setVisibility(View.VISIBLE);
+            text = new TextView(mContex);
+            text.setTypeface(Typeface.DEFAULT_BOLD);
+            text.setGravity(Gravity.CENTER);
+            text.setTextSize(18);
+            text.setPadding(10, 5, 10, 5);
 
-        //-----------------------------------------------------------------------
+            // Agregamos el TextView al contenedor
+            layout.addView(text);
+        } else {
+            // Si ya existe, lo casteamos directamente para reutilizarlo
+            layout = (LinearLayout) convertView;
+            // Recuperamos el TextView que ya estaba dentro del layout
+            text = (TextView) layout.getChildAt(0);
+        }
 
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, 20);
-///       params.topMargin = 0;
-////        params.bottomMargin = 0;
-//        text.setLayoutParams(params);
-//        layout.removeAllViews();
+        // 2. ASIGNACIÓN DE DATOS (Se ejecuta siempre, sea vista nueva o reciclada)
+        // Obtenemos los strings correspondientes usando tus listas de índices
+        String[] itemData = textList.get(newList.get(pos));
+
+        // Seteamos el texto (Posición 1 en tu arreglo de strings)
+        text.setText(itemData[1]);
+
+        // 3. SOLUCIÓN AL CRASH: Asignamos el Tag a 'layout' en lugar de 'convertView'
+        String mUserId = itemData[8]; // Posición 8 para el ID de usuario
+        if (mUserId != null) {
+            layout.setTag(mUserId);
+        } else {
+            layout.setTag(null); // Limpiamos tags viejos si la celda es reciclada
+        }
+
         return layout;
     }
+
 
 //    @Override
 //    public View getView(int pos, View convertView, ViewGroup parent){

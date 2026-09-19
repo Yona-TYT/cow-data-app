@@ -111,11 +111,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private String sImage = "";
     private String saveImage = "null";
 
-    private String mUser = "";
     private Uri oldFile = null;
     private Uri currUri = null;
     private int currIdx = 0;
-    private Usuario myUser;
+    private Usuario mUser;
 
     // Para el selector de edades--------------------------------------------
     private int currSel1 = 0;
@@ -224,14 +223,14 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
             List<Usuario> listuser = StartVar.appDBall.daoUser().getUsers();
-            myUser = listuser.get(currIdx);
+            mUser = listuser.get(currIdx);
 
             int i = 0;
 
-            if (myUser != null) {
+            if (mUser != null) {
 
-                currSel1 = myUser.sel1;
-                currSel2 = myUser.sel2;
+                currSel1 = mUser.sel1;
+                currSel2 = mUser.sel2;
 
 
                 if(currSel1 == 3){
@@ -243,28 +242,25 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     mInput3.setEnabled(false);
                 }
 
-                //Se obtiene el usuario real
-                mUser = myUser.usuario;
-
-                mInputList.get(i).setText(myUser.nombre);
+                mInputList.get(i).setText(mUser.nombre);
                 i++;
-                mInputList.get(i).setText(myUser.color);
+                mInputList.get(i).setText(mUser.color);
                 i++;
-                mInputList.get(i).setText(myUser.litros);
+                mInputList.get(i).setText(mUser.litros);
                 i++;
-                mInputList.get(i).setText(CalendUtls.dataConverted(myUser.edad, currSel1));
+                mInputList.get(i).setText(CalendUtls.dataConverted(mUser.edad, currSel1));
 
                 //Log.d("Calendar", "Calen1 -->>>>>>>>>>>>>>>>>>>>>>>>>>>> : "+CalcCalendar.getFormatDateES(mList.edad));
                 i++;
 
-                mInput5.setText(CalendUtls.getFormatDateES(myUser.pre));
+                mInput5.setText(CalendUtls.getFormatDateES(mUser.pre));
 
-                swPre = !(myUser.sel3 == 0);
+                swPre = !(mUser.sel3 == 0);
                 mInput5.setEnabled(swPre);
 
                 mSw1.setChecked(swPre);
 
-                saveImage = fmang.getImage(myUser.imagen, mImgPrev);
+                saveImage = fmang.getImage(mUser.imagen, mImgPrev);
                 currUri = Uri.parse(sImage);
 
                 //Comentado para futura eliminacion
@@ -553,6 +549,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         List<Usuario> users = mDao.getUsers();
 
+        mUser = users.get(currIdx);
 
         int itemId = view.getId();
         if (itemId == R.id.bttGall) {
@@ -574,7 +571,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (itemId == R.id.buttOK) {
             boolean result = true;
             int msgIdx = 0;
-            mList.add(mUser);
             for(int i = 0; i < mInputList.size(); i++) {
                 TextView textv = mInputList.get(i);
                 String text = textv.getText().toString();
@@ -685,7 +681,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     if(currUri != null){
                         oldFile = Uri.parse(saveImage);
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), currUri);
-                        sImage = fmang.SavePhoto(bitmap, mUser);
+                        sImage = fmang.SavePhoto(bitmap, mUser.usuario);
                     }
                 } catch (IOException e) {
                     //textSnackbar("Erorro con imagen");
@@ -693,32 +689,36 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                     sImage = "";
                 }
 
-                //-------------------------------------------------------------------
-                mDao.updateUser(
-                        mList.get(0), mList.get(1), mList.get(2), mList.get(3), mList.get(4), mPreDate,
-                        sImage.isEmpty()? saveImage:sImage, currSel1,
-                        currSel2,(swPre?1:0)
-                );
+                mUser.nombre = mList.get(0);
+                mUser.color = mList.get(1);
+                mUser.litros = mList.get(2);
+                mUser.edad = mList.get(3);
+                mUser.pre = mPreDate;
+                mUser.imagen = sImage.isEmpty()? saveImage:sImage;
+                mUser.sel1 = currSel1;
+                mUser.sel2 = currSel2;
+                mUser.sel3 = (swPre?1:0);
 
                 if(morlist != null && !morlist.isEmpty()) {
-                    mDao.updateMore(
-                            mList.get(0), morlist.get(0),  morlist.get(1), morlist.get(2), morlist.get(3)
-                    );
+                    mUser.more1 = morlist.get(0);
+                    mUser.more2 = morlist.get(1);
+                    mUser.more3 = morlist.get(2);
+                    mUser.more4 = morlist.get(3);
                 }
 
-                //listuser.add(currIdx, obj);
+                mDao.update(mUser);
 
                 //SE Limpia la lista
                 mList.clear();
                 //Se limpia la lista more
                 StartVar.morlist.clear();;
 
-                        //Se vacia el archivo viejo
+                //Se vacia el archivo viejo
                 oldFile = null;
 
                 //Recarga La lista de la DB ----------------------------
                 StartVar mVars = new StartVar(getApplicationContext());
-                //mVars.getUserListDB();
+               // StartVar.getUserListDB();
                 //-------------------------------------------------------
 
                 //Esto inicia las actividad Main y cierra la actual
@@ -727,8 +727,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(mIntent);
 
                 //Encola al usuario para sincronizar
-                myUser = users.get(currIdx);
-                GlobalData.getInstance(this).getGenericQueue().enqueue(myUser, 3);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(mUser, 3);
 
                 if(!sImage.isEmpty()) {
                     File mFile = new File(sImage);
@@ -761,22 +760,19 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         if (itemId == R.id.buttDEL){
             if (currSel3 == 1) {
                 fmang.RemoveFile(saveImage);
-                mDao.removerUser(mUser);
 
-                myUser = users.get(currIdx);
-                Usuario mDelUser = new Usuario("@null", myUser.usuario, "", "", "",
-                        "", "", 0, 0, 0, 0, "", "",
-                        "", "");
-                GlobalData.getInstance(this).getGenericQueue().enqueue(mDelUser, 3);
+                mUser.usuario = "@null";
+                mDao.update(mUser);
+
+                GlobalData.getInstance(this).getGenericQueue().enqueue(mUser, 3);
             }
             else {
                 mDao.updateStatus(
-                        myUser.usuario, currSel3
+                        mUser.usuario, currSel3
                 );
 
                 //Encola al usuario para sincronizar
-                myUser = users.get(currIdx);
-                GlobalData.getInstance(this).getGenericQueue().enqueue(myUser, 3);
+                GlobalData.getInstance(this).getGenericQueue().enqueue(mUser, 3);
             }
 
             Intent mIntent = new Intent(this, MainActivity.class);

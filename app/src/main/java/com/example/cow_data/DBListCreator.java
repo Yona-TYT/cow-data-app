@@ -46,6 +46,7 @@ public class DBListCreator extends AppCompatActivity {
         //Define y Inizializa el Array Map
         HashMap<String, ArrayList<Object>> arrayMap;
         arrayMap = new HashMap<>();
+        arrayMap.put("ids",  new ArrayList<>());
         arrayMap.put("name",  new ArrayList<>());
         arrayMap.put("lts",  new ArrayList<>());
         arrayMap.put("datePre",  new ArrayList<>());
@@ -72,6 +73,7 @@ public class DBListCreator extends AppCompatActivity {
                 mConf.mes.toString(), mConf.show.toString(), mConf.datos, mConf.dbg
         });
 
+        ArrayList<Object> idsL = arrayMap.get("ids");
         ArrayList<Object> nameL = arrayMap.get("name");
         ArrayList<Object> ltsL = arrayMap.get("lts");
         ArrayList<Object> dPreL = arrayMap.get("datePre");
@@ -82,7 +84,7 @@ public class DBListCreator extends AppCompatActivity {
         ArrayList<Object> swPreL = arrayMap.get("swPre");
         ArrayList<Object> retL = arrayMap.get("retire");
 
-        if(nameL != null && ltsL != null && dPreL != null && dBrithL!= null && swPreL != null && formatL != null && selL != null && retL != null && imgL != null) {
+        if(idsL != null && nameL != null && ltsL != null && dPreL != null && dBrithL!= null && swPreL != null && formatL != null && selL != null && retL != null && imgL != null) {
             for (Usuario myUser : listuser) {
                 String tximg = myUser.imagen;
                 String txname = myUser.nombre;
@@ -118,6 +120,7 @@ public class DBListCreator extends AppCompatActivity {
 
                 //--------------------------------------------------------
                 // Se obtine la direccion de la image,  el nombre, la listSelec etc.
+                idsL.add(myUser.usuario);
                 nameL.add(txname);
                 ltsL.add(txlitros);
                 dPreL.add(txpre);

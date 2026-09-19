@@ -46,6 +46,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.cow_data.db.dao.DaoUser;
 import com.example.cow_data.utls.Basic;
 import com.example.cow_data.DBListCreator;
 import com.example.cow_data.utls.FilesManager;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public ListView mlv;
     private SearchAdapter mAdapter;
     private GridView gridView;
+    private ArrayList<Object> idsList = new ArrayList<>();
     private ArrayList<Object> nameList = new ArrayList<>();
     private ArrayList<Object> ltrosList = new ArrayList<>();
     private ArrayList<Object> datePreList = new ArrayList<>();
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int currSel2 = 4;
     private List<String> mSpinL2= Arrays.asList("Vacas", "Novillas", "Becerros", "Toros", "Todos");
     //-----------------------------------------------------------------------
+
+    private DaoUser daoUser;
 
     // Classs para la gestion de archivos
     FilesManager fmang = new FilesManager();
@@ -201,7 +205,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //Instancia de la base de datos
         //StartVar.getUserListDB();
-        listuser =  StartVar.appDBall.daoUser().getUsers();
+        daoUser = StartVar.appDBall.daoUser();
+
+        listuser =  daoUser.getUsers();
+
         dirList.clear();
 
         //Msg.m(""+myPrefernce.getGoogleDriveImgPath());
@@ -226,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //--------------------------------------------------------
         // Se obtine la direccion de la image,  el nombre, la listSelec etc.
+        idsList = arrayMap.get("ids");
         nameList = arrayMap.get("name");
         ltrosList = arrayMap.get("lts");
         datePreList = arrayMap.get("datePre");
@@ -503,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //=====================================================================================================
 
     private String[] setGalleryArray(int idx){
-        String[] stList = new String[8];
+        String[] stList = new String[9];
         stList[0] = (String)dirList.get(idx);
         stList[1] = (String)nameList.get(idx);
         stList[2] = (String)ltrosList.get(idx);
@@ -512,6 +520,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         stList[5] = selList.get(idx).toString();
         stList[6] = swPreList.get(idx).toString();
         stList[7] = Integer.toString(idx);
+        stList[8] = (String)idsList.get(idx);
+
         return stList;
     }
     @SuppressLint("ResourceType")
@@ -676,19 +686,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         int itemId = parent.getId();
         if (itemId == R.id.gcImg) {
-            nextViewActivity((int)id);
+            GalleryAdapter.ViewHolder holder = (GalleryAdapter.ViewHolder) view.getTag();
+
+            String mUserId = holder.userId;
+            nextViewActivity(daoUser.getIndex(mUserId));
         }
+
         if (itemId == R.id.lv) {
-            //Log.d("PhotoPicker", " Aquiiiiiiiiii Hayyyyyy 11100------------------------: " + position);
-            nextViewActivity((int)id);
+            if (view != null && view.getTag() != null) {
+                String mUserId = (String) view.getTag();
+                nextViewActivity(daoUser.getIndex(mUserId));
+            }
         }
     }
 
-    public void nextViewActivity(int pos){
+    public void nextViewActivity(int index){
         Intent mIntent = new Intent(this, ViewActivity.class);
         Bundle mBundle = new Bundle();
         //Log.d("PhotoPicker", "11100------------------------: " + dirList.size());
-        mBundle.putInt("index", pos);
+        mBundle.putInt("index", index);
         mIntent.putExtras(mBundle);
         //Save gallery petition
         //Msg.m(""+pos);

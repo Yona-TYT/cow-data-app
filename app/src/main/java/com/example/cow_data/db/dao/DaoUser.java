@@ -18,6 +18,9 @@ public interface DaoUser {
     @Query("SELECT * FROM usuario")
     List<Usuario> getUsers();
 
+    @Query("SELECT COUNT(*) FROM usuario WHERE uid < (SELECT uid FROM usuario WHERE usuario = :usuario LIMIT 1)")
+    Integer getIndex(String usuario);
+
     @Update
     void update(Usuario user);
 

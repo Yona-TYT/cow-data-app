@@ -46,6 +46,7 @@ import com.example.cow_data.utls.FilesManager;
 import com.example.cow_data.R;
 import com.example.cow_data.StartVar;
 import com.example.cow_data.db.Usuario;
+import com.example.cow_data.utls.Msg;
 import com.google.android.material.snackbar.Snackbar;
 
 
@@ -111,6 +112,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
     //Usuario
     private Usuario mUser;
+    private List<Usuario> listUsers = new ArrayList<>();
 
     @SuppressLint({"MissingInflatedId", "RestrictedApi", "SetTextI18n", "ClickableViewAccessibility"})
     @Override
@@ -268,13 +270,15 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         mainSel = StartVar.currSel2;
         typeList = StartVar.typeList;
 
-        List<Usuario> listuser = StartVar.appDBall.daoUser().getUsers();
 
         Intent intent = getIntent();
+        listUsers.clear();
         if (intent.getExtras() != null) {
             currIdx = intent.getIntExtra("index", 0);
+            listUsers = StartVar.appDBall.daoUser().getUsers();
+            mUser = listUsers.get(currIdx);
+
             int i = 0;
-            mUser = listuser.get(currIdx);
             if (mUser != null) {
                 currSel1 = mUser.sel1;
                 currSel2 = mUser.sel2;
@@ -444,86 +448,75 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
             prevPage();
         }
     }
+    private void nextPage() {
+        int siz = listUsers.size();
+        if (siz == 0) return;
 
-    private void nextPage(){
-        Intent mIntent = new Intent(this, ViewActivity.class);
         int newidx = currIdx;
-        newidx++;
-        int siz = typeList.size();
-        newidx = (newidx < siz? newidx : 0 );
+        boolean found = false;
 
-        while ((Integer)retirList.get(newidx) > 0){
-            newidx++;
-            newidx = (newidx < siz? newidx : 0 );
-        }
+        // Recorremos la lista de forma cíclica buscando el siguiente válido
+        for (int i = 0; i < siz; i++) {
+            // Avanzamos el índice y vuelve a 0 automáticamente al llegar al final
+            newidx = (newidx + 1) % siz;
 
-        if(mainSel == 4){
-            mIntent.putExtras(getAndSetBundle(newidx));
-            startActivity(mIntent);
-            this.finish();
-        }
-        else {
-            for (int i = newidx; i < siz; i++) {
-                if ((Integer)typeList.get(i) == mainSel) {
-                    mIntent.putExtras(getAndSetBundle(i));
-                    startActivity(mIntent);
-                    this.finish();
-                    break;
-                } else if (i == (siz - 1)) {
-                    for (int j = 0; j < siz && j != currIdx; j++) {
-                        if ((Integer)typeList.get(j) == mainSel) {
-                            mIntent.putExtras(getAndSetBundle(j));
-                            startActivity(mIntent);
-                            this.finish();
-                            break;
-                        }
-                    }
-                }
+            Usuario candidate = listUsers.get(newidx);
+
+            // Filtro 1: Saltamos los retirados (sel3 > 0)
+            if (candidate.sel3 > 0) continue;
+
+            // Filtro 2: Evaluamos la categoría principal (mainSel)
+            if (mainSel == 4 || candidate.sel2 == mainSel) {
+                found = true;
+                break;
             }
+        }
+
+        if (found) {
+            openActivity(newidx);
         }
     }
 
-    private void prevPage(){
-        Intent mIntent = new Intent(this, ViewActivity.class);
+    private void prevPage() {
+        int siz = listUsers.size();
+        if (siz == 0) return;
+
         int newidx = currIdx;
-        newidx--;
-        int siz = typeList.size();
-        if(siz != 0) {
-            newidx = (newidx < 0 ? (siz - 1) : newidx);
-        }
-        else{
-            newidx = 0;
-        }
-        while ((Integer)retirList.get(newidx) > 0){
-            newidx--;
-            newidx = (newidx < 0 ? (siz - 1) : newidx);
-        }
-        if(mainSel == 4){
-            mIntent.putExtras(getAndSetBundle(newidx));
-            startActivity(mIntent);
-            this.finish();
-        }
-        else {
-            for(int i = newidx; i >=0 ; i-- ){
-                if((Integer)typeList.get(i) == mainSel){
-                    mIntent.putExtras(getAndSetBundle(i));
-                    startActivity(mIntent);
-                    this.finish();
-                    break;
-                }
-                else if (i == 0) {
-                    for (int j = (siz - 1); j >= 0 && j != currIdx; j--) {
-                        if((Integer)typeList.get(j) == mainSel){
-                            mIntent.putExtras(getAndSetBundle(j));
-                            startActivity(mIntent);
-                            this.finish();
-                            break;
-                        }
-                    }
-                }
+        boolean found = false;
+
+        // Recorremos la lista hacia atrás de forma cíclica buscando el anterior válido
+        for (int i = 0; i < siz; i++) {
+            // Retrocedemos el índice evitando números negativos
+            newidx = (newidx - 1 + siz) % siz;
+
+            Usuario candidate = listUsers.get(newidx);
+
+            // Filtro 1: Saltamos los retirados (sel3 > 0)
+            if (candidate.sel3 > 0) continue;
+
+            // Filtro 2: Evaluamos la categoría principal (mainSel)
+            if (mainSel == 4 || candidate.sel2 == mainSel) {
+                found = true;
+                break;
             }
         }
+
+        if (found) {
+            openActivity(newidx);
+        }
     }
+
+    private void openActivity(int index) {
+        Intent mIntent = new Intent(this, ViewActivity.class);
+
+        // Aquí empaquetamos el entero (int) del índice que calculamos
+        Bundle b = getAndSetBundle(index);
+
+        mIntent.putExtras(b);
+        startActivity(mIntent);
+        this.finish();
+    }
+
 
     private Bundle  getAndSetBundle(int idx){
         Bundle mBundle = new Bundle();
