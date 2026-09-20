@@ -195,7 +195,8 @@ public class FilesManager {
             if (children != null) {
                 for (String child : children) {
                     File currFile = new File(file, child);
-                    if (currFile.getName().endsWith(".csv") && currFile.exists()) {
+                    String name = currFile.getName();
+                    if ( (name.endsWith(".csv") || name.endsWith(".bin")) && currFile.exists()) {
                         currFile.delete();
                     }
                 }

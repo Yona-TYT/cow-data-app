@@ -49,7 +49,7 @@ public class Preloader extends AppCompatActivity {
             return insets;
         });
 
-        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/.cowdata/");
+        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS+"/"+StartVar.dirAppName+"/");
         if(file.exists()){
             FilesManager.DeleteFile(file);
         }
